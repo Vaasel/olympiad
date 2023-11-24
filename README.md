@@ -1,2 +1,2 @@
-# Circle-Web
-Event Booking app
+# Olympiad
+Nust Biggest Event
