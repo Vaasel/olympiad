@@ -3,6 +3,7 @@ const express= require("express");
 require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const app = express();
+const port = process.env.PORT
 
 
 app.use(express.json()); // Add this middleware to parse JSON data from requests
@@ -22,5 +23,4 @@ app.get("/",(req,res)=>{
 res.send("app is working")
 });
 
-const port = process.env.PORT
 app.listen(port,console.log(`Listening on port ${port}...`));
