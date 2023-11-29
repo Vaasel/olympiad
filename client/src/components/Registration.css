@@ -1,0 +1,149 @@
+:root {
+  --primary-color: #000; /* Primary color */
+  --secondary-color: #437fb8; /* Secondary color */
+}
+
+body {
+    background-color: #f8f9fa;
+  }
+  
+  /* Responsive text centering */
+  @media (max-width: 768px) {
+    h2 {
+      text-align: center;
+    }
+  }
+  
+  /* Style for form inputs */
+  .form-control {
+    border-radius: 100px; 
+    border: 1px solid #ccc; 
+    padding: 10px;
+    /* padding-right: 20px; */
+    margin-bottom: 30px; 
+  }
+
+  .custom-input-1 {
+    padding: 10px 30px;
+    background-image: url('C:\Users\HP\Documents\Web\Olympiad\olympiad\client\src\components\Images\user.png');
+    background-repeat: no-repeat;
+    background-size: 20px; /* Set the size of the image */
+    background-position: right 10px center; /* Position the image to the left */
+  }
+
+  .custom-input-2 {
+    padding: 10px 30px;
+    background-image: url('C:\Users\HP\Documents\Web\Olympiad\olympiad\client\src\components\Images\smartphone-call.png');
+    background-repeat: no-repeat;
+    background-size: 20px; /* Set the size of the image */
+    background-position: right 10px center; /* Position the image to the left */
+  }
+  .custom-input-3 {
+    padding: 10px 30px;
+    background-image: url('C:\Users\HP\Documents\Web\Olympiad\olympiad\client\src\components\Images\credit-card.png');
+    background-repeat: no-repeat;
+    background-size: 20px; /* Set the size of the image */
+    background-position: right 10px center; /* Position the image to the left */
+  }
+  .custom-input-4 {
+    padding: 10px 30px;
+    background-image: url('C:\Users\HP\Documents\Web\Olympiad\olympiad\client\src\components\Images\office-building.png');
+    background-repeat: no-repeat;
+    background-size: 20px; /* Set the size of the image */
+    background-position: right 10px center; /* Position the image to the left */
+  }
+  .custom-input-5 {
+    padding: 10px 30px;
+    background-image: url('C:\Users\HP\Documents\Web\Olympiad\olympiad\client\src\components\Images\home.png');
+    background-repeat: no-repeat;
+    background-size: 20px; /* Set the size of the image */
+    background-position: right 10px center; /* Position the image to the left */
+  }
+  .bold-label {
+    font-weight: bold;
+    text-align: left;
+    display: block;
+    padding-left: 20px;
+    margin-bottom: 10px;
+  }
+
+  .round-edge {
+    border-radius: 100px; 
+  }
+  
+  .right-align-text{
+    text-align:left;
+    padding-left: 20px;
+  }
+  .right-align {
+    margin-right: 0;
+    margin-left: auto;
+    display: block;
+  }
+  
+  .full-width {
+    width: 207.5%;
+  }
+  .upload-box {
+    width: 300px;
+    height: 200px;
+    border: 2px dashed #000;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .upload-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+  }
+  
+  .blue-text {
+    color: blue;
+    text-decoration: underline;
+  }
+   
+.circular-container {
+  width: 80px;
+  height: 50px;
+  padding-top: 20px;
+  border: 0px solid var(--primary-color);
+  border-radius: 40px; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--secondary-color);
+  position: relative;
+  top:70px;
+  margin: auto;
+}
+
+.uploaded-image {
+  width: 20x;
+  height: 20px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  object-fit: cover;
+  /* display: block;
+  margin: auto;  */
+  transform: translate(-50%, -50%); /* Centers the image precisely */
+}
+  /* .uploaded-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  } */
+  /* input, button {
+    margin-bottom: 35px;
+  } */
+
