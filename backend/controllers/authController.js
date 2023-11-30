@@ -1,27 +1,41 @@
-const bcrypt = require('bcrypt');
-const { PrismaClient } = require('@prisma/client');
+const bcrypt = require("bcrypt");
+const { PrismaClient } = require("@prisma/client");
 const yup = require("yup");
-require('yup-password')(yup);
-const { sign } = require('jsonwebtoken');
-require('dotenv').config();
+require("yup-password")(yup);
+const { sign } = require("jsonwebtoken");
+require("dotenv").config();
+const nodemailer = require('nodemailer');
 
+const transporter = nodemailer.createTransport({
+  host: 'smtp.office365.com', // Outlook SMTP server hostname
+  port: 587, // Port for secure TLS connection
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: 'waqasali00123@gmail.com', // Your Outlook email address
+    pass: 'OutlookPassword1#' // Your Outlook email password
+  }
+});
+
+const generateCode = () => {
+  const min = 100000; // Minimum value for a six-digit number
+  const max = 999999; // Maximum value for a six-digit number
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
 
 const prisma = new PrismaClient();
 // get all users data
 module.exports.getUsers = async (req, res) => {
-  try{
+  try {
     const users = await prisma.user.findMany();
     res.json({
       users: users,
     });
-  }
-catch (err) {
+  } catch (err) {
     res.status(500).json({ message: err.message });
   }
-  
 };
 
-//1) testing auth 
+//1) testing auth
 module.exports.auth = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
@@ -45,14 +59,21 @@ module.exports.auth = async (req, res) => {
   }
 };
 
-// 2) Register 
+// 2) Register
 module.exports.register = async (req, res) => {
   let data = req.body;
   // Validate request body
   let validationSchema = yup.object().shape({
-    name:yup.string().trim().required(),
+    name: yup.string().trim().required(),
     email: yup.string().trim().email().max(50).required(),
-    password: yup.string().trim().minUppercase(1, 'Password must have at least 1 Uppercase letter').minLowercase(1, 'Password must have at least 1 Lowercase letter').minNumbers(3, 'Password must have at least 3 Numbers').minSymbols(1, 'Password must have at least 1 Special Character').required(),
+    password: yup
+      .string()
+      .trim()
+      .minUppercase(1, "Password must have at least 1 Uppercase letter")
+      .minLowercase(1, "Password must have at least 1 Lowercase letter")
+      .minNumbers(3, "Password must have at least 3 Numbers")
+      .minSymbols(1, "Password must have at least 1 Special Character")
+      .required(),
   });
 
   try {
@@ -65,7 +86,6 @@ module.exports.register = async (req, res) => {
   // Trim string values
   data.email = data.email.trim().toLowerCase();
   data.password = data.password.trim();
-
 
   try {
     // Check email
@@ -80,18 +100,47 @@ module.exports.register = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
+    //Create a random 6-digits Code
+    const code = generateCode();
+
     // Create user
     const user = await prisma.user.create({
       data: {
-        name:data.name,
+        name: data.name,
         email: data.email,
-        password: hashedPassword
+        password: hashedPassword,
+        isValidated: false,
+        token: code,
       },
+    });
+
+    const accessToken = sign(
+      { id: user.id, email: user.email },
+      process.env.APP_SECRET,
+      { expiresIn: process.env.JWT_EXPRIES }
+    );
+    user.accessToken = accessToken;
+
+    const mailOptions = {
+      from: 'outlook_470BF5FC9FFEC7F4@outlook.com',
+      to: user.email, // Email address you want to send the email to
+      subject: 'Test Email from Nodemailer',
+      html: `<h1>Mail Confirmation</h1><p>Your email verification code is <br/><h2><code>${user.token}</code></h2></p>`
+    };
+  
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error(error);
+        res.send('Error sending email');
+      } else {
+        console.log('Email sent: ' + info.response);
+        res.send('Email sent successfully');
+      }
     });
 
     res.json(user);
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).json({ message: "internal server error" });
   }
 };
@@ -140,7 +189,11 @@ module.exports.login = async (req, res) => {
       verified: user.verified,
     };
 
-    const accessToken = sign(userInfo, process.env.APP_SECRET);
+    const accessToken = sign(
+      { id: userInfo.id, email: userInfo.email },
+      process.env.APP_SECRET,
+      { expiresIn: process.env.JWT_EXPRIES }
+    );
 
     res.json({
       accessToken: accessToken,
@@ -151,3 +204,8 @@ module.exports.login = async (req, res) => {
   }
 };
 
+module.exports.getAll = async (req, res) => {
+  const users = await prisma.user.findMany({});
+
+  res.json(users);
+};
