@@ -4,16 +4,16 @@ const yup = require("yup");
 require("yup-password")(yup);
 const { sign } = require("jsonwebtoken");
 require("dotenv").config();
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.office365.com', // Outlook SMTP server hostname
+  host: "smtp.office365.com", // Outlook SMTP server hostname
   port: 587, // Port for secure TLS connection
   secure: false, // true for 465, false for other ports
   auth: {
-    user: 'waqasali00123@gmail.com', // Your Outlook email address
-    pass: 'OutlookPassword1#' // Your Outlook email password
-  }
+    user: "waqasali00123@gmail.com", // Your Outlook email address
+    pass: "OutlookPassword1#", // Your Outlook email password
+  },
 });
 
 const generateCode = () => {
@@ -122,19 +122,19 @@ module.exports.register = async (req, res) => {
     user.accessToken = accessToken;
 
     const mailOptions = {
-      from: 'outlook_470BF5FC9FFEC7F4@outlook.com',
+      from: "outlook_470BF5FC9FFEC7F4@outlook.com",
       to: user.email, // Email address you want to send the email to
-      subject: 'Test Email from Nodemailer',
-      html: `<h1>Mail Confirmation</h1><p>Your email verification code is <br/><h2><code>${user.token}</code></h2></p>`
+      subject: "Test Email from Nodemailer",
+      html: `<h1>Mail Confirmation</h1><p>Your email verification code is <br/><h2><code>${user.token}</code></h2></p>`,
     };
-  
+
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error(error);
-        res.send('Error sending email');
+        res.send("Error sending email");
       } else {
-        console.log('Email sent: ' + info.response);
-        res.send('Email sent successfully');
+        console.log("Email sent: " + info.response);
+        res.send("Email sent successfully");
       }
     });
 
@@ -208,4 +208,29 @@ module.exports.getAll = async (req, res) => {
   const users = await prisma.user.findMany({});
 
   res.json(users);
+};
+
+module.exports.verifyEmail = async (req, res) => {
+  const { email, code } = req.body;
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (user) {
+      if (user.token == code) {
+        user.isValidated = true;
+      } else {
+        throw new Error("Wrong code entered.");
+      }
+    } else {
+      throw new Error("No user found with this email.");
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.json({ error: error.message });
+  }
 };
