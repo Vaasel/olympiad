@@ -21,7 +21,7 @@ const OlympiadRegistration = () => {
         <div className="row">
           <div className="col-md-4 mb-3">
             <label className="bold-label" htmlFor="name"> Name </label>
-          <input type="text"  className="form-control form-input" id="name" placeholder='John Carter' required />
+          <input type="text" style={{ backgroundImage: 'url("/Images/user.png")' }} className="form-control form-input" id="name" placeholder='John Carter' required />
 
           </div>
           <div className="col-md-4 mb-3">
