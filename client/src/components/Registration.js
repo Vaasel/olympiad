@@ -1,7 +1,6 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Registration.css';
-import close from "./Images/upload.png";
 // import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import '@fortawesome/fontawesome-free/css/all.css';
 
@@ -22,36 +21,36 @@ const OlympiadRegistration = () => {
         <div className="row">
           <div className="col-md-4 mb-3">
             <label className="bold-label" htmlFor="name"> Name </label>
-          <input type="text" className="form-control custom-input-1" id="name" placeholder='John Carter' required />
+          <input type="text"  className="form-control form-input" id="name" placeholder='John Carter' required />
 
           </div>
           <div className="col-md-4 mb-3">
             <label className="bold-label" htmlFor="phone">Phone Number</label>
-            <input type="tel" className="form-control custom-input-2" id="phone" placeholder="(123) 456-7890" required />
+            <input type="tel" className="form-control form-input" id="phone" placeholder="(123) 456-7890" required />
           </div>
           <div className="col-md-4 mb-3">
             <label className="bold-label" htmlFor="cnic">CNIC</label>
-            <input type="text" className="form-control custom-input-3" id="cnic" placeholder="1234-567890-1" required />
+            <input type="text" className="form-control form-input" id="cnic" placeholder="1234-567890-1" required />
           </div>
         </div>
         <div className="row">
         <div className="col-md-4 mb-3">
             <label className="bold-label" htmlFor="guardian_name">Guardian Name</label>
-            <input type="text" className="form-control custom-input-1" id="guardian_name" placeholder="Carter Alpha" required />
+            <input type="text" className="form-control form-input" id="guardian_name" placeholder="Carter Alpha" required />
           </div>
           <div className="col-md-4 mb-3">
             <label className="bold-label" htmlFor="guardian_phone">Guardian Number</label>
-            <input type="tel" className="form-control custom-input-2" id="guardian_phone" placeholder="(123) 456-7890" required />
+            <input type="tel" className="form-control form-input" id="guardian_phone" placeholder="(123) 456-7890" required />
           </div>  
         </div>
         <div className="row">
           <div className="col-md-4 mb-3">
             <label className="bold-label" htmlFor="edu">School/College/University</label>
-            <input type="tel" className="form-control custom-input-4" id="edu" placeholder="NUST" required />
+            <input type="tel" className="form-control form-input" id="edu" placeholder="NUST" required />
           </div> 
           <div className="col-md-4 mb-3">
             <label className="bold-label" htmlFor="address">Address</label>
-            <input type="text" className="form-control full-width custom-input-5" id="address" placeholder="H#1 street 23, block A, society F city" required />
+            <input type="text" className="form-control full-width form-input" id="address" placeholder="H#1 street 23, block A, society F city" required />
           </div>
         </div>
         {/* <div className="row">
@@ -70,7 +69,7 @@ const OlympiadRegistration = () => {
           </div>
           <div class="upload-box">
           <div className="circular-container">
-          <img src={close} alt="Uploaded Image" class="uploaded-image" /> 
+          <img src="/Images/upload.png" alt="Uploaded Image" class="uploaded-image" /> 
           </div>
           <label for="file-upload" class="upload-label">
             <span><span class="blue-text"><a href="">Click here</a></span> to upload</span>
@@ -85,7 +84,7 @@ const OlympiadRegistration = () => {
           </div>
           <div class="upload-box">
           <div className="circular-container">
-          <img src={close} alt="Uploaded Image" class="uploaded-image" /> 
+          <img src="/Images/upload.png" alt="Uploaded Image" class="uploaded-image" /> 
           </div>
           <label for="file-upload" class="upload-label">
             <span><span class="blue-text"><a href="">Click here</a></span> to upload</span>

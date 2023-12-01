@@ -23,42 +23,14 @@ body {
     margin-bottom: 30px; 
   }
 
-  .custom-input-1 {
+  .form-input {
     padding: 10px 30px;
-    background-image: url('C:\Users\HP\Documents\Web\Olympiad\olympiad\client\src\components\Images\user.png');
     background-repeat: no-repeat;
     background-size: 20px; /* Set the size of the image */
     background-position: right 10px center; /* Position the image to the left */
   }
 
-  .custom-input-2 {
-    padding: 10px 30px;
-    background-image: url('C:\Users\HP\Documents\Web\Olympiad\olympiad\client\src\components\Images\smartphone-call.png');
-    background-repeat: no-repeat;
-    background-size: 20px; /* Set the size of the image */
-    background-position: right 10px center; /* Position the image to the left */
-  }
-  .custom-input-3 {
-    padding: 10px 30px;
-    background-image: url('C:\Users\HP\Documents\Web\Olympiad\olympiad\client\src\components\Images\credit-card.png');
-    background-repeat: no-repeat;
-    background-size: 20px; /* Set the size of the image */
-    background-position: right 10px center; /* Position the image to the left */
-  }
-  .custom-input-4 {
-    padding: 10px 30px;
-    background-image: url('C:\Users\HP\Documents\Web\Olympiad\olympiad\client\src\components\Images\office-building.png');
-    background-repeat: no-repeat;
-    background-size: 20px; /* Set the size of the image */
-    background-position: right 10px center; /* Position the image to the left */
-  }
-  .custom-input-5 {
-    padding: 10px 30px;
-    background-image: url('C:\Users\HP\Documents\Web\Olympiad\olympiad\client\src\components\Images\home.png');
-    background-repeat: no-repeat;
-    background-size: 20px; /* Set the size of the image */
-    background-position: right 10px center; /* Position the image to the left */
-  }
+  
   .bold-label {
     font-weight: bold;
     text-align: left;
