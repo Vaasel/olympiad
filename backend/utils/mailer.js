@@ -6,7 +6,7 @@ const transporter = nodemailer.createTransport({
   secure: false, // true for 465, false for other ports
   auth: {
     user: 'info@olympiad.nust.edu.pk', // Your Outlook email address
-    pass: `qRGovp8\$c#6'OO` // Your Outlook email password
+    pass: `qRGovp8\\$c#6'OO` // Your Outlook email password
   }
 });
 module.exports = { transporter };

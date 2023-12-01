@@ -4,9 +4,9 @@ const yup = require("yup");
 require("yup-password")(yup);
 const { sign } = require("jsonwebtoken");
 require("dotenv").config();
-const nodemailer = require("nodemailer");
 
-const transporter = require("../utils/mailer");
+
+const {transporter} = require("../utils/mailer");
 
 const generateCode = () => {
   const min = 100000; // Minimum value for a six-digit number
@@ -33,11 +33,7 @@ module.exports.auth = async (req, res) => {
     const user = await prisma.user.findUnique({
       where: {
         id: req.user.id,
-      },
-      select: {
-        id: true,
-        email: true,
-      },
+      }
     });
     if (!user) {
       res.status(404).json({ message: "User not found" });
@@ -114,7 +110,7 @@ module.exports.register = async (req, res) => {
     user.accessToken = accessToken;
 
     const mailOptions = {
-      from: "outlook_470BF5FC9FFEC7F4@outlook.com",
+      from: "info@olympiad.nust.edu.pk",
       to: user.email, // Email address you want to send the email to
       subject: "Test Email from Nodemailer",
       html: `<h1>Mail Confirmation</h1><p>Your email verification code is <br/><h2><code>${user.token}</code></h2></p>`,
