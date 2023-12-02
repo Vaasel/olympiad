@@ -8,11 +8,12 @@ datasource db {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  name     String   @default("")
-  email    String   @unique
-  password String
-  basicInfo BasicInfo?
+   id          Int     @id @default(autoincrement())
+  name        String
+  email       String  @unique
+  password    String
+  token       Int
+  isValidated Boolean
 }
 
 model BasicInfo {
@@ -28,3 +29,4 @@ model BasicInfo {
   cnicBack       String
   user           User     @relation(fields: [userId], references: [id])
 }
+
