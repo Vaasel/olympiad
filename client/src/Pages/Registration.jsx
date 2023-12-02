@@ -1,6 +1,7 @@
 import React from 'react';
+// import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Registration.css';
+import '../Styles/Registration.css';
 // import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import '@fortawesome/fontawesome-free/css/all.css';
 
@@ -13,12 +14,13 @@ const OlympiadRegistration = () => {
       <p>Please fill the form below to participate in Olympiad. Fill all the required fields</p>
       {/* <form onSubmit={handleSubmit}> */}
       <div className="row">
-      <div className="mb-3">
-            <label className="bold-label" htmlFor="name">Basic Info</label>
-            <p className='right-align-text'>Lorem ipsum dolor sit amet, consectetur adipiscing elit used do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-          </div>
+        <div className="mb-3">
+          <label className="bold-label" htmlFor="name">Basic Info</label>
+          <p className='right-align-text'>Lorem ipsum dolor sit amet, consectetur adipiscing elit used do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        </div>
       </div>
-        <div className="row">
+      
+      <div className="row">
           <div className="col-md-4 mb-3">
             <label className="bold-label" htmlFor="name"> Name </label>
           <input type="text" style={{ backgroundImage: 'url("/Images/user.png")' }} className="form-control form-input" id="name" placeholder='John Carter' required />
