@@ -12,11 +12,13 @@ app.use(express.urlencoded({ extended: false }));
 
 //routes
 const authRoute = require('./routes/Auth')
+const basicRoute = require('./routes/basicInfo')
 const userRoute = require('./routes/User')
 
 
 
 app.use('/api/auth',authRoute)
+app.use('/api/basic',basicRoute)
 app.use('/api/user',userRoute)
 
 app.get("/",(req,res)=>{
