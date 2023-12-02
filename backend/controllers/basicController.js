@@ -9,7 +9,7 @@ const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() }); // Store the file buffer in memory
 
 // const upload = multer({ dest: '../middlewares' }); // Specify the destination folder
-const { uploadToWasabi } = require('../middlewares/wasabi');
+const { uploadToWasabi, readFromWasabi } = require('../middlewares/wasabi');
 // const { uploadFileToWasabi } = require('../middlewares/uploadservice');
 
 
@@ -51,23 +51,23 @@ module.exports.basicInfo = async (req, res) => {
   
           let data = req.body;
   
-          // try {
-          //   await validationSchema.validate(data, { abortEarly: false, strict: true });
-          // } catch (err) {
-          //   res.status(400).json({ errors: err.errors });
-          //   return;
-          // }
+          try {
+            await validationSchema.validate(data, { abortEarly: false, strict: true });
+          } catch (err) {
+            res.status(400).json({ errors: err.errors });
+            return;
+          }
   
           // Create BasicInfo row with file links and other fields
           const createdBasicInfo = await prisma.BasicInfo.create({
             data: {
               userId: req.user.id,
-              phoneno: "213123",
-              cnic: "123123",
-              guardianName: "Asd",
-              guardianNumber: "4565",
-              schoolName: "sdadsa",
-              address: "data.address",
+              phoneno: data.phoneno.toString(),
+              cnic: data.cnic.toString(),
+              guardianName: data.guardianName,
+              guardianNumber: data.guardianNumber.toString(),
+              schoolName: data.schoolName,
+              address: data.address,
               cnicFront: cnicFrontLink,
               cnicBack: cnicBackLink,
             },
@@ -102,4 +102,36 @@ module.exports.basicInfo = async (req, res) => {
   };
 
   
+  // module.exports.getImage = async (req, res)=>{
+  //   const fileKey = '1701543339354-front.JPG';
+  //   try {
+  //     const objectData = await readFromWasabi(fileKey);
+  //     console.log(objectData);
+  //     // Do something with the retrieved object data
+  //     res.send("<h1>Success</h1>")
+  //   } catch (error) {
+  //     console.error('Error retrieving object:', error);
+  //   }
+  // }
+
+  module.exports.getImage = async (req, res) => {
+    const fileKey = req.body.fileKey;
+    try {
+      const objectData = await readFromWasabi(fileKey);
   
+      // Check if objectData is already a Buffer
+      const imageData = Buffer.isBuffer(objectData) ? objectData : Buffer.from(objectData);
+  
+      // Convert the image data to a base64 string
+      const base64Image = imageData.toString('base64');
+  
+      // Set the appropriate content type for the image
+      res.set('Content-Type', 'text/html');
+  
+      // Embed the image data in an HTML img tag and send it in the response
+      res.send(`<img src="data:image/jpeg;base64,${base64Image}" alt="Image">`);
+    } catch (error) {
+      console.error('Error retrieving object:', error);
+      res.status(500).send('Error retrieving image');
+    }
+  };
