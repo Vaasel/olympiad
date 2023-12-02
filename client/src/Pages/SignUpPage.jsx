@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import './Styles/SignUpPage.css'; // Import the CSS file
+import '../Styles/SignUpPage.css'; // Import the CSS file
 import { TextField } from '@mui/material';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
