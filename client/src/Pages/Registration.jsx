@@ -9,7 +9,7 @@ const OlympiadRegistration = () => {
   
 
   return (
-    <div className="container mt-5">
+    <div className="m-5">
       <h2>Olympiad Registration</h2>
       <p>Please fill the form below to participate in Olympiad. Fill all the required fields</p>
       {/* <form onSubmit={handleSubmit}> */}

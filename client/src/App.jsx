@@ -5,8 +5,6 @@ import { Redirect } from 'react-router-dom';
 import SignUp from './Pages/SignUpPage';
 import Login from './Pages/LoginPage';
 import  OlympiadRegistration  from "./Pages/Registration";
-import './Styles/Registration.css';
-import './Styles/SignUpPage.css'; 
 
 
 const App = () => {
