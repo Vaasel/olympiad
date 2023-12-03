@@ -26,7 +26,4 @@ const CustomTextField = ({ type, iconType, label, ...props }) => {
   );
 };
 
-// Example usage:
-// <CustomTextField type="email" iconType={<EmailOutlinedIcon />} label="Email" />
-
 export default CustomTextField;

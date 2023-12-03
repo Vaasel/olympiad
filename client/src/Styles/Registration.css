@@ -64,6 +64,33 @@ body {
     position: relative;
     overflow: hidden;
   }
+
+  .upload-box-1 {
+    width: 200px;
+    height: 200px;
+    border: 2px dashed #000;
+    border-radius: 100%;
+    position: relative;
+    overflow: hidden;
+    margin-right: 10px;
+  }
+ 
+  .upload-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100%; /* Ensure full height to vertically center content */
+  }
+  
+  .upload-text h2 {
+    margin-top: 50px; /* Adjust spacing as needed */
+  }
+  
+  .upload-text p {
+    margin-top: 2px; /* Adjust spacing as needed */
+  }
+  
   
   .upload-label {
     display: flex;
@@ -94,6 +121,7 @@ body {
   top:70px;
   margin: auto;
 }
+
 
 .uploaded-image {
   width: 20x;
