@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Styles/Registration.css';
+import '../Styles/Registration.css';
 import React, { useState } from 'react';
 import { Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
@@ -18,7 +18,7 @@ const OlympiadRegistration = () => {
   
 
   return (
-    <div className="container mt-5">
+    <div className="mt-5">
       <h2>Olympiad Registration</h2>
       <p>Please fill the form below to participate in Olympiad. Fill all the required fields</p>
       {/* <form onSubmit={handleSubmit}> */}
