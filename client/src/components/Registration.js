@@ -4,7 +4,7 @@ import './Registration.css';
 // import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import '@fortawesome/fontawesome-free/css/all.css';
 
-const OlympiadRegistration = () => {
+const Registration = () => {
   
 
   return (
@@ -99,4 +99,4 @@ const OlympiadRegistration = () => {
   );
 };
 
-export default OlympiadRegistration;
+export default Registration;
