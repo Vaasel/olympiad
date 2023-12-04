@@ -1,27 +1,24 @@
 import React from 'react';
-import {Select, MenuItem} from '@mui/material';
+import {Select, MenuItem, ListItemIcon, ListItemText} from '@mui/material';
+import WcOutlinedIcon from '@mui/icons-material/WcOutlined';
 
 const CustomSelectField = ({ type, iconType, label }) => {
   const inputProps = {
     style: { borderRadius: '50px' },
   };
 
-  const iconComponent =
-    iconType && React.isValidElement(iconType) ? (
-      <span style={{ marginRight: '8px' }}>{iconType}</span>
-    ) : null;
+  const genderOptions = [
+    { value: 'male', label: 'Male' },
+    { value: 'female', label: 'Female' },
+  ];
 
   return (
-    <Select
-    label={<span>{iconComponent}{label}</span>}
+    <Select label=". Gender                        ."
     style={{ borderRadius: '50px' }}>
     <MenuItem value={"male"}>Male</MenuItem>
     <MenuItem value={"female"}>Female</MenuItem>
   </Select>
   );
 };
-
-// Example usage:
-// <CustomTextField type="email" iconType={<EmailOutlinedIcon />} label="Email" />
 
 export default CustomSelectField;

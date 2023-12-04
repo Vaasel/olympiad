@@ -30,23 +30,22 @@ const OlympiadRegistration = () => {
       </div>
 
       <div className="row">
-        <div className="col-md-3">
+        <div className="col-md-4">
           <div className="upload-box-1">
-            <div className="circular-container">
+            {/* <div className="circular-container">
               <img src="/Images/upload.png" alt="Uploaded Image" className="uploaded-image" /> 
-            </div>
+            </div> */}
             <label htmlFor="file-upload" className="upload-label">
-              <span><span className="blue-text"><a href="#">Click here</a></span> to upload</span>
-              <input id="file-upload" type="file"/>
+              {/* <span><span className="blue-text"><a href="#">Click here</a></span> to upload</span> */}
+              <input id="file-upload-pfp" type="file"/>
             </label>
           </div>
         </div>
-          <div className="col-md-5 upload-text">
+          <div className="col-md-8 upload-text ">
               <h2>Upload picture</h2>
               <p>Upload your picture by clicking on the upload sign</p>
           </div>
         </div>
-
         <div className="row">
           <div className="col-md-4 mb-3">
             {/* <label className="bold-label" htmlFor="name"> Name </label> */}
@@ -73,14 +72,14 @@ const OlympiadRegistration = () => {
   </select>      */}
   <FormControl fullWidth variant="outlined"
       margin="normal" required style={{ marginTop: '15px'}}>
- <InputLabel id="demo-simple-select-label">Gender</InputLabel>
- <CustomSelectField  type="gender" iconType={<WcOutlinedIcon />} label="Gender" />
+        <InputLabel id="demo-simple-select-label"><WcOutlinedIcon style={{ marginRight: '8px' }}/>Gender</InputLabel>
+        <CustomSelectField />
   </FormControl>
           </div>
-          <div className="col-md-4 mb-3">
+          <div className="col-md-8 mb-3">
           {/* <label className="bold-label" htmlFor="address">Address</label>
             <input type="text" className="form-control full-width form-input" id="address" placeholder="H#1 street 23, block A, society F city" required /> */}
-            <CustomTextField type="Address" iconType={<HomeOutlinedIcon />} label="Address" />
+            <CustomTextField type="Address" iconType={<HomeOutlinedIcon />} label="Address" fullWidth/>
           </div>  
         </div>
         <div className="row">
@@ -92,7 +91,7 @@ const OlympiadRegistration = () => {
           <div className="col-md-4 mb-3">
               {/* <label className="bold-label" htmlFor="guardian_phone">Guardian Number</label>
             <input type="tel" className="form-control form-input" id="guardian_phone" placeholder="(123) 456-7890" required /> */}
-            <CustomTextField type="Phone" iconType={<PhoneAndroidOutlinedIcon />} label="Guardian Name" />
+            <CustomTextField type="Phone" iconType={<PhoneAndroidOutlinedIcon />} label="Guardian Contact No." />
           </div>
         </div>
         {/* <div className="row">
@@ -109,29 +108,27 @@ const OlympiadRegistration = () => {
             <label className="bold-label" htmlFor="cnicFront">CNIC Front Copy</label>
             {/* <input type="file" className="form-control-file" id="cnicFront" onChange={handleFileChange} /> */}
           </div>
-          <div class="upload-box">
-          <div className="circular-container">
-          <img src="/Images/upload.png" alt="Uploaded Image" class="uploaded-image" /> 
-          </div>
-          <label for="file-upload" class="upload-label">
-            <span><span class="blue-text"><a href="">Click here</a></span> to upload</span>
-            {/* <input id="file-upload" type="file"/> */}
-          </label>
+          <div class="upload-box px-4">
+          {/* <div className="circular-container"> */}
+          <label htmlFor="file-upload" className="upload-label">
+              <input id="file-upload-cnicf" type="file"/>
+            </label> 
+          {/* </div> */}
         </div>
           </div>
           <div className="col-md-6 mb-3">
           <div className="col-md-6 mb-3">
+            
             <label className="bold-label" htmlFor="cnicBack">CNIC Back Copy</label>
             {/* <input type="file" className="form-control-file" id="cnicBack" onChange={handleFileChange} /> */}
           </div>
-          <div class="upload-box">
-          <div className="circular-container">
+          <div class="upload-box px-4">
+          {/* <div className="circular-container">
           <img src="/Images/upload.png" alt="Uploaded Image" class="uploaded-image" /> 
-          </div>
-          <label for="file-upload" class="upload-label">
-            <span><span class="blue-text"><a href="">Click here</a></span> to upload</span>
-            {/* <input id="file-upload" type="file"/> */}
-          </label>
+          </div> */}
+          <label htmlFor="file-upload" className="upload-label">
+              <input id="file-upload-cnicb" type="file"/>
+            </label> 
         </div>
           </div>
         </div>
