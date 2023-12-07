@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
 import SignUp from './Pages/SignUpPage';
 import Login from './Pages/LoginPage';
-import LandingPage from './Pages/LandingPage';
+import Dashboard from './Pages/Dashboard';
 import './Styles/SignUpPage.css'; 
 
 
@@ -13,7 +13,7 @@ const App = () => {
     <Router>
       <div>
         <Routes>
-        <Route exact path ='/' element={<LandingPage/>}>
+        <Route exact path ='/' element={<Dashboard/>}>
           
         </Route>
         
