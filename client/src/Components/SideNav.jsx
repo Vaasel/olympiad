@@ -1,5 +1,3 @@
-// // // //working in progress
-
 
 import React from 'react';
 import { List, ListItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
@@ -8,28 +6,27 @@ import SportsIcon from '@mui/icons-material/Sports';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import PaymentIcon from '@mui/icons-material/Payment';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const drawerWidth = 240;
-
+const logoImagePath ='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGZpzfGOb1d6ZbEiairsX09aVHH9gROHhbGw&usqp=CAU';
 const SideNav = () => {
   const rootStyles = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'flex-start', // Align items to the top
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    height: '100vh', // Set height to 100vh to cover the whole screen
+    height: '100vh',
     backgroundColor: '#1F292B',
+    overflowY: 'auto',
+    paddingTop: '64px',
   };
 
   const drawerStyles = {
     width: drawerWidth,
     flexShrink: 0,
-  };
-
-  const drawerPaperStyles = {
-    width: drawerWidth,
-    backgroundColor: '#1F292B',
   };
 
   const listItemTextStyles = {
@@ -39,6 +36,14 @@ const SideNav = () => {
   return (
     <div style={rootStyles}>
       <nav style={drawerStyles} aria-label="mailbox folders">
+      <div style={{ display: 'flex', alignItems: 'center', marginLeft:'75px' }}>
+          {/* Adjusted styles for the logo image to make it bigger */}
+          <img
+            src={logoImagePath}
+            alt="Logo"
+            style={{ width: '80px', height: '80px', objectFit: 'contain', marginRight: '10px' }}
+          />
+        </div>
         <List>
           <ListItem>       
             <ListItemText primary ="    "></ListItemText>
