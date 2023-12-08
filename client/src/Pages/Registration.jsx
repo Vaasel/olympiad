@@ -132,7 +132,7 @@ const OlympiadRegistration = () => {
         </div>
           </div>
         </div>
-        <button type="submit" className="btn btn-primary round-edge right-align">Next step</button>
+        <button type="submit" className="btn btn-primary round-edge">Next step</button>
       {/* </form> */}
     </div>
   );
