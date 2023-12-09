@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './Styles/SignUpPage.css'; // Import the CSS file
+import '../Styles/SignUpPage.css'; // Import the CSS file
 import CustomTextField from '../Components/CustomTextField';
 import { TextField } from '@mui/material';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
@@ -10,6 +10,8 @@ import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
+// api link
+// vaasel-nust-olympiad.onrender.com/api/auth/login
 
 const LoginPage = () => {
 
@@ -29,20 +31,6 @@ const LoginPage = () => {
           <form className="w-64">
             <div>
              <CustomTextField type="email" iconType={<EmailOutlinedIcon />} label="Email" />
-              {/* <TextField InputProps={{
-          style: { borderRadius: '50px' }
-        }} label={<span><EmailOutlinedIcon style={{ marginRight: '8px' }} />Email</span>} variant="outlined" margin="normal" fullWidth required/> */}
-        {/* <CustomTextField type={showPassword ? 'text' : 'password'} iconType={<LockOutlinedIcon />} label="Password" 
-              InputProps={{
-                style: { borderRadius: '50px' },
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={handleTogglePasswordVisibility} edge="end">
-                      {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}/> */}
               <TextField label={<span><LockOutlinedIcon style={{ marginRight: '8px' }} />Password</span>} variant="outlined" margin="normal" fullWidth type={showPassword ? 'text' : 'password'} required 
               InputProps={{
                 style: { borderRadius: '50px' },
