@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -14,7 +14,7 @@ model User {
   password    String
   token       Int
   isValidated Boolean
-  isParticipant Boolean
+  isParticipant Boolean @default(true)
   basicInfo BasicInfo? 
   challan Challan[]
   sportCap   Sports_Teams[]
@@ -100,7 +100,7 @@ model Sports_Teams {
   userId         Int
   sportsId       Int
   code           String?
-  challanId      Int @default(-1)
+  challanId      Int @default(1)
   user           User     @relation(fields: [userId], references: [id])
   sport          Sports    @relation(fields: [sportsId], references: [id])
   challan        Challan    @relation(fields: [challanId], references: [id])
@@ -137,7 +137,7 @@ model Competitions_Teams {
   code           String?
   challanId      Int @default(-1)
   user           User     @relation(fields: [userId], references: [id])
-  sport          Competitions    @relation(fields: [competitionId], references: [id])
+  competition    Competitions    @relation(fields: [competitionId], references: [id])
   challan        Challan    @relation(fields: [challanId], references: [id])
   members        Competitions_Teams_Members[]
 }
@@ -147,11 +147,12 @@ model Competitions_Teams_Members {
   competitionsTeamId   Int
   userId         Int
   user           User     @relation(fields: [userId], references: [id])
-  sport          Competitions_Teams    @relation(fields: [competitionsTeamId], references: [id])
+  competition    Competitions_Teams    @relation(fields: [competitionsTeamId], references: [id])
 }
+
 model FAQ {
   id            Int      @id @default(autoincrement())
   question      String
-  answer        String @db.Text
+  answer        String   @db.Text
   category      String
 }
