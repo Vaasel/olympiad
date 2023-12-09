@@ -12,7 +12,7 @@ import CustomTextField from '../Components/CustomTextField';
 import StudentDetails from '../Components/StudentDetails';
 
 
-const Details = () => {
+const UserDetails = () => {
     const [selectedValue, setSelectedValue] = useState('');
     const [isButtonDisabled, setIsButtonDisabled] = useState(true);
     const [showComponent, setShowComponent] = useState(false);
@@ -61,4 +61,4 @@ const Details = () => {
   );
 };
 
-export default Details;
+export default UserDetails;

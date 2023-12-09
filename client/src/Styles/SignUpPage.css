@@ -19,7 +19,7 @@ body {
 }
 
 /* Container styling */
-.container {
+.Mycontainer {
   height: 100vh;
   display: flex;
 }

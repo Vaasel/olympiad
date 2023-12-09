@@ -29,7 +29,7 @@ const RegEdit = () => {
           <div className="col-md-4 mb-3">
             {/* <label className="bold-label" htmlFor="name"> Name </label> */}
           {/* <input type="text" style={{ backgroundImage: 'url("/Images/user.png")' }} className="form-control form-input" id="name" placeholder='John Carter' required /> */}
-          <CustomTextField type="Person" iconType={<AccountCircleOutlinedIcon />} label="Name" value="John Doe" />
+          <CustomTextField type="Person" iconType={<AccountCircleOutlinedIcon />} label="Name" />
           </div>
           <div className="col-md-4 mb-3">
             {/* <label className="bold-label" htmlFor="phone">Phone Number</label>
@@ -120,7 +120,7 @@ const RegEdit = () => {
           </div>
         </div>  
         </div>
-        <button type="submit" className="btn btn-primary right-align round-edge ">Edit</button>
+        <button type="submit" className="btn btn-primary right-align ">Edit</button>
       {/* </form> */}
     </div>
   );
