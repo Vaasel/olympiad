@@ -4,10 +4,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
 import SignUp from './Pages/SignUpPage';
 import Login from './Pages/LoginPage';
-import Dashboard from './Pages/Dashboard';
-import Dashboard2 from './Pages/Dashboard2';
-import CreateTeam from './Pages/CreateTeam';
 import './Styles/SignUpPage.css'; 
+import './Styles/Registration.css'
+import OlympiadRegistration from './Pages/Registration';
 
 
 const App = () => {
@@ -15,18 +14,14 @@ const App = () => {
     <Router>
       <div>
         <Routes>
-        <Route exact path ='/' element={<Dashboard />}>
+        <Route exact path ='/' element={<h1>Landing page</h1>}>
           
         </Route>
-
-        <Route exact path ='/createteam' element={<CreateTeam />}>
+        <Route exact path='/registration' element={<OlympiadRegistration/>}>  
         </Route>
-        
         <Route exact path ='/login' element={<Login/>}>
         </Route>
-        
         <Route exact path ='/signup' element={<SignUp/>}>
-      
         </Route>
         </Routes>
     </div>
