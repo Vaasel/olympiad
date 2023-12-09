@@ -14,19 +14,144 @@ model User {
   password    String
   token       Int
   isValidated Boolean
+  isParticipant Boolean
   basicInfo BasicInfo? 
+  challan Challan[]
+  sportCap   Sports_Teams[]
+  sports    Sports_Teams_Members[]
+  competitionsCap   Competitions_Teams[]
+  competitions    Competitions_Teams_Members[]
+}
+
+enum StudentOf {
+  nust
+  uni
+  college
+  school
+  other
+}
+
+enum UserStatus {
+  pending
+  rejected
+  verified
+  ban
+}
+
+enum ChallanStatus {
+  pending
+  verified
+  rejected
+}
+
+model Challan {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  detail         Json?
+  netTotal       Int
+  isPaid         ChallanStatus  @default(pending)
+  paymentProof   String?
+  user           User     @relation(fields: [userId], references: [id])
+  sportsTeam     Sports_Teams[]
+  competitionsTeams Competitions_Teams[]
 }
 
 model BasicInfo {
   id             Int      @id @default(autoincrement())
   userId         Int      @unique
+  status         UserStatus @default(pending)
+  accomodation   Boolean    @default(false)
   phoneno        String
   cnic           String
+  gender         Boolean
   guardianName   String
   guardianNumber String
-  schoolName     String
   address        String
-  cnicFront      String
-  cnicBack       String
+  cnicFront      String?
+  cnicBack       String?
+  studentOf      StudentOf?
+  student_id     String?
+  schoolName     String?
+  ambassadorcode String?
+  stdFront       String?
+  stdBack        String?
   user           User     @relation(fields: [userId], references: [id])
+}
+
+
+model Sports {
+  id             Int      @id @default(autoincrement())
+  name           String @unique
+  gender         Boolean
+  description    String
+  minPlayer      Int
+  maxPlayer      Int
+  teamCap        Int
+  details        Json?
+  price          Int
+  team           Sports_Teams[]
+}
+
+
+
+model Sports_Teams {
+  id             Int      @id @default(autoincrement())
+  name           String @unique
+  userId         Int
+  sportsId       Int
+  code           String?
+  challanId      Int @default(-1)
+  user           User     @relation(fields: [userId], references: [id])
+  sport          Sports    @relation(fields: [sportsId], references: [id])
+  challan        Challan    @relation(fields: [challanId], references: [id])
+  members        Sports_Teams_Members[]
+}
+
+model Sports_Teams_Members {
+  id             Int      @id @default(autoincrement())
+  sportsTeamId   Int
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id])
+  sport          Sports_Teams    @relation(fields: [sportsTeamId], references: [id])
+}
+
+model Competitions {
+  id             Int      @id @default(autoincrement())
+  name           String @unique
+  gender         Boolean
+  description    String
+  minPlayer      Int
+  maxPlayer      Int
+  teamCap        Int
+  details        Json?
+  price          Int
+  competitionTeams Competitions_Teams[]
+}
+
+
+model Competitions_Teams {
+  id             Int      @id @default(autoincrement())
+  name           String @unique
+  userId         Int
+  competitionId  Int
+  code           String?
+  challanId      Int @default(-1)
+  user           User     @relation(fields: [userId], references: [id])
+  sport          Competitions    @relation(fields: [competitionId], references: [id])
+  challan        Challan    @relation(fields: [challanId], references: [id])
+  members        Competitions_Teams_Members[]
+}
+
+model Competitions_Teams_Members {
+  id             Int      @id @default(autoincrement())
+  competitionsTeamId   Int
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id])
+  sport          Competitions_Teams    @relation(fields: [competitionsTeamId], references: [id])
+}
+model FAQ {
+  id            Int      @id @default(autoincrement())
+  question      String
+  answer        String @db.Text
+  category      String
 }
