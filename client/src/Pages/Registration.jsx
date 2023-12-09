@@ -16,6 +16,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 
 const OlympiadRegistration = () => {
 
+
   const [profilePic, setProfilePic] = useState('');
   const [cnicFront, setCnicFront] = useState('');
   const [cnicBack, setCnicBack] = useState('');
@@ -52,6 +53,7 @@ const OlympiadRegistration = () => {
       reader.readAsDataURL(file);
     }
   };
+
   return (
     <div className="container mt-5">
       <h2>Olympiad Registration</h2>
@@ -66,13 +68,12 @@ const OlympiadRegistration = () => {
 
       <div className="row">
         <div className="col-md-4">
+
           <div className="upload-box-1" style={{
         backgroundImage: `url(${profilePic})`,
         backgroundSize: 'cover',
       }}>
-            {/* <label htmlFor="file-upload" className="upload-label">
-              <input id="file_upload_pfp" type="file" accept="image/*"/>
-            </label> */}
+
           </div>
         </div>
           <div className="col-md-8 upload-text ">
@@ -82,6 +83,7 @@ const OlympiadRegistration = () => {
         </div>
         <div className="row">
           <div className="col-md-4 mb-3">
+
             <br/>
           <label htmlFor="file-upload" className="upload-label">
           <input id="file_upload_pfp"
@@ -93,6 +95,7 @@ const OlympiadRegistration = () => {
           </div>
         <div className="row">
           <div className="col-md-4 mb-3">
+
             {/* <label className="bold-label" htmlFor="name"> Name </label> */}
           {/* <input type="text" style={{ backgroundImage: 'url("/Images/user.png")' }} className="form-control form-input" id="name" placeholder='John Carter' required /> */}
           <CustomTextField type="Person" iconType={<AccountCircleOutlinedIcon />} label="Name" />
@@ -153,6 +156,7 @@ const OlympiadRegistration = () => {
             <label className="bold-label" htmlFor="cnicFront">CNIC Front Copy</label>
             {/* <input type="file" className="form-control-file" id="cnicFront" onChange={handleFileChange} /> */}
           </div>
+
           <div class="upload-box " style={{
         backgroundImage: `url(${cnicFront})`,
         backgroundSize: 'cover',
@@ -166,6 +170,7 @@ const OlympiadRegistration = () => {
           onChange={handleCnicFrontChange}/>
             </label> 
             </div>
+
           </div>
           <div className="col-md-6 mb-3">
           <div className="col-md-6 mb-3">
@@ -173,6 +178,7 @@ const OlympiadRegistration = () => {
             <label className="bold-label" htmlFor="cnicBack">CNIC Back Copy</label>
             {/* <input type="file" className="form-control-file" id="cnicBack" onChange={handleFileChange} /> */}
           </div>
+
           <div class="upload-box" style={{
         backgroundImage: `url(${cnicBack})`,
         backgroundSize: 'cover',
@@ -189,6 +195,7 @@ const OlympiadRegistration = () => {
           </div>
         </div>
         <button type="submit" className="btn btn-primary right-align round-edge">Next step</button>
+
       {/* </form> */}
     </div>
   );
