@@ -254,7 +254,17 @@ const createTeam = async (req, res) => {
     const codeList = codes.map((team) => team.code);
     var code;
 
-    var loopExit = true;
+    
+
+    var loopExit = false;
+
+    codeList.forEach((item) => {
+      if (!item) {
+        loopExit = true;
+        return; 
+      }
+    });
+
     do {
       code = generateUniqueCode();
       loopExit = code.includes(codeList);
