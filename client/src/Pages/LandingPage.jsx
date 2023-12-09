@@ -1,8 +1,10 @@
+
+
 const LandingPage = () => {
     return (
-        <div className="container" >
-            Insert Landing page Here
-        </div>
+    <div>
+        <h1>Landing Page</h1>
+    </div>
     );
 }
 
