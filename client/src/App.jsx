@@ -4,6 +4,10 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
 import SignUp from './Pages/SignUpPage';
 import Login from './Pages/LoginPage';
+
+import Landing from './Pages/LandingPage/LandingPage'
+
+
 import './Styles/SignUpPage.css'; 
 import './Styles/Registration.css'
 import OlympiadRegistration from './Pages/Registration';
@@ -14,12 +18,13 @@ import Details from './Pages/UserDetails';
 import RegEdit from './Pages/RegEdit';
 import Payments from './Pages/Payments';
 
+
 const App = () => {
   return (
     <Router>
       <div>
         <Routes>
-        <Route exact path ='/' element={<h1>Landing page</h1>}>
+        <Route exact path ='/' element={<Landing/>}>
           
         </Route>
         <Route exact path='/registration' element={<OlympiadRegistration/>}>  

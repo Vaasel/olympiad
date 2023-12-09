@@ -1,0 +1,11 @@
+/* #AboutUs{
+    background-color: var(--background-light);
+} */
+
+#about-us-title{
+    color: var(--primary-dark);
+}
+
+.icon-color{
+    color: var(--primary-dark);
+}
