@@ -8,6 +8,8 @@ import Dashboard from './Pages/Dashboard';
 import Dashboard2 from './Pages/Dashboard2';
 import CreateTeam from './Pages/CreateTeam';
 import './Styles/SignUpPage.css'; 
+import './Styles/Registration.css'
+import OlympiadRegistration from './Pages/Registration';
 
 
 const App = () => {
@@ -21,12 +23,11 @@ const App = () => {
 
         <Route exact path ='/createteam' element={<CreateTeam />}>
         </Route>
-        
+        <Route exact path='/registration' element={<OlympiadRegistration/>}>  
+        </Route>
         <Route exact path ='/login' element={<Login/>}>
         </Route>
-        
         <Route exact path ='/signup' element={<SignUp/>}>
-      
         </Route>
         </Routes>
     </div>
