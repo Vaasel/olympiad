@@ -99,6 +99,7 @@ module.exports.register = async (req, res) => {
         password: hashedPassword,
         isValidated: false,
         token: code,
+        isParticipant: true
       },
     });
 
@@ -110,7 +111,7 @@ module.exports.register = async (req, res) => {
     user.accessToken = accessToken;
 
     const mailOptions = {
-      from: "info@olympiad.nust.edu.pk",
+      from: "info.olympiad@nust.edu.pk",
       to: user.email, // Email address you want to send the email to
       subject: "Test Email from Nodemailer",
       html: `<h1>Mail Confirmation</h1><p>Your email verification code is <br/><h2><code>${user.token}</code></h2></p>`,

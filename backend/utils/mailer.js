@@ -5,8 +5,12 @@ const transporter = nodemailer.createTransport({
   port: 587, // Port for secure TLS connection
   secure: false, // true for 465, false for other ports
   auth: {
-    user: 'info@olympiad.nust.edu.pk', // Your Outlook email address
-    pass: `qRGovp8\\$c#6'OO` // Your Outlook email password
+    user: 'info.olympiad@nust.edu.pk', // Your Outlook email address
+    pass: `i-ij46$BJ-"gN:)` // Your Outlook email password
   }
 });
 module.exports = { transporter };
+
+
+// info.olympiad@nust.edu.pk
+// i-ij46$BJ-"gN:)
