@@ -5,7 +5,7 @@ import { Redirect } from 'react-router-dom';
 import SignUp from './Pages/SignUpPage';
 import Login from './Pages/LoginPage';
 import './Styles/SignUpPage.css';
-import Landing from './Pages/LandingPage'
+import Landing from './Pages/LandingPage/LandingPage'
 
 
 const App = () => {

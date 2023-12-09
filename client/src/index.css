@@ -1,3 +1,18 @@
+:root {
+  --primary-dark: #246EB7;
+  --primary-light: #24AACF;
+  --secondary-color: #7BAEA7;
+  --fire-red: #ED1B24;
+  --fire-orange: #F86A2C;
+  --tertiary: #511E63;
+  --background-dark: #1F292B;
+  --background-light: #FFF8DD;
+}
+
+@font-face {
+  font-family: 'Facon';
+  src: local('Facon'), url(./Styles/fonts/facon.ttf) format('ttf');
+}
 
 body {
   margin: 0;
