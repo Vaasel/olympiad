@@ -6,9 +6,12 @@ const CustomTextField = ({ type, iconType, label, ...props }) => {
     style: { borderRadius: '50px' },
   };
 
+  const labelStyles = label ? { position: 'relative', top: '-5px',left:'3px' } : {};
+  const iconStyles = label ? { position: 'relative', top: '5px', left:'2px' } : {};
+
   const iconComponent =
     iconType && React.isValidElement(iconType) ? (
-      <span style={{ marginRight: '8px' }}>{iconType}</span>
+      <span style={{ marginRight: '8px', ...iconStyles }}>{iconType}</span>
     ) : null;
 
   return (
@@ -16,7 +19,7 @@ const CustomTextField = ({ type, iconType, label, ...props }) => {
       InputProps={{
         ...inputProps,
       }}
-      label={<span>{iconComponent}{label}</span>}
+      label={<span style={{ ...labelStyles }}>{iconComponent}{label}</span>}
       variant="outlined"
       margin="normal"
       fullWidth
@@ -25,8 +28,9 @@ const CustomTextField = ({ type, iconType, label, ...props }) => {
     />
   );
 };
+export default CustomTextField;
+
 
 // Example usage:
 // <CustomTextField type="email" iconType={<EmailOutlinedIcon />} label="Email" />
-
-export default CustomTextField;
+// <CustomTextField type="someType" iconType={<SomeIcon />} label="Some Label" />
