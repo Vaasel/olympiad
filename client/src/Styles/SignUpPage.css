@@ -1,5 +1,5 @@
 /* Reset some default styles */
-body, h1, h2, h3, p, input, label, button {
+body, h1, h2, h3, input, label, button {
   margin: 0;
   padding: 0;
   border: 0;
