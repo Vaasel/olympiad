@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const { validateToken } = require('../middlewares/auth');
-const { getImage, basicDisplay, basicInfoUpdate, SecondPage, basicInfoCreate, setStatus, ApplyAccomodation, getAllUserDetails, getSingleUserDetails } = require('../controllers/basicController');
+const { getImage, basicDisplay, basicInfoUpdate, SecondPage, basicInfoCreate, setStatus, 
+    ApplyAccomodation, getAllUserDetails, getSingleUserDetails } = require('../controllers/basicController');
 const { validateReg } = require('../middlewares/regAuth');
 
 

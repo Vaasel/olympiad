@@ -90,7 +90,6 @@ module.exports.setStatus = async (req,res) => {
   const updatedBasicInfo = await prisma.BasicInfo.update({
     where: { userId: data.userId },
     data: {
-      Reason: data.Reason,
       status: data.status,
     },
   });
