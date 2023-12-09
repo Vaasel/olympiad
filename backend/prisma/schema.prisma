@@ -148,3 +148,9 @@ model Competitions_Teams_Members {
   user           User     @relation(fields: [userId], references: [id])
   sport          Competitions_Teams    @relation(fields: [competitionsTeamId], references: [id])
 }
+model FAQ {
+  id            Int      @id @default(autoincrement())
+  question      String
+  answer        String @db.Text
+  category      String
+}
