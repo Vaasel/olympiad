@@ -64,7 +64,7 @@ const SideNav = () => {
         color="inherit"
         aria-label="open drawer"
         onClick={handleDrawerToggle}
-        sx={{ display: { xs: 'block', md: 'none' }, zIndex:1 }}
+        sx={{ display: { xs: 'block', md: 'none', color: 'white' }, zIndex:1 }}
       >
         <MenuIcon />
       </IconButton>
