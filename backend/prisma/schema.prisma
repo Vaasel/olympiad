@@ -60,6 +60,7 @@ model BasicInfo {
   id             Int      @id @default(autoincrement())
   userId         Int      @unique
   status         UserStatus @default(pending)
+  accomodation   Boolean
   phoneno        String
   cnic           String
   gender         Boolean
