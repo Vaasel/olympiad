@@ -12,7 +12,9 @@ const StudentDetails = ({ }) => {
 <div>
        <div className="row">
           <div className="col-md-4 mb-3">
-          <CustomTextField type="Person" iconType={<AccountCircleOutlinedIcon />} label="Name" />
+
+          <CustomTextField type="Person"  iconType={<AccountCircleOutlinedIcon />} label="Name" value="John Doe" />
+
           </div>
           <div className="col-md-4 mb-3">
             <CustomTextField type="Campus" iconType={<SchoolOutlinedIcon />} label="Campus Name" />
@@ -28,7 +30,9 @@ const StudentDetails = ({ }) => {
           </div>
           <div class="upload-box px-4">
           <label htmlFor="file-upload" className="upload-label">
-              <input id="file-upload-cnicf" type="file"/>
+
+              <input id="stcardFront" type="file"/>
+
             </label> 
         </div>
           </div>
@@ -38,7 +42,9 @@ const StudentDetails = ({ }) => {
           </div>
           <div class="upload-box px-4">
           <label htmlFor="file-upload" className="upload-label">
-              <input id="file-upload-cnicb" type="file"/>
+
+              <input id="stcardBack" type="file"/>
+
             </label> 
         
           </div>

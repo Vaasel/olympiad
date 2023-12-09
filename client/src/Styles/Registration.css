@@ -48,6 +48,11 @@ body {
     margin-left: auto;
     display: block;
   }
+
+  .text-left {
+    text-align: left;
+  }
+
   
   .full-width {
     width: 207.5%;
