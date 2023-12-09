@@ -1,15 +1,23 @@
-
-import React from 'react';
-import { List, ListItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { List, ListItem, ListItemIcon, ListItemText, Divider, IconButton } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SportsIcon from '@mui/icons-material/Sports';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import PaymentIcon from '@mui/icons-material/Payment';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import MenuIcon from '@mui/icons-material/Menu';
 
 const drawerWidth = 240;
-const logoImagePath ='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGZpzfGOb1d6ZbEiairsX09aVHH9gROHhbGw&usqp=CAU';
+const logoImagePath =
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGZpzfGOb1d6ZbEiairsX09aVHH9gROHhbGw&usqp=CAU';
+
 const SideNav = () => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(window.innerWidth >= 900);
+
+  const handleDrawerToggle = () => {
+    setIsDrawerOpen((prev) => !prev);
+  };
+
   const rootStyles = {
     position: 'fixed',
     top: 0,
@@ -33,20 +41,44 @@ const SideNav = () => {
     color: 'lightgrey',
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDrawerOpen(window.innerWidth >= 900);
+    };
+
+    // Set initial state based on screen size
+    handleResize();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', handleResize);
+
+    // Remove event listener on component unmount
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   return (
     <div style={rootStyles}>
-      <nav style={drawerStyles} aria-label="mailbox folders">
-      <div style={{ display: 'flex', alignItems: 'center', marginLeft:'75px' }}>
-          {/* Adjusted styles for the logo image to make it bigger */}
+      <IconButton
+        color="inherit"
+        aria-label="open drawer"
+        onClick={handleDrawerToggle}
+        sx={{ display: { xs: 'block', md: 'none' }, zIndex:1 }}
+      >
+        <MenuIcon />
+      </IconButton>
+      <nav style={{ ...drawerStyles, display: isDrawerOpen ? 'block' : 'none' }} aria-label="mailbox folders">
+        <div style={{ display: 'flex', alignItems: 'center', marginLeft: '75px' }}>
           <img
             src={logoImagePath}
             alt="Logo"
-            style={{ width: '80px', height: '80px', objectFit: 'contain', marginRight: '10px' }}
+            style={{ width: '80px', height: '80px', objectFit: 'contain', marginRight: '10px', zIndex:2 }}
           />
         </div>
         <List>
-          <ListItem>       
-            <ListItemText primary ="    "></ListItemText>
+          <ListItem>
+            <ListItemText primary="    " />
           </ListItem>
           <Divider style={{ backgroundColor: 'lightgrey' }} />
           <ListItem button component="a" href="#">
@@ -89,5 +121,3 @@ const SideNav = () => {
 };
 
 export default SideNav;
-
-

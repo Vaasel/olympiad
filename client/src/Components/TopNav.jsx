@@ -43,7 +43,7 @@ const TopNavBar = ({ logoImagePath, profileImagePath, userName }) => {
           {loggedIn && (
             <Button
               variant="contained"
-              style={{ backgroundColor: 'red', color: 'white', borderRadius: '20px' }}
+              style={{ backgroundColor: 'red', color: 'white', borderRadius: '20px', paddingRight:'10px' }}
               onClick={handleLogout}
             >
               Logout

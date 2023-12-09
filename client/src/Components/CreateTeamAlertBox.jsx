@@ -4,13 +4,15 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import { Typography } from '@mui/material';
 
 const CreateTeamAlertBox = ({ open, onClose, onConfirm, genderVar, sportsNameVar }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" height='200px' fullWidth>
       <DialogContent>
-        <h2>Create {genderVar} {sportsNameVar} Team</h2>
-        <p>Enter Team Name</p>
+        <Typography variany='h2'>Create {genderVar} {sportsNameVar} Team</Typography>
+        <br></br>
+        <Typography variany='h4'>Enter Team Name:</Typography>
         <TextField
           variant="outlined"
           placeholder="Team Name"
@@ -32,7 +34,7 @@ const CreateTeamAlertBox = ({ open, onClose, onConfirm, genderVar, sportsNameVar
             backgroundColor: 'blue',
             color: 'white',
             borderRadius: '20px',
-            marginLeft: '10px',
+            marginLeft: '10px'
           }}
           onClick={onConfirm}
         >

@@ -34,8 +34,8 @@ const Dashboard2 = () => {
   ];
 
   const CreateTeamData = [
-    { gender: 'Male', sports: 'Football', title: 'Football Team', description: 'Create a football team', doneCount: 3, leftCount: 5 },
-    { gender: 'Female', sports: 'Basketball', title: 'Basketball Team', description: 'Create a basketball team', doneCount: 2, leftCount: 6 },
+    { gender: 'Male', sports: 'Football', title: 'Football Team', description: 'Create a football team', doneCount: 3, leftCount: 5, teamCode: 2230 },
+    { gender: 'Female', sports: 'Basketball', title: 'Basketball Team', description: 'Create a basketball team', doneCount: 2, leftCount: 6, teamCode: 2230 },
   ];
   const cardData = selectedHeader === 'individual' ? individualParticipationData : CreateTeamData;
 
@@ -59,7 +59,8 @@ const Dashboard2 = () => {
             overflowY: 'auto',
             position: 'sticky',
             top: '64px',
-            height: 'calc(100vh - 64px)',  
+            height: 'calc(100vh - 64px)', 
+            xIndex: 1 
           }}
         >
           <SideNav />
@@ -102,17 +103,8 @@ const Dashboard2 = () => {
             </h2>
             <div style={{ borderBottom: '1px solid #ccc', marginLeft: '10px', flex: '1' }}></div>
           </div>
-
-          {/* Render Cards */}
-          {/* <JoinTeamCard />
-          <Grid container spacing={2}>
-            {cardData.map((card, index) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                <CustomCard {...card} />
-              </Grid>
-            ))}
-          </Grid> */}
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          
+          <div >
             {/* Conditionally Render JoinTeamCard */}
           {selectedHeader === 'team' && <JoinTeamCard />}
           <Grid container spacing={2}>
@@ -126,20 +118,6 @@ const Dashboard2 = () => {
         </Grid>
       ))}
     </Grid>
-            {/* <Grid container spacing={2}>
-              {cardData.map((card, index) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                  <CustomCard {...card} />
-                </Grid>
-              ))}
-            </Grid> */}
-            {/* <Grid container spacing={2}>
-      {CreateTeamData.map((team, index) => (
-        <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
-          <CreateTeamCard {...team} />
-        </Grid> */}
-      {/* ))} */}
-    {/* </Grid> */}
           </div>
         </div>
       </div>

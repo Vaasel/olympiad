@@ -6,11 +6,34 @@ import TopNav from '../Components/TopNav';
 import { useState } from 'react';
 import SideNav from '../Components/SideNav';
 import JoinTeamCard from '../Components/JoinTeamCard';
+import AlertBox from '../Components/AlertBox';
+import Button from '@mui/material/Button';
 // import SideNav from '../Components/SideNav';
 
 
 const Dashboard = () => {
 
+  const [isApplied, setIsApplied] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const customDialogContent = "Are you sure you want to apply for accomodation?"
+  
+  const handleApplyClick = () => {
+    // Display the AlertBox when the 'Apply' button is clicked
+    setAlertOpen(true);
+  };
+
+  const handleConfirmApply = () => {
+    // Additional logic or API calls can be added here.
+    setIsApplied(true);
+    setAlertOpen(false);
+  };
+
+  const handleCancelApply = () => {
+    // Handle cancel action if needed
+    setAlertOpen(false);
+  };
+
+  
   const statusCardData = [
     {
       title: 'Verified',
@@ -92,9 +115,11 @@ const Dashboard = () => {
             }}
           >
             {/* Dashboard Section */}
+            
             <Typography variant="h3" component="div">
               Dashboard
             </Typography>
+            
             <Grid container spacing={2}>
               {statusCardData.map((card, index) => (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
@@ -102,6 +127,26 @@ const Dashboard = () => {
                 </Grid>
               ))}
             </Grid>
+            <Typography variant="h3" component="div">
+              Accomodation
+            </Typography>
+            <br></br>
+            <Typography variant="h5" component="div">
+              For accomodation, our team will contact you through email.
+            </Typography>
+  
+            
+            <Button
+            variant="contained"
+            color={isApplied ? 'grey' : 'primary'}
+            sx={{ width: '20%', mt: 2, color: 'white', borderRadius: '20px', fontWeight: 'bold' }}
+            onClick={handleApplyClick}
+            disabled={isApplied}
+          >
+            {isApplied ? 'Applied' : 'Apply for Accomodation'}
+            </Button>
+            <br></br>
+            <br></br>
   
             {/* My Sports Cards Section */}
             <Typography variant="h3" component="div" style={{ marginTop: '20px' }}>
@@ -126,7 +171,14 @@ const Dashboard = () => {
                 </Grid>
               ))}
             </Grid>
-            <JoinTeamCard />
+            
+            {/* AlertBox component */}
+      <AlertBox
+        open={alertOpen}
+        onClose={() => setAlertOpen(false)}
+        onConfirm={handleConfirmApply}
+        dialogContent={customDialogContent}
+      />
           </div>
         </div>
       </div>
