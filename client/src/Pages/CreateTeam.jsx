@@ -5,6 +5,7 @@ import CustomCard from '../Components/CustomCard';
 import { Grid } from '@mui/material';
 import JoinTeamCard from '../Components/JoinTeamCard';
 import CreateTeamCard from '../Components/CreateTeamCard';
+import Typography from '@mui/material/Typography';
 
 const Dashboard2 = () => {
   const [selectedHeader, setSelectedHeader] = useState('individual');
@@ -40,7 +41,7 @@ const Dashboard2 = () => {
   const cardData = selectedHeader === 'individual' ? individualParticipationData : CreateTeamData;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh'}}>
       {/* TopNav */}
       <TopNav
         logoImagePath="https:encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGZpzfGOb1d6ZbEiairsX09aVHH9gROHhbGw&usqp=CAU"
@@ -50,16 +51,14 @@ const Dashboard2 = () => {
       />
 
       {/* Main Container */}
-      <div style={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', flexGrow: 1, overflow: 'hidden'}}>
         {/* SideNav */}
         <div
           style={{
             flex: '0 0 15%',
-            borderRight: '1px solid #ccc',
             overflowY: 'auto',
             position: 'sticky',
-            top: '64px',
-            height: 'calc(100vh - 64px)', 
+            top: '64px', 
             xIndex: 1 
           }}
         >
@@ -67,7 +66,7 @@ const Dashboard2 = () => {
         </div>
 
         {/* Content Container */}
-        <div style={{ flex: '1', padding: '20px', backgroundColor: '#f5f5f5' }}>
+        <div style={{ flex: '1', padding: '40px' }}>
          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
        <div
        onClick={() => handleHeaderChange('individual')}
@@ -107,6 +106,11 @@ const Dashboard2 = () => {
           <div >
             {/* Conditionally Render JoinTeamCard */}
           {selectedHeader === 'team' && <JoinTeamCard />}
+          {selectedHeader === 'team' && 
+          <Typography variant="h5" component="div">
+              Create Team
+            </Typography>
+          }
           <Grid container spacing={2}>
       {cardData.map((card, index) => (
         <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
