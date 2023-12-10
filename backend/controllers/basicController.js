@@ -27,11 +27,10 @@ module.exports.getAllUserDetails = async (req, res) => {
       },
     });
 
-    res.json({
-      userDetails: userDetails,
-    });
+    res.apiSuccess(userDetails);
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.apiError(err.message, "Failed", 500);
   }
 };
 
@@ -46,11 +45,10 @@ module.exports.getSingleUserDetails = async (req, res) => {
       },
     });
 
-    res.json({
-      userDetails: userDetails,
-    });
+    res.apiSuccess(userDetails);
+    
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.apiError(err.message, "Failed", 500);
   }
 };
 
@@ -65,20 +63,13 @@ module.exports.ApplyAccomodation = async (req,res) => {
     },
   });
 
-  res.json({
-    message: 'BasicInfo updated successfully',
-    basicInfo: updatedBasicInfo,
-  });
+  
+  res.apiSuccess(updatedBasicInfo,'BasicInfo updated successfully');
+    
 }
 
 module.exports.setStatus = async (req,res) => {
   const data = req.body;
-
-  console.log(data.userId);
-  const id = data.userId;
-  // const entry = await prisma.BasicInfo.findUnique({
-  //   where: { userId: data.userId},
-  // });
 
   const user = await prisma.user.findUnique({
     where: {
@@ -104,19 +95,13 @@ module.exports.setStatus = async (req,res) => {
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error(error);
-      res.send("Error sending email");
+      res.apiError(error, "Failed", 500);
     } else {
       console.log("Email sent: " + info.response);
-      res.send("Email sent successfully");
+      // res.send("Email sent successfully");
     }
   });
-
-  res.json({
-    message: 'BasicInfo updated successfully',
-    basicInfo: updatedBasicInfo,
-  });
-
-
+  res.apiSuccess(updatedBasicInfo,'BasicInfo updated successfully');
 }
 
 module.exports.basicDisplay = async (req, res) => {
@@ -126,12 +111,13 @@ module.exports.basicDisplay = async (req, res) => {
       where: { userId: req.user.id },
     });
 
-    res.json({"entry":entry});
+    res.apiSuccess(entry);
 
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    
+    res.apiError(error.message, "Failed", 500);
   }
 };
 
@@ -147,7 +133,8 @@ module.exports.basicInfoUpdate = async (req, res) => {
     // let fileup = [];
     upload.fields([{ name: 'cnicFront', maxCount: 1 }, { name: 'cnicBack', maxCount: 1 }, { name: 'stdFront', maxCount: 1 }, { name: 'stdBack', maxCount: 1 }])(req, res, async (err) => {
       if (err) {
-        return res.status(400).json({ message: 'File upload error', error: err.message });
+        res.apiError(err.message, 'File upload error', 400);
+        return;
       }
 
       fileup = {};
@@ -203,16 +190,14 @@ module.exports.basicInfoUpdate = async (req, res) => {
       });
   
 
-      res.json({
-        message: 'BasicInfo updated successfully',
-        basicInfo: updatedBasicInfo,
-      });
+      res.apiSuccess(updatedBasicInfo,'BasicInfo updated successfully');
+    
 
     });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    res.apiError(error.message, "Failed", 500);
   }
 };
 
@@ -224,19 +209,22 @@ module.exports.basicInfoCreate = async (req, res) => {
   try {
     upload.fields([{ name: 'cnicFront', maxCount: 1 }, { name: 'cnicBack', maxCount: 1 }])(req, res, async (err) => {
       if (err) {
-        return res.status(400).json({ message: 'File upload error', error: err.message });
+        res.apiError(err.message, "File upload error", 500);
+        return;
       }
 
       const cnicFrontFile = req.files['cnicFront'] ? req.files['cnicFront'][0] : null;
       const cnicBackFile = req.files['cnicBack'] ? req.files['cnicBack'][0] : null;
 
       if (!cnicFrontFile || !cnicBackFile) {
-        return res.status(400).json({ message: 'Both files (cnicFront and cnicBack) are required' });
+        res.apiError(null, 'Both files (cnicFront and cnicBack) are required', 400);
+        return;
       }
 
       try {
         if (cnicFrontFile.buffer.length === 0 || cnicBackFile.buffer.length === 0) {
-          return res.status(400).json({ message: 'Invalid file buffer' });
+          res.apiError(null, 'Invalid file buffer', 400);
+          return;
         }
 
         const cnicFrontLink = await uploadToWasabi(cnicFrontFile);
@@ -257,7 +245,7 @@ module.exports.basicInfoCreate = async (req, res) => {
         try {
           await validationSchema.validate(data, { abortEarly: false, strict: true });
         } catch (err) {
-          res.status(400).json({ errors: err.errors });
+          res.apiError(err.errors, 'Validation Error', 400);
           return;
         }
 
@@ -302,20 +290,25 @@ module.exports.basicInfoCreate = async (req, res) => {
         //   accessToken: accessToken,
         //   user: userInfo,
         // });
-
-        res.json({
-          accessToken: accessToken,
-          user: userInfo,
-          basicInfo: createdBasicInfo,
-        });
+         
+        const resdata = {
+          "accessToken": accessToken,
+          "user": userInfo,
+          "basicInfo": createdBasicInfo,
+        };
+        res.apiSuccess(resdata);
+    
       } catch (error) {
         console.error('Wasabi upload error:', error);
-        res.status(500).json({ message: 'Wasabi upload error', error: error.message });
+        res.apiError(error.message, "Wasabi upload error", 500);
+        return;
+        
       }
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    res.apiError(error.message, 'Internal server error', 500);
+    // res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
@@ -327,7 +320,8 @@ module.exports.SecondPage = async (req, res) => {
 
     // Check if user is available in req object
     if (!userId) {
-      return res.status(400).json({ message: 'Invalid request format' });
+      res.apiError(null, 'Invalid request format', 400);
+      return;
     }
 
     const { studentOf, student_id, schoolName, ambassadorcode } = req.body;
@@ -357,7 +351,7 @@ module.exports.SecondPage = async (req, res) => {
           { abortEarly: false, strict: true }
         );
       } catch (err) {
-          res.status(400).json({ errors: err.errors });
+        res.apiError(err.errors, 'Validation Error', 400);
           return;
       }
     }
@@ -370,7 +364,8 @@ module.exports.SecondPage = async (req, res) => {
 
       upload.fields([{ name: 'stdFront', maxCount: 1 }, { name: 'stdBack', maxCount: 1 }])(req, res, async (err) => {
         if (err) {
-          return res.status(400).json({ message: 'File upload error', error: err.message });
+          res.apiError(err.message, 'File upload error', 400);
+          return;
         }
   
         const stdFrontFile = req.files['stdFront'] ? req.files['stdFront'][0] : null;
@@ -381,8 +376,9 @@ module.exports.SecondPage = async (req, res) => {
             stdFrontLink = await uploadToWasabi(stdFrontFile);
             stdBackLink = await uploadToWasabi(stdBackFile);
           } catch (error) {
+            res.apiError(error.message, 'Wasabi upload error', 500);
             console.error('Wasabi upload error:', error);
-            res.status(500).json({ message: 'Wasabi upload error', error: error.message });
+            // res.status(500).json({ message: 'Wasabi upload error', error: error.message });
             return;
           }
         }
@@ -414,7 +410,7 @@ module.exports.SecondPage = async (req, res) => {
   
         const accessToken = sign(userInfo, process.env.APP_SECRET);
   
-        res.json({ message: 'BasicInfo updated successfully', updatedBasicInfo, accessToken });
+        res.apiSuccess({updatedBasicInfo, accessToken},'BasicInfo updated successfully')
       });
 
     } else {
@@ -440,7 +436,7 @@ module.exports.SecondPage = async (req, res) => {
       };
 
       const accessToken = sign(userInfo, process.env.APP_SECRET);
-      res.json({ message: 'BasicInfo updated successfully', updatedBasicInfo, accessToken });
+      res.apiSuccess({updatedBasicInfo, accessToken},'BasicInfo updated successfully')
     }
 
 
@@ -457,7 +453,8 @@ module.exports.SecondPage = async (req, res) => {
     
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    res.apiError(error.message, 'Internal server error', 500);
+    // res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
