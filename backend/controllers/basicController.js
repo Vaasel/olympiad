@@ -90,7 +90,6 @@ module.exports.setStatus = async (req,res) => {
   const updatedBasicInfo = await prisma.BasicInfo.update({
     where: { userId: data.userId },
     data: {
-      Reason: data.Reason,
       status: data.status,
     },
   });
@@ -196,13 +195,14 @@ module.exports.basicInfoUpdate = async (req, res) => {
       if (stdBackLink !== null) updatedBasicInfoData.stdBack = stdBackLink;
       if (cnicFrontLink !== null) updatedBasicInfoData.cnicFront = cnicFrontLink;
       if (cnicBackLink !== null) updatedBasicInfoData.cnicBack = cnicBackLink;
-      console.log(updatedBasicInfoData);
+      // console.log(updatedBasicInfoData);
+
       const updatedBasicInfo = await prisma.BasicInfo.update({
         where: { userId: userId },
         data: updatedBasicInfoData,
       });
   
-      // Send the response
+
       res.json({
         message: 'BasicInfo updated successfully',
         basicInfo: updatedBasicInfo,
@@ -210,9 +210,6 @@ module.exports.basicInfoUpdate = async (req, res) => {
 
     });
 
-    
-
-    
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
@@ -257,30 +254,29 @@ module.exports.basicInfoCreate = async (req, res) => {
 
         let data = req.body;
 
-        // try {
-        //   await validationSchema.validate(data, { abortEarly: false, strict: true });
-        // } catch (err) {
-        //   res.status(400).json({ errors: err.errors });
-        //   return;
-        // }
+        try {
+          await validationSchema.validate(data, { abortEarly: false, strict: true });
+        } catch (err) {
+          res.status(400).json({ errors: err.errors });
+          return;
+        }
 
         // Create BasicInfo row with file links and other fields
         const createdBasicInfo = await prisma.BasicInfo.create({
           data: {
             userId: req.user.id,
-            phoneno: "data.phoneno.toString()",
-            cnic: "data.cnic.toString()",
-            guardianName: "data.guardianName",
-            guardianNumber: "data.guardianNumber.toString()",
-            schoolName: "data.schoolName",
-            gender: true,
-            address: "data.address",
+            phoneno: data.phoneno.toString(),
+            cnic: data.cnic.toString(),
+            guardianName: data.guardianName,
+            guardianNumber: data.guardianNumber.toString(),
+            schoolName: data.schoolName,
+            gender: data.gender,
+            address: data.address,
             cnicFront: cnicFrontLink,
             cnicBack: cnicBackLink,
           },
         });
 
-        // Generate access token and send the response
         const user = await prisma.user.findUnique({
           where: { id: req.user.id },
         });
@@ -290,9 +286,9 @@ module.exports.basicInfoCreate = async (req, res) => {
           email: user.email,
         };
 
-        const BasicInfoCreated = {
-          id: req.user.id,
-        }
+        // const BasicInfoCreated = {
+        //   id: req.user.id,
+        // }
 
         const accessToken = sign(userInfo, process.env.APP_SECRET);
 
@@ -310,7 +306,7 @@ module.exports.basicInfoCreate = async (req, res) => {
         res.json({
           accessToken: accessToken,
           user: userInfo,
-          basicInfo: BasicInfoCreated,
+          basicInfo: createdBasicInfo,
         });
       } catch (error) {
         console.error('Wasabi upload error:', error);
@@ -334,14 +330,14 @@ module.exports.SecondPage = async (req, res) => {
       return res.status(400).json({ message: 'Invalid request format' });
     }
 
-    // const { studentOf, student_id, schoolName, ambassadorcode } = req.body;
+    const { studentOf, student_id, schoolName, ambassadorcode } = req.body;
 
 
-    const studentOf = 'nust';
-    const student_id = '3';
-    const schoolName = 'sad';
-    const ambassadorcode = 'asds'
-    // Validate fields based on studentOf selection
+    // const studentOf = 'nust';
+    // const student_id = '3';
+    // const schoolName = 'sad';
+    // const ambassadorcode = 'asds'
+
     let validationSchema;
 
     if (studentOf === 'other') {
@@ -350,12 +346,22 @@ module.exports.SecondPage = async (req, res) => {
       });
     } else {
       validationSchema = yup.object().shape({
-        studentOf: yup.string().trim().required(),
         student_id: yup.string().trim().required(),
         schoolName: yup.string().trim().required(),
         ambassadorcode: yup.string().trim().required(),
       });
+
+      try {
+        await validationSchema.validate(
+          { student_id, schoolName, ambassadorcode },
+          { abortEarly: false, strict: true }
+        );
+      } catch (err) {
+          res.status(400).json({ errors: err.errors });
+          return;
+      }
     }
+    
 
 
     

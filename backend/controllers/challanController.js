@@ -14,7 +14,100 @@ const prisma = new PrismaClient();
 
 
 
+module.exports.getAllFAQs = async (req, res) => {
+    try {
+        const faqs = await prisma.FAQ.findMany();
+        res.json({ faqs });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+      }
+}
 
+
+module.exports.CreateFAQ = async (req, res) => {
+    const { question, answer, category } = req.body;
+    try {
+      // Create a new FAQ entry
+      const newFAQ = await prisma.fAQ.create({
+        data: {
+          question,
+          answer,
+          category,
+        },
+      });
+  
+      res.json({ message: 'FAQ created successfully', faq: newFAQ });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+
+}
+
+
+module.exports.getAllChallans = async (req, res) => {
+    try {
+      const Challans = await prisma.Challan.findMany();
+  
+      res.json({
+        Challans: Challans,
+      });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  };
+
+
+module.exports.setStatus = async (req,res) => {
+    const data = req.body;
+  
+    console.log(data.userId);
+    const id = data.userId;
+    // const entry = await prisma.BasicInfo.findUnique({
+    //   where: { userId: data.userId},
+    // });
+  
+    const user = await prisma.user.findUnique({
+        where: {
+          id: data.userId,
+        }
+      });
+    
+    
+    const updatedStatusChallan = await prisma.Challan.update({
+      where: { userId: data.userId },
+      data: {
+        isPaid: data.isPaid,
+      },
+    });
+
+
+    const mailOptions = {
+        from: "info.olympiad@nust.edu.pk",
+        to: user.email, // Email address you want to send the email to
+        subject: "Test Email from Nodemailer",
+        html: `<h1>Status Changed</h1><p>Your new status is <br/><h2><code>${data.status}</code></h2> and the reason is ${data.reason}</p>`,
+      };
+    
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error(error);
+          res.send("Error sending email");
+        } else {
+          console.log("Email sent: " + info.response);
+          res.send("Email sent successfully");
+        }
+      });
+
+
+
+    res.json({
+      message: 'Challan updated successfully',
+      updatedStatusChallan: updatedStatusChallan,
+    });
+  
+  }
 
 
 module.exports.CalculateChallan = async (req, res) => {
