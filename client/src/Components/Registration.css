@@ -7,6 +7,14 @@ body {
     background-color: #f8f9fa;
   }
   
+  /* Responsive text centering */
+  @media (max-width: 768px) {
+    h2 {
+      text-align: center;
+    }
+  }
+  
+  /* Style for form inputs */
   .form-control {
     border-radius: 100px; 
     border: 1px solid #ccc; 
@@ -18,13 +26,10 @@ body {
   .form-input {
     padding: 10px 30px;
     background-repeat: no-repeat;
-    background-size: 20px; 
-    background-position: right 10px center; 
+    background-size: 20px; /* Set the size of the image */
+    background-position: right 10px center; /* Position the image to the left */
   }
-  .btn-secondary{
-   color: #437fb8;
-   background-color: #ffffff;
-  }
+
   
   .bold-label {
     font-weight: bold;
@@ -35,21 +40,17 @@ body {
   }
 
   .round-edge {
-    border-radius: 50px; 
+    border-radius: 100px; 
   }
   
   .right-align-text{
     text-align:left;
     padding-left: 20px;
   }
-  
   .right-align {
     margin-right: 0;
     margin-left: auto;
     display: block;
-  }
-  .text-left {
-    text-align: left;
   }
   
   .full-width {
@@ -63,47 +64,12 @@ body {
     position: relative;
     overflow: hidden;
   }
-
-  .upload-box-1 {
-    width: 200px;
-    height: 200px;
-    border: 2px dashed #000;
-    border-radius: 100%;
-    position: relative;
-    overflow: hidden;
-    margin-right: 10px;
-  }
- 
-  .upload-text {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    height: 100%;
-  }
-  
-  .upload-text h2 {
-    margin-top: 50px; 
-  }
-  
-  .upload-text p {
-    margin-top: 2px; 
-  }
-  
   
   .upload-label {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 100%;
-    cursor: pointer;
-    font-family: Arial, sans-serif;
-  }
-
-  .upload-label-cnic {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    align-items: center;
     height: 100%;
     cursor: pointer;
     font-family: Arial, sans-serif;
@@ -118,17 +84,16 @@ body {
   width: 80px;
   height: 50px;
   padding-top: 20px;
-  /* border: 0px solid var(--primary-color); */
+  border: 0px solid var(--primary-color);
   border-radius: 40px; 
   display: flex;
   justify-content: center;
   align-items: center;
-  /* background-color: var(--secondary-color); */
+  background-color: var(--secondary-color);
   position: relative;
   top:70px;
   margin: auto;
 }
-
 
 .uploaded-image {
   width: 20x;
@@ -139,5 +104,18 @@ body {
   object-fit: cover;
   /* display: block;
   margin: auto;  */
-  transform: translate(-50%, -50%); 
+  transform: translate(-50%, -50%); /* Centers the image precisely */
 }
+  /* .uploaded-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  } */
+  /* input, button {
+    margin-bottom: 35px;
+  } */
+

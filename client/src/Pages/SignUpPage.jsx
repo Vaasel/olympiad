@@ -9,6 +9,11 @@ import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
+import CustomTextField from '../Components/CustomTextField';
+
+// api link
+// vaasel-nust-olympiad.onrender.com/api/auth/register
 
 
 const SignUpPage = () => {
@@ -26,19 +31,49 @@ const SignUpPage = () => {
   const handleTogglePasswordConfirmVisibility = () => {
     setShowPasswordConfirm(!showPasswordConfirm);
   };
+
+  const labelStyles = { position: 'relative', top: '-2px', left: '2px' };
+  const lockIconStyles = { position: 'relative', top: '5x', left: '2px' };
+  const visibilityIconStyles = { position: 'relative', right: '10px' };
+
   return (
-    <div className="container" >
+    <div className="Mycontainer" >
       {/* Left side */}
       <div className="left-side" >
         <div className="text-center">
           <h2 className="text-4xl font-semibold mb-4" >Sign Up</h2>
           <form className="w-64">
             <div>
-              
-              <TextField InputProps={{
-          style: { borderRadius: '50px' }
-        }} label={<span><EmailOutlinedIcon style={{ marginRight: '8px' }} />Email</span>} variant="outlined" margin="normal" fullWidth required/>
-              <TextField label={<span><LockOutlinedIcon style={{ marginRight: '8px' }} />Password</span>} variant="outlined" margin="normal" fullWidth type={showPassword ? 'text' : 'password'} required 
+            <CustomTextField type="text" iconType={<PersonOutlineOutlinedIcon />} label="Name" />  
+            <CustomTextField type="email" iconType={<EmailOutlinedIcon />} label="Email" />
+            <TextField
+                label={
+                  <span style={{ ...labelStyles }}>
+                    <LockOutlinedIcon style={{ marginRight: '8px',marginTop:'2px', ...lockIconStyles }} />
+                    Password
+                  </span>
+                }
+                variant="outlined"
+                margin="normal"
+                fullWidth
+                type={showPassword ? 'text' : 'password'}
+                required
+                InputProps={{
+                  style: { borderRadius: '50px' },
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={handleTogglePasswordVisibility} edge="end">
+                        {showPassword ? (
+                          <VisibilityIcon style={{ ...visibilityIconStyles }} />
+                        ) : (
+                          <VisibilityOffIcon />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              {/* <TextField label={<span><LockOutlinedIcon style={{ marginRight: '8px' }} />Password</span>} variant="outlined" margin="normal" fullWidth type={showPassword ? 'text' : 'password'} required 
               InputProps={{
                 style: { borderRadius: '50px' },
                 endAdornment: (
@@ -48,44 +83,34 @@ const SignUpPage = () => {
                     </IconButton>
                   </InputAdornment>
                 ),
-              }}/>
-              <TextField label={<span><LockOutlinedIcon style={{ marginRight: '8px' }} />Confirm Password</span>} variant="outlined" margin="normal" fullWidth type={showPasswordConfirm ? 'text' : 'password'} required 
-              InputProps={{
-                style: { borderRadius: '50px' },
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={handleTogglePasswordConfirmVisibility} edge="end">
-                      {showPasswordConfirm ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}/>
-              {
-              /*<label htmlFor="email" className="block text-sm font-medium">Email</label> 
-              <input
-                type="email"
-                id="email"
-                className="mt-1 p-2 w-full border rounded-full focus:outline-none focus:ring focus:border-blue-300"
+              }}/> */}
+              <TextField
+                label={
+                  <span style={{ ...labelStyles }}>
+                    <LockOutlinedIcon style={{ marginRight: '8px',marginTop:'2px', ...lockIconStyles }} />
+                    Confirm Password
+                  </span>
+                }
+                variant="outlined"
+                margin="normal"
+                fullWidth
+                type={showPasswordConfirm  ? 'text' : 'password'}
                 required
+                InputProps={{
+                  style: { borderRadius: '50px' },
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={handleTogglePasswordConfirmVisibility} edge="end">
+                        {showPasswordConfirm  ? (
+                          <VisibilityIcon style={{ ...visibilityIconStyles }} />
+                        ) : (
+                          <VisibilityOffIcon />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="password" className="block text-sm font-medium">Password</label>
-              <input
-                type="password"
-                id="password"
-                className="mt-1 p-2 w-full border rounded-full focus:outline-none focus:ring focus:border-blue-300"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="confirmPassword" className="block text-sm font-medium">Confirm Password</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                className="mt-1 p-2 w-full border rounded-full focus:outline-none focus:ring focus:border-blue-300"
-                required
-              /> */}
             </div>
             <br></br>
             <div className="mb-4">
@@ -115,38 +140,3 @@ const SignUpPage = () => {
 };
 
 export default SignUpPage;
-
-//https://th.bing.com/th/id/OIG.ey_KYrwhZnirAkSgDhmg
-//   return (
-//     <Container component="main" maxWidth="lg" className="signup-container">
-//       <Grid container>
-//         {/* Left Side: Sign Up Form */}
-//         <Grid item xs={8}>
-//           <Paper elevation={3} className="form-container">
-//             <Typography variant="h4" component="div" gutterBottom>
-//               Sign Up
-//             </Typography>
-//             <form>
-//               <TextField label="Email" variant="outlined" margin="normal" fullWidth required />
-//               <TextField label="Password" variant="outlined" margin="normal" fullWidth type="password" required />
-//               <TextField label="Confirm Password" variant="outlined" margin="normal" fullWidth type="password" required />
-//               <Button variant="contained" color="primary" fullWidth>
-//                 Sign Up
-//               </Button>
-//             </form>
-//             <Typography variant="body2" color="textSecondary" marginTop={2}>
-//               Already registered? Sign in
-//             </Typography>
-//           </Paper>
-//         </Grid>
-
-//         {/* Right Side: Placeholder Image */}
-//         <Grid item xs={3} className="image-container">
-//           <Paper elevation={0} sx={{ backgroundImage: 'url(https://us.123rf.com/450wm/kamchatka/kamchatka1502/kamchatka150200367/36934631-happy-man-on-beach.jpg?ver=6)', backgroundSize: 'cover', height: '100vh' }} />
-//         </Grid>
-//       </Grid>
-//     </Container>
-//   );
-// };
-
-// export default SignUpPage;

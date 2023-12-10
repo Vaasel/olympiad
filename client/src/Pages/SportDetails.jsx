@@ -1,9 +1,9 @@
 import React from 'react';
 import { Grid, Typography } from '@mui/material';
-import Description from "../Pages/Description"
-import CricketDescription from "../Pages/Description"
+import Description from "./Description"
+import CricketDescription from "./Description"
 import '../Styles/Registration.css';
-const LandingPage = () => {
+const SportDetails = () => {
     const sportsDescData = { 
         title: "Badminton",
         cost:"1000",
@@ -51,4 +51,4 @@ const LandingPage = () => {
   };
   
 
-export default LandingPage;
+export default SportDetails;
