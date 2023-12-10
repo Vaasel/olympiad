@@ -19,7 +19,7 @@ function generateUniqueCode() {
 //Getting All sports for Reg Team
 const allSports = async (req, res) => {
   try {
-    const sports = await prisma.sports.findMany({});
+    const sports = await prisma.competitions.findMany({});
 
     res.json({ success: true, message: sports });
   } catch (error) {
@@ -36,28 +36,30 @@ const genderSingleSports = async (req, res) => {
       },
       include: {
         basicInfo: true,
-        sports: {
+        competitions: {
           include: {
-            sport: true,
+            competition: true,
           },
         },
       },
     });
 
-    const gender = user.basicInfo.gender;
-    const userSportIds = user.sports.map((sport) => sport.sport.sportsId);
+    // const gender = user.basicInfo.gender;
+    const userSportIds = user.competitions.map(
+      (competition) => competition.competition.competitionId
+    );
 
-    const allSports = await prisma.sports.findMany({
+    const allSports = await prisma.competitions.findMany({
       where: {
-        gender,
+        gender: false,
         minPlayer: 1,
         maxPlayer: 1,
       },
     });
 
-    const sportsWithHasApplied = allSports.map((sport) => ({
-      ...sport,
-      hasApplied: userSportIds.includes(sport.id),
+    const sportsWithHasApplied = allSports.map((competition) => ({
+      ...competition,
+      hasApplied: userSportIds.includes(competition.id),
     }));
 
     res.json({ success: true, message: sportsWithHasApplied });
@@ -75,20 +77,20 @@ const genderTeamSports = async (req, res) => {
       },
       include: {
         basicInfo: true,
-        sports: {
+        competitions: {
           include: {
-            sport: true,
+            competition: true,
           },
         },
       },
     });
 
-    const gender = user.basicInfo.gender;
-    const userSportIds = user.sports.map((sport) => sport.sport.sportsId);
+    // const gender = user.basicInfo.gender;
+    const userSportIds = user.competitions.map((sport) => sport.sport.sportsId);
 
     const sportsWithMinAndMaxPlayers = await prisma.sports.findMany({
       where: {
-        gender,
+        gender: true,
         NOT: {
           AND: [{ minPlayer: 1 }, { maxPlayer: 1 }],
         },
@@ -120,7 +122,7 @@ const applyIndividualSport = async (req, res) => {
     const { sportId } = req.body;
 
     // Check if the sportId exists
-    const sport = await prisma.sports.findUnique({
+    const sport = await prisma.competitions.findUnique({
       where: {
         id: sportId,
       },
@@ -147,10 +149,10 @@ const applyIndividualSport = async (req, res) => {
       return res.status(404).json({ error: "Not for your gender." });
     }
 
-    const team = await prisma.sports_Teams.findFirst({
+    const team = await prisma.competitions_Teams.findFirst({
       where: {
         userId,
-        sportsId: sportId,
+        competitionId: sportId,
       },
     });
 
@@ -160,19 +162,19 @@ const applyIndividualSport = async (req, res) => {
 
     const hashedId = await bcrypt.hash(user.email, 10);
 
-    const createdSportTeam = await prisma.sports_Teams.create({
+    const createdSportTeam = await prisma.competitions_Teams.create({
       data: {
         name: sport.name + user.name + hashedId, // Or any relevant data
         userId, // Assuming req.user.id holds the user's ID
-        sportsId: sportId,
+        competitionId: sportId,
         challanId: 1,
       },
     });
 
     // Create an entry in Sports_Teams_Members for the user
-    await prisma.sports_Teams_Members.create({
+    await prisma.competitions_Teams_Members.create({
       data: {
-        sportsTeamId: createdSportTeam.id,
+        competitionsTeamId: createdSportTeam.id,
         userId: req.user.id,
       },
     });
@@ -192,7 +194,7 @@ const createTeam = async (req, res) => {
     const { sportId, teamName } = req.body;
 
     // Check if the sportId exists
-    const sport = await prisma.sports.findUnique({
+    const sport = await prisma.competitions.findUnique({
       where: {
         id: sportId,
       },
@@ -219,10 +221,10 @@ const createTeam = async (req, res) => {
       return res.status(404).json({ error: "Not for your gender." });
     }
 
-    const team = await prisma.sports_Teams.findFirst({
+    const team = await prisma.competitions_Teams.findFirst({
       where: {
         userId: user.id,
-        sportsId: sportId,
+        competitionId: sportId,
       },
     });
 
@@ -230,31 +232,31 @@ const createTeam = async (req, res) => {
       return res.status(500).json({ error: "You are already in the team." });
     }
 
-    const teamMember = await prisma.sports_Teams_Members.findMany({
+    const teamMember = await prisma.competitions_Teams_Members.findMany({
       where: {
         userId: user.id,
       },
       include: {
-        sport: true,
+        competition: true,
       },
     });
 
     for (const member of teamMember) {
-      if (member.sport.sportsId === sportId) {
+      if (member.competition.competitionId === sportId) {
         return res.status(500).json({ error: "You are already in the team." });
       }
     }
 
-    const codes = await prisma.sports_Teams.findMany({
+    const codes = await prisma.competitions_Teams.findMany({
       select: {
         code: true,
       },
     });
 
     const codeList = codes.map((team) => team.code);
+
     var code;
 
-    
 
     var loopExit = false;
 
@@ -270,20 +272,21 @@ const createTeam = async (req, res) => {
       loopExit = code.includes(codeList);
     } while (loopExit);
 
-    const createdSportTeam = await prisma.sports_Teams.create({
+
+    const createdSportTeam = await prisma.competitions_Teams.create({
       data: {
         name: teamName, // Or any relevant data
         userId, // Assuming req.user.id holds the user's ID
-        sportsId: sportId,
+        competitionId: sportId,
         challanId: 1,
         code,
       },
     });
 
     // Create an entry in Sports_Teams_Members for the user
-    await prisma.sports_Teams_Members.create({
+    await prisma.competitions_Teams_Members.create({
       data: {
-        sportsTeamId: createdSportTeam.id,
+        competitionsTeamId: createdSportTeam.id,
         userId: req.user.id,
       },
     });
@@ -302,12 +305,12 @@ const joinTeam = async (req, res) => {
     const { code } = req.body;
     const user = req.user;
 
-    const sportsTeam = await prisma.sports_Teams.findFirst({
+    const sportsTeam = await prisma.competitions_Teams.findFirst({
       where: {
         code,
       },
       include: {
-        sport: true,
+        competition: true,
       },
     });
 
@@ -315,22 +318,22 @@ const joinTeam = async (req, res) => {
       return res.status(500).json({ error: "Failed to join sport team." });
     }
 
-    const teamMembersCount = await prisma.sports_Teams_Members.count({
+    const teamMembersCount = await prisma.competitions_Teams_Members.count({
       where: {
-        sportsTeamId: parseInt(sportsTeam.id),
+        competitionsTeamId: parseInt(sportsTeam.id),
       },
     });
 
-    if (teamMembersCount >= sportsTeam.sport.maxPlayer) {
+    if (teamMembersCount >= sportsTeam.competition.maxPlayer) {
       return res
         .status(500)
         .json({ error: "Failed to join team because it exceeds limit." });
     }
 
-    const teamMember = await prisma.sports_Teams_Members.findFirst({
+    const teamMember = await prisma.competitions_Teams_Members.findFirst({
       where: {
         userId: user.id,
-        sportsTeamId: sportsTeam.id,
+        competitionsTeamId: sportsTeam.id,
       },
     });
 
@@ -338,9 +341,9 @@ const joinTeam = async (req, res) => {
       return res.status(500).json({ error: "You are already in the team." });
     }
 
-    await prisma.sports_Teams_Members.create({
+    await prisma.competitions_Teams_Members.create({
       data: {
-        sportsTeamId: sportsTeam.id,
+        competitionsTeamId: sportsTeam.id,
         userId: req.user.id,
       },
     });
@@ -361,7 +364,7 @@ const getMembers = async (req, res) => {
   const userId = req.user.id; // Assuming the user ID is available in req.user
 
   try {
-    const sport = await prisma.sports.findUnique({
+    const sport = await prisma.competitions.findUnique({
       where: {
         id: parseInt(sportId),
       },
@@ -374,9 +377,9 @@ const getMembers = async (req, res) => {
     let sportDetails = sport;
 
     if (sport.minPlayer !== 1 || sport.maxPlayer !== 1) {
-      const userTeam = await prisma.sports_Teams.findFirst({
+      const userTeam = await prisma.competitions_Teams.findFirst({
         where: {
-          sportsId: parseInt(sportId),
+          competitionId: parseInt(sportId),
           members: {
             some: {
               userId: userId,
@@ -422,7 +425,7 @@ const addSport = async (req, res) => {
 
   try {
     // Use Prisma to create a new sport in the database
-    const newSport = await prisma.sports.create({
+    const newSport = await prisma.competitions.create({
       data: {
         name,
         description,
@@ -447,9 +450,9 @@ const withdrawSingleSport = async (req, res) => {
 
   try {
     // Check if there's a challan associated with the sport and user in sports_teams
-    const sportsTeam = await prisma.sports_Teams.findFirst({
+    const sportsTeam = await prisma.competitions_Teams.findFirst({
       where: {
-        sportsId: parseInt(sportId),
+        competitionId: parseInt(sportId),
         userId: userId,
       },
     });
@@ -470,18 +473,19 @@ const withdrawSingleSport = async (req, res) => {
         }
       }
 
-      // Remove the entry from sports_teams and its corresponding entries from sports_teams_members
-      await prisma.sports_Teams.delete({
+      await prisma.competitions_Teams_Members.deleteMany({
+        where: {
+          competitionsTeamId: sportsTeam.id,
+        },
+      });
+      
+      
+      await prisma.competitions_Teams.delete({
         where: {
           id: sportsTeam.id,
         },
       });
 
-      await prisma.sports_Teams_Members.deleteMany({
-        where: {
-          sportsTeamId: sportsTeam.id,
-        },
-      });
 
       return res
         .status(200)
@@ -503,7 +507,7 @@ const withdrawTeamSport = async (req, res) => {
 
   try {
     // Check if there's a challan associated with the sport and user in sports_teams
-    const sportsTeam = await prisma.sports_Teams.findFirst({
+    const sportsTeam = await prisma.competitions_Teams.findFirst({
       where: {
         id: parseInt(sportsTeamId),
         userId: userId,
@@ -521,9 +525,9 @@ const withdrawTeamSport = async (req, res) => {
         res.status(500).json({ error: "You cannot delete this user." });
       }
 
-      await prisma.sports_Teams_Members.deleteMany({
+      await prisma.competitions_Teams_Members.deleteMany({
         where: {
-          sportsTeamId: sportsTeamId,
+          competitionsTeamId: sportsTeamId,
           userId: user,
         },
       });
@@ -537,7 +541,7 @@ const withdrawTeamSport = async (req, res) => {
         .json({ message: "You are not part of this game." });
     }
   } catch (error) {
-    console.error("Error withdrawing sport:", error);
+    console.log(error);
     res.status(500).json({ error: "Failed to withdraw sport." });
   }
 };
