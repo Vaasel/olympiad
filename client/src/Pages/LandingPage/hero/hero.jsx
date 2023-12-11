@@ -14,7 +14,7 @@ import b8 from "./Img/team-bg-triangle.png";
 const Hero =()=>{
     return(
         <>
-            <div className="hero-section hero" style={{backgroundImage: `url(${bannerBg})`}}>
+            <div className="hero-section hero" style={{ backgroundImage: `url(${bannerBg})`}}>
                 <div>
                     <div className="row">
                         <div className="col-lg-12 text-center zindex-1">
@@ -22,12 +22,12 @@ const Hero =()=>{
                             <p className="mb-4 p">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum<br></br>dolore eu fugiat nulla pariatur.</p>
                             <a href="#" className="bt bt-secondary bt-lg">Register Now</a>
                             {/* Banner Image */}
-                            <img className="img-fluid w-80 banner-image" src={banner} alt="banner-img"></img>
+                            {/* <img className="img-fluid w-80 banner-image" src={banner} alt="banner-img"></img> */}
                         </div>
                     </div>
                 </div>
                 {/* Background Images */}
-                <div id="scene">
+                {/* <div id="scene">
                     <img class="img-fluid hero-bg-1 up-down-animation" src={b1} alt=""></img>
                     <img class="img-fluid hero-bg-2 left-right-animation" src={b2} alt=""></img>
                     <img class="img-fluid hero-bg-3 left-right-animation" src={b3} alt=""></img>
@@ -37,7 +37,7 @@ const Hero =()=>{
                     <img class="img-fluid hero-bg-7 left-right-animation" src={b6} alt=""></img>
                     <img class="img-fluid hero-bg-8 up-down-animation" src={b7} alt=""></img>
                     <img class="img-fluid hero-bg-9 up-down-animation" src={b8} alt=""></img>
-                </div>
+                </div> */}
             </div>
         </>
     )

@@ -7,7 +7,7 @@ import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 
 const AboutUsSection = () => {
   return (
-    <div className="container" id="AboutUs">
+    <div id="AboutUs">
       <div className="row align-items-center">
         <div className="col-lg-6 col-md-6 order-2 order-md-1 mt-4 pt-2 mt-sm-0 opt-sm-0">
           <div className="row align-items-center">
@@ -16,7 +16,7 @@ const AboutUsSection = () => {
                 <div className="col-lg-12 col-md-12 mt-4 pt-2">
                   <div className="card work-desk rounded border-0 shadow-lg overflow-hidden">
                     <img
-                      src="https://www.bootdey.com/image/241x362/FFB6C1/000000"
+                      src="images/event/e3.jpg"
                       className="img-fluid"
                     />
                     <div className="img-overlay bg-dark"></div>
@@ -30,7 +30,7 @@ const AboutUsSection = () => {
                 <div className="col-lg-12 col-md-12">
                   <div className="card work-desk rounded border-0 shadow-lg overflow-hidden">
                     <img
-                      src="https://www.bootdey.com/image/337x450/87CEFA/000000"
+                      src="images/event/e1.jpg"
                       className="img-fluid"
                     />
                     <div className="img-overlay bg-dark"></div>
@@ -40,7 +40,7 @@ const AboutUsSection = () => {
                 <div className="col-lg-12 col-md-12 mt-4 pt-2">
                   <div className="card work-desk rounded border-0 shadow-lg overflow-hidden">
                     <img
-                      src="https://www.bootdey.com/image/600x401/FF7F50/000000"
+                      src="images/event/e2.jpg"
                       className="img-fluid"
                     />
                     <div className="img-overlay bg-dark"></div>

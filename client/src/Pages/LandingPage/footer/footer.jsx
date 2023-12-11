@@ -22,13 +22,13 @@ const Footer= ()=>{
                         <nav className="col-12">
                             <ul className="list-inline text-lg-right text-center social-icon">
                                 <li class="list-inline-item">
-                                    <a className="facebook logo1-1" href="se"><FaFacebookSquare className="logo1"/></a>
+                                    <a className="facebook logo1-1" href="#"><FaFacebookSquare className="logo1"/></a>
                                 </li>
                                 <li class="list-inline-item">
-                                    <a className="twitter logo1-1" href="se"><FaInstagram className="logo1"/></a>
+                                    <a className="twitter logo1-1" href="#"><FaInstagram className="logo1"/></a>
                                 </li>
                                 <li class="list-inline-item">
-                                    <a className="black logo1-1" href="se"><FaXTwitter className="logo1"/></a>
+                                    <a className="black logo1-1" href="#"><FaXTwitter className="logo1"/></a>
                                 </li>
                             </ul>
                         </nav>

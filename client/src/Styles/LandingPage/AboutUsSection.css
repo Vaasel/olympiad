@@ -1,6 +1,6 @@
-/* #AboutUs{
-    background-color: var(--background-light);
-} */
+#AboutUs{
+    padding: 2rem;
+}
 
 #about-us-title{
     color: var(--primary-dark);
