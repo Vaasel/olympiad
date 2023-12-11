@@ -4,8 +4,22 @@
 
 #about-us-title{
     color: var(--primary-dark);
+    font-family: 'LemonMilkBold';
+}
+
+.title{
+    font-family: 'LemonMilkBold';
+
+}
+
+.Abouttext{
+    font-family: 'LemonMilkLight';
 }
 
 .icon-color{
     color: var(--primary-dark);
+}
+
+.sports{
+    font-family: 'LemonMilkMedium';
 }

@@ -57,7 +57,7 @@ const AboutUsSection = () => {
             <h4 className="title mb-4">
               Our mission is to make your life easier.
             </h4>
-            <p className="text-muted mb-0">
+            <p className="Abouttext mb-0">
               Lorem, ipsum dolor sit amet consectetur adipisicing elit quod
               debitis praesentium pariatur temporibus ipsa, cum quidem obcaecati
               sunt?
@@ -65,7 +65,7 @@ const AboutUsSection = () => {
             <div className="row">
               <div className="col-lg-6 mt-4 pt-2">
                 <div className="media align-items-center rounded shadow p-3">
-                  <h5 className="ml-3 mb-0">
+                  <h5 className="ml-3 mb-0 sports">
                   <SportsEsportsIcon className='icon-color'/>
                   &nbsp;Indoor Sports
                   </h5>
@@ -73,7 +73,7 @@ const AboutUsSection = () => {
               </div>
               <div className="col-lg-6 mt-4 pt-2">
                 <div className="media align-items-center rounded shadow p-3">
-                  <h5 className="ml-3 mb-0">
+                  <h5 className="ml-3 mb-0 sports">
                   <SportsCricketIcon className='icon-color'/>
                   &nbsp;Outdoor Sports
                   </h5>
@@ -81,7 +81,7 @@ const AboutUsSection = () => {
               </div>
               <div className="col-lg-6 mt-4 pt-2">
                 <div className="media align-items-center rounded shadow p-3">
-                  <h5 className="ml-3 mb-0">
+                  <h5 className="ml-3 mb-0 sports">
                     <EmojiEventsIcon className='icon-color'/>
                   &nbsp;Excitement Competition
                   </h5>
@@ -89,13 +89,15 @@ const AboutUsSection = () => {
               </div>
               <div className="col-lg-6 mt-4 pt-2">
                 <div className="media align-items-center rounded shadow p-3">
-                  <h5 className="ml-3 mb-0">
+                  <h5 className="ml-3 mb-0 sports">
                    <CelebrationIcon className='icon-color'/>
                       &nbsp;Social Events
                   </h5>
                 </div>
               </div>
             </div>
+            <br></br>
+              <a href="https://www.figma.com/proto/WYZKodJlAVChE1NW6JL30q/Olympiad-Prototypes?page-id=0%3A1&type=design&node-id=1-9&viewport=174%2C288%2C0.06&t=Wn8TAQeAd2TVw2El-1&scaling=min-zoom&starting-point-node-id=1%3A9&mode=design" target='_blank'><button className="btn btn-primary fst-italic" id="submitButton">Register Now</button></a>
           </div>
         </div>
       </div>

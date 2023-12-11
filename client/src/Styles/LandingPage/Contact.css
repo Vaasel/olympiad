@@ -59,7 +59,8 @@
   }
 
   .fst-italic {
-    font-style: italic !important;
+    font-style: normal !important;
+    font-family: 'LemonMilkBold';
   }
 
   

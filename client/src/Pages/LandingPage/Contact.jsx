@@ -12,9 +12,9 @@ const Contact = () => {
             <div className="masthead-content text-white">
                 <div className="container-fluid px-4 px-lg-0"  style={{ textAlign: 'center' }}>
                     <h1 className="fst-italic lh-1 mb-4">Contact Us</h1>
-                    <p>If you have any query, feel free to reach out to us</p>
+                    <p className='fst-italic'>If you have any query, feel free to reach out to us</p>
 
-                    <button className="btn btn-primary" id="submitButton">Contact@olympiad.nust.edu.pk</button>
+                    <button className="btn btn-primary fst-italic" id="submitButton">contact@olympiad.nust.edu.pk</button>
                     {/* <form id="contactForm" data-sb-form-api-token="API_TOKEN"> */}
                         {/* <div className="invalid-feedback mt-2" data-sb-feedback="email:required">An email is required.</div>
                         <div className="invalid-feedback mt-2" data-sb-feedback="email:email">Email is not valid.</div> */}
