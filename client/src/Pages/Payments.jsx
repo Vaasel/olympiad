@@ -3,8 +3,11 @@ import '../Styles/Payments.css';
 import '../Styles/Registration.css';
 import DownloadForOfflineOutlinedIcon from '@mui/icons-material/DownloadForOfflineOutlined';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Payments = ({ }) => {
+
+  const navigate = useNavigate();
   const [registrationFee, setRegistrationFee] = useState(1000);
   const tennisFee = 1000;
   const futsalFee = 1000;
@@ -14,6 +17,11 @@ const Payments = ({ }) => {
   // Calculate total cost
   const totalCost =
     registrationFee + tennisFee + futsalFee + footballFeePerPerson * numberOfFootballPlayers;
+
+  const handleButtonClick = () =>{
+
+    navigate('/dashboard');
+  }
   
 return(
 <div className="container my-5">
@@ -39,7 +47,8 @@ return(
               <input id="file-upload-payment" type="file"/>
             </label> 
           </div>
-          <button className="btn btn-primary round-edge left-align">I have paid the challan</button>
+          <button className="btn btn-primary round-edge left-align" 
+          onClick={handleButtonClick}>I have paid the challan</button>
           <p className="text-muted mt-3">Privacy policy something about not refundable</p>
         </div>
         <div className="col-md-6 ps-5">

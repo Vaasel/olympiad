@@ -87,19 +87,19 @@ const SideNav = () => {
             </ListItemIcon>
             <ListItemText primary="Dashboard" style={listItemTextStyles} />
           </ListItem>
-          <ListItem button component="a" href="#">
+          <ListItem button component="a" href="/createteam">
             <ListItemIcon>
               <SportsIcon style={{ color: 'lightgrey' }} />
             </ListItemIcon>
-            <ListItemText primary="Sports" style={listItemTextStyles} />
+            <ListItemText primary="Join Sports" style={listItemTextStyles} />
           </ListItem>
-          <ListItem button component="a" href="#">
+          <ListItem button component="a" href="/createteam">
             <ListItemIcon>
               <EmojiEventsIcon style={{ color: 'lightgrey' }} />
             </ListItemIcon>
             <ListItemText primary="Competition" style={listItemTextStyles} />
           </ListItem>
-          <ListItem button component="a" href="#">
+          <ListItem button component="a" href="/payments">
             <ListItemIcon>
               <PaymentIcon style={{ color: 'lightgrey' }} />
             </ListItemIcon>
@@ -108,7 +108,7 @@ const SideNav = () => {
         </List>
         <Divider style={{ backgroundColor: 'lightgrey' }} />
         <List>
-          <ListItem button component="a" href="#">
+          <ListItem button component="a" href="/login">
             <ListItemIcon>
               <ExitToAppIcon style={{ color: 'lightgrey' }} />
             </ListItemIcon>
