@@ -286,6 +286,7 @@ const createTeam = async (req, res) => {
 
     res.status(201).json({ success: true, message: "Created sport team successfully" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Failed to create sport team" });
   }
 };
@@ -428,7 +429,6 @@ const addSport = async (req, res) => {
   }
 };
 
-
 const withdrawSingleSport = async (req, res) => {
   const { sportId } = req.body;
   const userId = req.user.id;
@@ -459,15 +459,17 @@ const withdrawSingleSport = async (req, res) => {
       }
     }
 
-    await prisma.sports_Teams.delete({
-      where: {
-        id: sportsTeam.id,
-      },
-    });
-
+    // Delete records in sports_Teams_Members table first
     await prisma.sports_Teams_Members.deleteMany({
       where: {
         sportsTeamId: sportsTeam.id,
+      },
+    });
+
+    // Then delete the sportsTeam record
+    await prisma.sports_Teams.delete({
+      where: {
+        id: sportsTeam.id,
       },
     });
 

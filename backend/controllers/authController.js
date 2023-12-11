@@ -186,7 +186,11 @@ module.exports.getAll = async (req, res) => {
 };
 
 module.exports.verifyEmail = async (req, res) => {
-  const { email, code } = req.body;
+  const { code } = req.body;
+  const email = req.user.email;
+  if (!code) {
+    return res.apiError(null, "Enter code.", 404);
+  }
   try {
     const user = await prisma.user.findUnique({
       where: {

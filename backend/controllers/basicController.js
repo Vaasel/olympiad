@@ -258,7 +258,7 @@ module.exports.basicInfoCreate = async (req, res) => {
             guardianName: data.guardianName,
             guardianNumber: data.guardianNumber.toString(),
             schoolName: data.schoolName,
-            gender: data.gender,
+            gender: data.gender == "male",
             address: data.address,
             cnicFront: cnicFrontLink,
             cnicBack: cnicBackLink,
@@ -324,8 +324,9 @@ module.exports.SecondPage = async (req, res) => {
       return;
     }
 
-    const { studentOf, student_id, schoolName, ambassadorcode } = req.body;
-
+    console.log(req);
+    const { studentOf } = req.body;
+    console.log(req.body);
 
     // const studentOf = 'nust';
     // const student_id = '3';
@@ -333,12 +334,48 @@ module.exports.SecondPage = async (req, res) => {
     // const ambassadorcode = 'asds'
 
     let validationSchema;
-
+    
     if (studentOf === 'other') {
       validationSchema = yup.object().shape({
         studentOf: yup.string().trim().required(),
       });
+      console.log("Before try.");
+      try {
+        await validationSchema.validate(
+          { studentOf },
+          { abortEarly: false, strict: true }
+        );
+      } catch (err) {
+        res.apiError(err.errors, 'Validation Error', 400);
+          return;
+      }
+        console.log("After try");
+      const updatedBasicInfo = await prisma.BasicInfo.update({
+        where: { userId: parseInt(userId) },
+        data: {
+          studentOf: studentOf,
+          student_id:  null,
+          schoolName:  null,
+          ambassadorcode: null,
+          stdFront: null,
+          stdBack: null,
+        },
+      });
+
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      const userInfo = {
+        id: user.id,
+        email: user.email,
+      };
+
+      const accessToken = sign(userInfo, process.env.APP_SECRET);
+      return res.apiSuccess({updatedBasicInfo, accessToken},'BasicInfo updated successfully');      
+    
     } else {
+      const { student_id, schoolName, ambassadorcode } = req.body;
       validationSchema = yup.object().shape({
         student_id: yup.string().trim().required(),
         schoolName: yup.string().trim().required(),
@@ -352,7 +389,7 @@ module.exports.SecondPage = async (req, res) => {
         );
       } catch (err) {
         res.apiError(err.errors, 'Validation Error', 400);
-          return;
+        return;
       }
     }
     
@@ -413,32 +450,7 @@ module.exports.SecondPage = async (req, res) => {
         res.apiSuccess({updatedBasicInfo, accessToken},'BasicInfo updated successfully')
       });
 
-    } else {
-      const updatedBasicInfo = await prisma.BasicInfo.update({
-        where: { userId: parseInt(userId) },
-        data: {
-          studentOf: studentOf,
-          student_id:  null,
-          schoolName:  null,
-          ambassadorcode: null,
-          stdFront: null,
-          stdBack: null,
-        },
-      });
-
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-      });
-
-      const userInfo = {
-        id: user.id,
-        email: user.email,
-      };
-
-      const accessToken = sign(userInfo, process.env.APP_SECRET);
-      res.apiSuccess({updatedBasicInfo, accessToken},'BasicInfo updated successfully')
     }
-
 
     // try {
     //   await validationSchema.validate(
