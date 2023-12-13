@@ -4,12 +4,12 @@ const prisma = new PrismaClient()
 
 // 1) get all users
 module.exports.allUsers = async (req, res) => {
-    try {
-      const users = await prisma.user.findMany();
-  
-      res.json({status:true,  data: users});
+  try {
+    const users = await prisma.user.findMany();
 
-    } catch (error) {
-      res.status(500).json({ status:false, message: error.message });
-    }
-  };
+    res.apiSuccess(users);
+
+  } catch (error) {
+    res.apiError(error.message, 'Internal Server Error', 500);
+  }
+};

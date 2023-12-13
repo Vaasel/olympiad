@@ -56,7 +56,7 @@ module.exports.getSingleUserDetails = async (req, res) => {
 
 
 module.exports.ApplyAccomodation = async (req,res) => {
-  const updatedBasicInfo = await prisma.BasicInfo.update({
+  const updatedBasicInfo = await prisma.basicInfo.update({
     where: { userId: req.user.id },
     data: {
       accomodation: true,
@@ -78,7 +78,7 @@ module.exports.setStatus = async (req,res) => {
   });
 
 
-  const updatedBasicInfo = await prisma.BasicInfo.update({
+  const updatedBasicInfo = await prisma.basicInfo.update({
     where: { userId: data.userId },
     data: {
       status: data.status,
