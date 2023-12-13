@@ -20,7 +20,7 @@ const Hero =()=>{
                         <div className="col-lg-12 text-center zindex-1">
                             <h1 className="mb-3 h" id="HeroTitle">NUST<br></br> Olympiad 24'</h1>
                             <p className="mb-4 p">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum<br></br>dolore eu fugiat nulla pariatur.</p>
-                            <a href="#" className="bt bt-secondary bt-lg">Register Now</a>
+                            <a href="\signup" className="bt bt-secondary bt-lg">Register Now</a>
                             {/* Banner Image */}
                             <img className="img-fluid w-80 banner-image" src={banner} alt="banner-img"></img>
                         </div>

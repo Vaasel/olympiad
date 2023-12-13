@@ -6,6 +6,7 @@ import TopNav from '../Components/TopNav';
 import { useState } from 'react';
 import SideNav from '../Components/SideNav';
 import JoinTeamCard from '../Components/JoinTeamCard';
+import OpenCard from '../Components/OpenCard';
 import AlertBox from '../Components/AlertBox';
 import Button from '@mui/material/Button';
 // import SideNav from '../Components/SideNav';
@@ -155,7 +156,7 @@ const Dashboard = () => {
             <Grid container spacing={2}>
               {cardData.map((card, index) => (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                  <CustomCard {...card} />
+                  <OpenCard {...card} />
                 </Grid>
               ))}
             </Grid>
@@ -167,7 +168,7 @@ const Dashboard = () => {
             <Grid container spacing={2}>
               {cardData.map((card, index) => (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                  <CustomCard {...card} />
+                  <OpenCard {...card} />
                 </Grid>
               ))}
             </Grid>

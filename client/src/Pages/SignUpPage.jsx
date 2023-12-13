@@ -11,6 +11,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import CustomTextField from '../Components/CustomTextField';
+import { useNavigate } from 'react-router-dom';
 
 // api link
 // vaasel-nust-olympiad.onrender.com/api/auth/register
@@ -18,6 +19,7 @@ import CustomTextField from '../Components/CustomTextField';
 
 const SignUpPage = () => {
 
+  const navigate = useNavigate();
   // Handle hide password for first password field
   const [showPassword, setShowPassword] = useState(false);
 
@@ -35,6 +37,10 @@ const SignUpPage = () => {
   const labelStyles = { position: 'relative', top: '-2px', left: '2px' };
   const lockIconStyles = { position: 'relative', top: '5x', left: '2px' };
   const visibilityIconStyles = { position: 'relative', right: '10px' };
+
+  const handleButtonClick = () => {
+    navigate('/registration');
+  };
 
   return (
     <div className="Mycontainer" >
@@ -73,17 +79,6 @@ const SignUpPage = () => {
                   ),
                 }}
               />
-              {/* <TextField label={<span><LockOutlinedIcon style={{ marginRight: '8px' }} />Password</span>} variant="outlined" margin="normal" fullWidth type={showPassword ? 'text' : 'password'} required 
-              InputProps={{
-                style: { borderRadius: '50px' },
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={handleTogglePasswordVisibility} edge="end">
-                      {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}/> */}
               <TextField
                 label={
                   <span style={{ ...labelStyles }}>
@@ -121,6 +116,7 @@ const SignUpPage = () => {
             <button
               type="submit"
               className="button"
+              onClick={handleButtonClick}
               style={{transform: 'scale(1.25)', paddingLeft:'40px', paddingRight:'40px', paddingTop:'20px', paddingBottom:'20px'}}
             >
               Create Account

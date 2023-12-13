@@ -4,6 +4,7 @@ import { Typography} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 
 // FOR SINGLE SPORTS
@@ -27,6 +28,8 @@ import { Button } from 'react-bootstrap';
 //FOR TEAM SPORTS
 
 const CricketDescription = ({ data }) => {
+
+    const navigate = useNavigate();
     const { title, description, teamMembers } = data;
   
     // const removeMember = (index) => {
@@ -37,6 +40,10 @@ const CricketDescription = ({ data }) => {
     }
     const [showModal, setShowModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(null);
+
+    const handleButtonClick = () => {
+      navigate('/dashboard');
+    }
   
     const handleDelete = (index) => {
       setShowModal(true);
@@ -90,11 +97,15 @@ const CricketDescription = ({ data }) => {
           </div>
         </div>
       )}
+      
   </div>
 ))}
 
       </div>
+      <button className="btn btn-primary round-edge left-align" 
+      onClick={handleButtonClick}>Go Back</button>
       </div>
+      
     );
   };
 export default CricketDescription;

@@ -9,13 +9,19 @@ import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { useNavigate } from 'react-router-dom';
 
 // api link
 // vaasel-nust-olympiad.onrender.com/api/auth/login
 
 const LoginPage = () => {
 
+  const navigate = useNavigate()
   // Handle hide password for first password field
+
+  const handleButtonClick =() =>{
+    navigate('/dashboard')
+  }
   const [showPassword, setShowPassword] = useState(false);
 
   const handleTogglePasswordVisibility = () => {
@@ -47,6 +53,7 @@ const LoginPage = () => {
             <button
               type="submit"
               className="button"
+              onClick={handleButtonClick}
               style={{transform: 'scale(1.25)', paddingLeft:'40px', paddingRight:'40px', paddingTop:'20px', paddingBottom:'20px'}}
             >
               Login

@@ -1,7 +1,7 @@
 import React from 'react';
 import TextField from '@mui/material/TextField';
 
-const CustomTextField = ({ type, iconType, label, ...props }) => {
+const CustomTextField = ({ type, iconType, label, req='1', ...props }) => {
   const inputProps = {
     style: { borderRadius: '50px' },
   };
@@ -15,6 +15,7 @@ const CustomTextField = ({ type, iconType, label, ...props }) => {
     ) : null;
 
   return (
+    req === '1' ?
     <TextField
       InputProps={{
         ...inputProps,
@@ -24,6 +25,17 @@ const CustomTextField = ({ type, iconType, label, ...props }) => {
       margin="normal"
       fullWidth
       required
+      {...props}
+    />
+    :
+    <TextField
+      InputProps={{
+        ...inputProps,
+      }}
+      label={<span style={{ ...labelStyles }}>{iconComponent}{label}</span>}
+      variant="outlined"
+      margin="normal"
+      fullWidth
       {...props}
     />
   );

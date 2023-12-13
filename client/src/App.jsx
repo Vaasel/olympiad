@@ -17,9 +17,28 @@ import SportDetails from './Pages/SportDetails';
 import Details from './Pages/UserDetails';
 import RegEdit from './Pages/RegEdit';
 import Payments from './Pages/Payments';
+import CricketDescription from './Pages/Description';
 
 
 const App = () => {
+
+  const dummyData = {
+    title: 'Cricket Team',
+    description: 'This is a dummy cricket team description.',
+    teamMembers: [
+      {
+        name: 'Player 1',
+        role: 'Batsman',
+        profilePicture: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
+      },
+      {
+        name: 'Player 2',
+        role: 'Bowler',
+        profilePicture: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
+      },
+      // Add more dummy data as needed
+    ]}
+
   return (
     <Router>
       <div>
@@ -52,6 +71,8 @@ const App = () => {
           </Route>
 
           <Route exact path ='/Payments' element={<Payments />}>
+          </Route>
+          <Route exact path ='/Description' element={<CricketDescription data={dummyData} />}>
           </Route>
 
         </Routes>

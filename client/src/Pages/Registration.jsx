@@ -13,12 +13,18 @@ import CustomTextField from '../Components/CustomTextField';
 import CustomSelectField from '../Components/CustomSelect';
 // import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import '@fortawesome/fontawesome-free/css/all.css';
+import { useNavigate } from 'react-router-dom';
 
 const OlympiadRegistration = () => {
 
+  const navigate = useNavigate();
   const [profilePic, setProfilePic] = useState('');
   const [cnicFront, setCnicFront] = useState('');
   const [cnicBack, setCnicBack] = useState('');
+
+  const handleButtonClick = () => {
+    navigate('/details')
+  }
 
   const handleProfilePicChange = (event) => {
     const file = event.target.files[0];
@@ -188,7 +194,7 @@ const OlympiadRegistration = () => {
           </div>
           </div>
         </div>
-        <button type="submit" className="btn btn-primary right-align">Next step</button>
+        <button type="submit" className="btn btn-primary right-align" onClick={handleButtonClick}>Next step</button>
       {/* </form> */}
     </div>
   );

@@ -14,7 +14,7 @@ const Dashboard2 = () => {
   };
   const individualParticipationData = [
     {
-      title: 'Badminton',
+      title: 'Cricket',
       description: 'PKR 700/-',
       doneCount: 3,
       leftCount: 8,
@@ -74,7 +74,7 @@ const Dashboard2 = () => {
      style={{
        cursor: 'pointer',
        padding: '10px',
-       backgroundColor: selectedHeader === 'individual' ? 'blue' : 'white',
+       backgroundColor: selectedHeader === 'individual' ? 'lightblue' : 'white',
        color: selectedHeader === 'individual' ? 'white' : 'blue',
        borderRadius: '15px',
        marginRight: '10px',
@@ -88,7 +88,7 @@ const Dashboard2 = () => {
      style={{
        cursor: 'pointer',
        padding: '10px',
-       backgroundColor: selectedHeader === 'team' ? 'blue' : 'white',
+       backgroundColor: selectedHeader === 'team' ? 'lightblue' : 'white',
        color: selectedHeader === 'team' ? 'white' : 'blue',
        borderRadius: '15px',
        marginBottom:'20px'

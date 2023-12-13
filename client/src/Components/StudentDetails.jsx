@@ -12,13 +12,13 @@ const StudentDetails = ({ }) => {
 <div>
        <div className="row">
           <div className="col-md-4 mb-3">
-          <CustomTextField type="Person"  iconType={<AccountCircleOutlinedIcon />} label="Name" value="John Doe" />
+          <CustomTextField type="Person"  iconType={<AccountCircleOutlinedIcon />} label="Roll Number / CMS ID" />
           </div>
           <div className="col-md-4 mb-3">
             <CustomTextField type="Campus" iconType={<SchoolOutlinedIcon />} label="Campus Name" />
           </div>
           <div className="col-md-4 mb-3">
-             <CustomTextField type="Code" iconType={<AccountCircleOutlinedIcon/>} label="Ambassador Code" />
+             <CustomTextField type="Code" iconType={<AccountCircleOutlinedIcon/>} label="Ambassador Code" req='0'/>
           </div>
         </div> 
       <div className="row">
