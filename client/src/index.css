@@ -5,13 +5,33 @@
   --fire-red: #ED1B24;
   --fire-orange: #F86A2C;
   --tertiary: #511E63;
-  --background-dark: #1F292B;
+  --background-dark: #01463D;
   --background-light: #FFF8DD;
 }
 
 @font-face {
   font-family: 'Facon';
   src: local('Facon'), url(./Styles/fonts/facon.ttf) format('ttf');
+}
+
+@font-face {
+  font-family: 'LemonMilkBold';
+  src: local('LemonMilkBold'), url(./Styles/fonts/LEMONMILK-Bold.otf) format('otf');
+}
+
+@font-face {
+  font-family: 'LemonMilkLight';
+  src: local('LemonMilkLight'), url(./Styles/fonts/LEMONMILK-Light.otf) format('otf');
+}
+
+@font-face {
+  font-family: 'LemonMilkMedium';
+  src: local('LemonMilkMedium'), url(./Styles/fonts/LEMONMILK-Medium.otf) format('otf');
+}
+
+@font-face {
+  font-family: 'LemonMilkRegular';
+  src: local('LemonMilkRegular'), url(./Styles/fonts/LEMONMILK-Regular.otf) format('otf');
 }
 
 body {

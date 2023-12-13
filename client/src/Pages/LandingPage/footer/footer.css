@@ -1,0 +1,65 @@
+.footer {
+    background-size    : cover;
+    background-position: top center;
+    background-repeat  : no-repeat;
+}
+
+.footer-section {
+    padding-top   : 500px;
+    padding-bottom: 100px;
+}
+
+.footer-menu a {
+    color      : #091337;
+    display    : block;
+    padding    : 15px;
+    font-weight: 400;
+}
+
+.social-icon li {
+    margin: 0 12px;
+}
+
+.social-icon li a {
+    height       : 45px;
+    width        : 45px;
+    background   : #fff;
+    border-radius: 5px;
+    line-height  : 45px;
+    display      : block;
+    text-align   : center;
+}
+
+.social-icon li {
+    margin: 0 1rem;
+}
+
+.social-icon li a {
+    height       : 3rem;
+    width        : 3rem;
+    background   : #fff;
+    border-radius: 5px;
+    display      : block;
+}
+
+.facebook {
+    color: #334bff;
+}
+
+.twitter {
+    color:  radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+}
+.black {
+    color: #000;
+}
+
+.logo1{
+    width: 2.2rem;
+    height: 2.2rem;
+}
+
+.logo1-1{
+    display: flex;
+    align-items: center;
+    justify-items: center;
+}

@@ -7,7 +7,7 @@ import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 
 const AboutUsSection = () => {
   return (
-    <div className="container" id="AboutUs">
+    <div id="AboutUs">
       <div className="row align-items-center">
         <div className="col-lg-6 col-md-6 order-2 order-md-1 mt-4 pt-2 mt-sm-0 opt-sm-0">
           <div className="row align-items-center">
@@ -16,7 +16,7 @@ const AboutUsSection = () => {
                 <div className="col-lg-12 col-md-12 mt-4 pt-2">
                   <div className="card work-desk rounded border-0 shadow-lg overflow-hidden">
                     <img
-                      src="https://www.bootdey.com/image/241x362/FFB6C1/000000"
+                      src="images/event/e3.jpg"
                       className="img-fluid"
                     />
                     <div className="img-overlay bg-dark"></div>
@@ -30,7 +30,7 @@ const AboutUsSection = () => {
                 <div className="col-lg-12 col-md-12">
                   <div className="card work-desk rounded border-0 shadow-lg overflow-hidden">
                     <img
-                      src="https://www.bootdey.com/image/337x450/87CEFA/000000"
+                      src="images/event/e1.jpg"
                       className="img-fluid"
                     />
                     <div className="img-overlay bg-dark"></div>
@@ -40,7 +40,7 @@ const AboutUsSection = () => {
                 <div className="col-lg-12 col-md-12 mt-4 pt-2">
                   <div className="card work-desk rounded border-0 shadow-lg overflow-hidden">
                     <img
-                      src="https://www.bootdey.com/image/600x401/FF7F50/000000"
+                      src="images/event/e2.jpg"
                       className="img-fluid"
                     />
                     <div className="img-overlay bg-dark"></div>
@@ -57,7 +57,7 @@ const AboutUsSection = () => {
             <h4 className="title mb-4">
               Our mission is to make your life easier.
             </h4>
-            <p className="text-muted mb-0">
+            <p className="Abouttext mb-0">
               Lorem, ipsum dolor sit amet consectetur adipisicing elit quod
               debitis praesentium pariatur temporibus ipsa, cum quidem obcaecati
               sunt?
@@ -65,7 +65,7 @@ const AboutUsSection = () => {
             <div className="row">
               <div className="col-lg-6 mt-4 pt-2">
                 <div className="media align-items-center rounded shadow p-3">
-                  <h5 className="ml-3 mb-0">
+                  <h5 className="ml-3 mb-0 sports">
                   <SportsEsportsIcon className='icon-color'/>
                   &nbsp;Indoor Sports
                   </h5>
@@ -73,7 +73,7 @@ const AboutUsSection = () => {
               </div>
               <div className="col-lg-6 mt-4 pt-2">
                 <div className="media align-items-center rounded shadow p-3">
-                  <h5 className="ml-3 mb-0">
+                  <h5 className="ml-3 mb-0 sports">
                   <SportsCricketIcon className='icon-color'/>
                   &nbsp;Outdoor Sports
                   </h5>
@@ -81,7 +81,7 @@ const AboutUsSection = () => {
               </div>
               <div className="col-lg-6 mt-4 pt-2">
                 <div className="media align-items-center rounded shadow p-3">
-                  <h5 className="ml-3 mb-0">
+                  <h5 className="ml-3 mb-0 sports">
                     <EmojiEventsIcon className='icon-color'/>
                   &nbsp;Excitement Competition
                   </h5>
@@ -89,13 +89,15 @@ const AboutUsSection = () => {
               </div>
               <div className="col-lg-6 mt-4 pt-2">
                 <div className="media align-items-center rounded shadow p-3">
-                  <h5 className="ml-3 mb-0">
+                  <h5 className="ml-3 mb-0 sports">
                    <CelebrationIcon className='icon-color'/>
                       &nbsp;Social Events
                   </h5>
                 </div>
               </div>
             </div>
+            <br></br>
+              <a href="https://www.figma.com/proto/WYZKodJlAVChE1NW6JL30q/Olympiad-Prototypes?page-id=0%3A1&type=design&node-id=1-9&viewport=174%2C288%2C0.06&t=Wn8TAQeAd2TVw2El-1&scaling=min-zoom&starting-point-node-id=1%3A9&mode=design" target='_blank'><button className="btn btn-primary fst-italic" id="submitButton">Register Now</button></a>
           </div>
         </div>
       </div>
