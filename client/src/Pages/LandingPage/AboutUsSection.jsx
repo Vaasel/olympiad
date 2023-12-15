@@ -97,7 +97,7 @@ const AboutUsSection = () => {
               </div>
             </div>
             <br></br>
-              <a href="https://www.figma.com/proto/WYZKodJlAVChE1NW6JL30q/Olympiad-Prototypes?page-id=0%3A1&type=design&node-id=1-9&viewport=174%2C288%2C0.06&t=Wn8TAQeAd2TVw2El-1&scaling=min-zoom&starting-point-node-id=1%3A9&mode=design" target='_blank'><button className="btn btn-primary fst-italic" id="submitButton">Register Now</button></a>
+              <a href="/signup" target='_blank'><button className="btn btn-primary fst-italic" id="submitButton">Register Now</button></a>
           </div>
         </div>
       </div>

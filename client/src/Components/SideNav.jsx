@@ -8,8 +8,8 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import MenuIcon from '@mui/icons-material/Menu';
 
 const drawerWidth = 240;
-const logoImagePath =
-  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGZpzfGOb1d6ZbEiairsX09aVHH9gROHhbGw&usqp=CAU';
+const logoImagePath = `${process.env.PUBLIC_URL}/logo.png`;
+// const logoImagePath ='.../public/logo.png'; //modify this path accordingly
 
 const SideNav = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(window.innerWidth >= 900);
@@ -27,7 +27,7 @@ const SideNav = () => {
     justifyContent: 'flex-start',
     alignItems: 'center',
     height: '100vh',
-    backgroundColor: '#1F292B',
+    backgroundColor: '#01463D',
     overflowY: 'auto',
     paddingTop: '64px',
   };
@@ -69,11 +69,11 @@ const SideNav = () => {
         <MenuIcon />
       </IconButton>
       <nav style={{ ...drawerStyles, display: isDrawerOpen ? 'block' : 'none' }} aria-label="mailbox folders">
-        <div style={{ display: 'flex', alignItems: 'center', marginLeft: '75px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginLeft: '40px' }}>
           <img
             src={logoImagePath}
             alt="Logo"
-            style={{ width: '80px', height: '80px', objectFit: 'contain', marginRight: '10px', zIndex:2 }}
+            style={{ width: '150px', height: '150px', objectFit: 'contain', marginRight: '0 auto', zIndex:2 }}
           />
         </div>
         <List>
@@ -81,7 +81,7 @@ const SideNav = () => {
             <ListItemText primary="    " />
           </ListItem>
           <Divider style={{ backgroundColor: 'lightgrey' }} />
-          <ListItem button component="a" href="#">
+          <ListItem button component="a" href="/dashboard">
             <ListItemIcon>
               <DashboardIcon style={{ color: 'lightgrey' }} />
             </ListItemIcon>
@@ -91,7 +91,7 @@ const SideNav = () => {
             <ListItemIcon>
               <SportsIcon style={{ color: 'lightgrey' }} />
             </ListItemIcon>
-            <ListItemText primary="Join Sports" style={listItemTextStyles} />
+            <ListItemText primary="Sports" style={listItemTextStyles} />
           </ListItem>
           <ListItem button component="a" href="/createteam">
             <ListItemIcon>
