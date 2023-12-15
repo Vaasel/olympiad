@@ -17,10 +17,10 @@ const prisma = new PrismaClient();
 module.exports.getAllFAQs = async (req, res) => {
     try {
         const faqs = await prisma.FAQ.findMany();
-        res.json({ faqs });
+        res.apiSuccess(faqs);
       } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Internal server error', error: error.message });
+        res.apiError(error.message, 'Internal Server Error', 500);
       }
 }
 
@@ -36,11 +36,10 @@ module.exports.CreateFAQ = async (req, res) => {
           category,
         },
       });
-  
-      res.json({ message: 'FAQ created successfully', faq: newFAQ });
+      res.apiSuccess(newFAQ);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Internal server error', error: error.message });
+      res.apiError(error.message, 'Internal Server Error', 500);
     }
 
 }
@@ -50,11 +49,9 @@ module.exports.getAllChallans = async (req, res) => {
     try {
       const Challans = await prisma.Challan.findMany();
   
-      res.json({
-        Challans: Challans,
-      });
+      res.apiSuccess(Challans);
     } catch (err) {
-      res.status(500).json({ message: err.message });
+      res.apiError(err.message, 'Internal Server Error', 500);
     }
   };
 
@@ -101,11 +98,7 @@ module.exports.setStatus = async (req,res) => {
       });
 
 
-
-    res.json({
-      message: 'Challan updated successfully',
-      updatedStatusChallan: updatedStatusChallan,
-    });
+      res.apiSuccess(updatedStatusChallan,'Challan updated successfully');
   
   }
 
@@ -156,7 +149,7 @@ module.exports.CalculateChallan = async (req, res) => {
 
 
 
-      res.json({
+      res.apiSuccess({
         userId: userId,
         totalSportsPrice: totalSportsPrice,
         totalCompetitionsPrice: totalCompetitionsPrice,
@@ -165,7 +158,7 @@ module.exports.CalculateChallan = async (req, res) => {
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Internal server error', error: error.message });
+      res.apiError(error.message, 'Internal Server Error', 500);
     }
   };
 
@@ -236,7 +229,7 @@ module.exports.CalculateChallan = async (req, res) => {
       });
 
 
-      res.json({
+      res.apiSuccess({
         userId: userId,
         totalSportsPrice: totalSportsPrice,
         totalCompetitionsPrice: totalCompetitionsPrice,
@@ -245,7 +238,7 @@ module.exports.CalculateChallan = async (req, res) => {
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Internal server error', error: error.message });
+      res.apiError(error.message, 'Internal Server Error', 500);
     }
   };
   

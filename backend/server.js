@@ -4,11 +4,13 @@ require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const app = express();
 const port = process.env.PORT
-
+const responseMiddleware = require("./middlewares/responseFormatter");
 
 app.use(express.json()); // Add this middleware to parse JSON data from requests
 app.use(express.urlencoded({ extended: false }));
 
+// Apply response formatting middleware to all routes
+app.use(responseMiddleware);
 
 //routes
 const authRoute = require('./routes/Auth')

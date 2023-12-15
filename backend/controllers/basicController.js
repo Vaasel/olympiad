@@ -27,11 +27,10 @@ module.exports.getAllUserDetails = async (req, res) => {
       },
     });
 
-    res.json({
-      userDetails: userDetails,
-    });
+    res.apiSuccess(userDetails);
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.apiError(err.message, "Failed", 500);
   }
 };
 
@@ -46,11 +45,10 @@ module.exports.getSingleUserDetails = async (req, res) => {
       },
     });
 
-    res.json({
-      userDetails: userDetails,
-    });
+    res.apiSuccess(userDetails);
+    
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.apiError(err.message, "Failed", 500);
   }
 };
 
@@ -58,27 +56,20 @@ module.exports.getSingleUserDetails = async (req, res) => {
 
 
 module.exports.ApplyAccomodation = async (req,res) => {
-  const updatedBasicInfo = await prisma.BasicInfo.update({
+  const updatedBasicInfo = await prisma.basicInfo.update({
     where: { userId: req.user.id },
     data: {
       accomodation: true,
     },
   });
 
-  res.json({
-    message: 'BasicInfo updated successfully',
-    basicInfo: updatedBasicInfo,
-  });
+  
+  res.apiSuccess(updatedBasicInfo,'BasicInfo updated successfully');
+    
 }
 
 module.exports.setStatus = async (req,res) => {
   const data = req.body;
-
-  console.log(data.userId);
-  const id = data.userId;
-  // const entry = await prisma.BasicInfo.findUnique({
-  //   where: { userId: data.userId},
-  // });
 
   const user = await prisma.user.findUnique({
     where: {
@@ -87,7 +78,7 @@ module.exports.setStatus = async (req,res) => {
   });
 
 
-  const updatedBasicInfo = await prisma.BasicInfo.update({
+  const updatedBasicInfo = await prisma.basicInfo.update({
     where: { userId: data.userId },
     data: {
       status: data.status,
@@ -104,19 +95,13 @@ module.exports.setStatus = async (req,res) => {
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error(error);
-      res.send("Error sending email");
+      res.apiError(error, "Failed", 500);
     } else {
       console.log("Email sent: " + info.response);
-      res.send("Email sent successfully");
+      // res.send("Email sent successfully");
     }
   });
-
-  res.json({
-    message: 'BasicInfo updated successfully',
-    basicInfo: updatedBasicInfo,
-  });
-
-
+  res.apiSuccess(updatedBasicInfo,'BasicInfo updated successfully');
 }
 
 module.exports.basicDisplay = async (req, res) => {
@@ -126,12 +111,13 @@ module.exports.basicDisplay = async (req, res) => {
       where: { userId: req.user.id },
     });
 
-    res.json({"entry":entry});
+    res.apiSuccess(entry);
 
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    
+    res.apiError(error.message, "Failed", 500);
   }
 };
 
@@ -147,7 +133,8 @@ module.exports.basicInfoUpdate = async (req, res) => {
     // let fileup = [];
     upload.fields([{ name: 'cnicFront', maxCount: 1 }, { name: 'cnicBack', maxCount: 1 }, { name: 'stdFront', maxCount: 1 }, { name: 'stdBack', maxCount: 1 }])(req, res, async (err) => {
       if (err) {
-        return res.status(400).json({ message: 'File upload error', error: err.message });
+        res.apiError(err.message, 'File upload error', 400);
+        return;
       }
 
       fileup = {};
@@ -203,16 +190,14 @@ module.exports.basicInfoUpdate = async (req, res) => {
       });
   
 
-      res.json({
-        message: 'BasicInfo updated successfully',
-        basicInfo: updatedBasicInfo,
-      });
+      res.apiSuccess(updatedBasicInfo,'BasicInfo updated successfully');
+    
 
     });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    res.apiError(error.message, "Failed", 500);
   }
 };
 
@@ -224,19 +209,22 @@ module.exports.basicInfoCreate = async (req, res) => {
   try {
     upload.fields([{ name: 'cnicFront', maxCount: 1 }, { name: 'cnicBack', maxCount: 1 }])(req, res, async (err) => {
       if (err) {
-        return res.status(400).json({ message: 'File upload error', error: err.message });
+        res.apiError(err.message, "File upload error", 500);
+        return;
       }
 
       const cnicFrontFile = req.files['cnicFront'] ? req.files['cnicFront'][0] : null;
       const cnicBackFile = req.files['cnicBack'] ? req.files['cnicBack'][0] : null;
 
       if (!cnicFrontFile || !cnicBackFile) {
-        return res.status(400).json({ message: 'Both files (cnicFront and cnicBack) are required' });
+        res.apiError(null, 'Both files (cnicFront and cnicBack) are required', 400);
+        return;
       }
 
       try {
         if (cnicFrontFile.buffer.length === 0 || cnicBackFile.buffer.length === 0) {
-          return res.status(400).json({ message: 'Invalid file buffer' });
+          res.apiError(null, 'Invalid file buffer', 400);
+          return;
         }
 
         const cnicFrontLink = await uploadToWasabi(cnicFrontFile);
@@ -257,7 +245,7 @@ module.exports.basicInfoCreate = async (req, res) => {
         try {
           await validationSchema.validate(data, { abortEarly: false, strict: true });
         } catch (err) {
-          res.status(400).json({ errors: err.errors });
+          res.apiError(err.errors, 'Validation Error', 400);
           return;
         }
 
@@ -270,7 +258,7 @@ module.exports.basicInfoCreate = async (req, res) => {
             guardianName: data.guardianName,
             guardianNumber: data.guardianNumber.toString(),
             schoolName: data.schoolName,
-            gender: data.gender,
+            gender: data.gender == "male",
             address: data.address,
             cnicFront: cnicFrontLink,
             cnicBack: cnicBackLink,
@@ -302,20 +290,25 @@ module.exports.basicInfoCreate = async (req, res) => {
         //   accessToken: accessToken,
         //   user: userInfo,
         // });
-
-        res.json({
-          accessToken: accessToken,
-          user: userInfo,
-          basicInfo: createdBasicInfo,
-        });
+         
+        const resdata = {
+          "accessToken": accessToken,
+          "user": userInfo,
+          "basicInfo": createdBasicInfo,
+        };
+        res.apiSuccess(resdata);
+    
       } catch (error) {
         console.error('Wasabi upload error:', error);
-        res.status(500).json({ message: 'Wasabi upload error', error: error.message });
+        res.apiError(error.message, "Wasabi upload error", 500);
+        return;
+        
       }
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    res.apiError(error.message, 'Internal server error', 500);
+    // res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
@@ -327,11 +320,13 @@ module.exports.SecondPage = async (req, res) => {
 
     // Check if user is available in req object
     if (!userId) {
-      return res.status(400).json({ message: 'Invalid request format' });
+      res.apiError(null, 'Invalid request format', 400);
+      return;
     }
 
-    const { studentOf, student_id, schoolName, ambassadorcode } = req.body;
-
+    console.log(req);
+    const { studentOf } = req.body;
+    console.log(req.body);
 
     // const studentOf = 'nust';
     // const student_id = '3';
@@ -339,12 +334,48 @@ module.exports.SecondPage = async (req, res) => {
     // const ambassadorcode = 'asds'
 
     let validationSchema;
-
+    
     if (studentOf === 'other') {
       validationSchema = yup.object().shape({
         studentOf: yup.string().trim().required(),
       });
+      console.log("Before try.");
+      try {
+        await validationSchema.validate(
+          { studentOf },
+          { abortEarly: false, strict: true }
+        );
+      } catch (err) {
+        res.apiError(err.errors, 'Validation Error', 400);
+          return;
+      }
+        console.log("After try");
+      const updatedBasicInfo = await prisma.BasicInfo.update({
+        where: { userId: parseInt(userId) },
+        data: {
+          studentOf: studentOf,
+          student_id:  null,
+          schoolName:  null,
+          ambassadorcode: null,
+          stdFront: null,
+          stdBack: null,
+        },
+      });
+
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      const userInfo = {
+        id: user.id,
+        email: user.email,
+      };
+
+      const accessToken = sign(userInfo, process.env.APP_SECRET);
+      return res.apiSuccess({updatedBasicInfo, accessToken},'BasicInfo updated successfully');      
+    
     } else {
+      const { student_id, schoolName, ambassadorcode } = req.body;
       validationSchema = yup.object().shape({
         student_id: yup.string().trim().required(),
         schoolName: yup.string().trim().required(),
@@ -357,8 +388,8 @@ module.exports.SecondPage = async (req, res) => {
           { abortEarly: false, strict: true }
         );
       } catch (err) {
-          res.status(400).json({ errors: err.errors });
-          return;
+        res.apiError(err.errors, 'Validation Error', 400);
+        return;
       }
     }
     
@@ -370,7 +401,8 @@ module.exports.SecondPage = async (req, res) => {
 
       upload.fields([{ name: 'stdFront', maxCount: 1 }, { name: 'stdBack', maxCount: 1 }])(req, res, async (err) => {
         if (err) {
-          return res.status(400).json({ message: 'File upload error', error: err.message });
+          res.apiError(err.message, 'File upload error', 400);
+          return;
         }
   
         const stdFrontFile = req.files['stdFront'] ? req.files['stdFront'][0] : null;
@@ -381,8 +413,9 @@ module.exports.SecondPage = async (req, res) => {
             stdFrontLink = await uploadToWasabi(stdFrontFile);
             stdBackLink = await uploadToWasabi(stdBackFile);
           } catch (error) {
+            res.apiError(error.message, 'Wasabi upload error', 500);
             console.error('Wasabi upload error:', error);
-            res.status(500).json({ message: 'Wasabi upload error', error: error.message });
+            // res.status(500).json({ message: 'Wasabi upload error', error: error.message });
             return;
           }
         }
@@ -414,35 +447,10 @@ module.exports.SecondPage = async (req, res) => {
   
         const accessToken = sign(userInfo, process.env.APP_SECRET);
   
-        res.json({ message: 'BasicInfo updated successfully', updatedBasicInfo, accessToken });
+        res.apiSuccess({updatedBasicInfo, accessToken},'BasicInfo updated successfully')
       });
 
-    } else {
-      const updatedBasicInfo = await prisma.BasicInfo.update({
-        where: { userId: parseInt(userId) },
-        data: {
-          studentOf: studentOf,
-          student_id:  null,
-          schoolName:  null,
-          ambassadorcode: null,
-          stdFront: null,
-          stdBack: null,
-        },
-      });
-
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-      });
-
-      const userInfo = {
-        id: user.id,
-        email: user.email,
-      };
-
-      const accessToken = sign(userInfo, process.env.APP_SECRET);
-      res.json({ message: 'BasicInfo updated successfully', updatedBasicInfo, accessToken });
     }
-
 
     // try {
     //   await validationSchema.validate(
@@ -457,7 +465,8 @@ module.exports.SecondPage = async (req, res) => {
     
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    res.apiError(error.message, 'Internal server error', 500);
+    // res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 

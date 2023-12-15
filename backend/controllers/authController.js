@@ -5,8 +5,7 @@ require("yup-password")(yup);
 const { sign } = require("jsonwebtoken");
 require("dotenv").config();
 
-
-const {transporter} = require("../utils/mailer");
+const { transporter } = require("../utils/mailer");
 
 const generateCode = () => {
   const min = 100000; // Minimum value for a six-digit number
@@ -15,19 +14,16 @@ const generateCode = () => {
 };
 
 const prisma = new PrismaClient();
-// get all users data
+
 module.exports.getUsers = async (req, res) => {
   try {
     const users = await prisma.user.findMany();
-    res.json({
-      users: users,
-    });
+    res.apiSuccess(users);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.apiError(err.message, "Failed", 500);
   }
 };
 
-//1) testing auth
 module.exports.auth = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
@@ -36,21 +32,17 @@ module.exports.auth = async (req, res) => {
       }
     });
     if (!user) {
-      res.status(404).json({ message: "User not found" });
+      res.apiError(null, "User not found", 404);
       return;
     }
-    res.json({
-      user: user,
-    });
+    res.apiSuccess(user);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.apiError(err.message, "Failed", 500);
   }
 };
 
-// 2) Register
 module.exports.register = async (req, res) => {
   let data = req.body;
-  // Validate request body
   let validationSchema = yup.object().shape({
     name: yup.string().trim().required(),
     email: yup.string().trim().email().max(50).required(),
@@ -67,31 +59,27 @@ module.exports.register = async (req, res) => {
   try {
     await validationSchema.validate(data, { abortEarly: false, strict: true });
   } catch (err) {
-    res.status(400).json({ errors: err.errors });
+    res.apiError(err.errors, "Validation Failed", 400);
     return;
   }
 
-  // Trim string values
   data.email = data.email.trim().toLowerCase();
   data.password = data.password.trim();
 
   try {
-    // Check email
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
     });
 
     if (existingUser) {
-      res.status(400).json({ message: "Email already exists." });
+      res.apiError(null, "Email already exists.", 400);
       return;
     }
-    // Hash password
+
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    //Create a random 6-digits Code
     const code = generateCode();
 
-    // Create user
     const user = await prisma.user.create({
       data: {
         name: data.name,
@@ -112,7 +100,7 @@ module.exports.register = async (req, res) => {
 
     const mailOptions = {
       from: "info.olympiad@nust.edu.pk",
-      to: user.email, // Email address you want to send the email to
+      to: user.email,
       subject: "Test Email from Nodemailer",
       html: `<h1>Mail Confirmation</h1><p>Your email verification code is <br/><h2><code>${user.token}</code></h2></p>`,
     };
@@ -120,21 +108,17 @@ module.exports.register = async (req, res) => {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error(error);
-        res.send("Error sending email");
+        res.apiError("Error sending email", "Failed", 500);
       } else {
         console.log("Email sent: " + info.response);
-        res.send("Email sent successfully");
+        res.apiSuccess(user, "Email sent successfully");
       }
     });
-
-    res.json(user);
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "internal server error" });
+    res.apiError(err.message, "Failed", 500);
   }
 };
 
-//3) Login
 module.exports.login = async (req, res) => {
   let data = req.body;
 
@@ -142,35 +126,34 @@ module.exports.login = async (req, res) => {
     email: yup.string().trim().email().max(50).required(),
     password: yup.string().trim().min(1).max(250).required(),
   });
+
   try {
     await validationSchema.validate(data, { abortEarly: false, strict: true });
   } catch (err) {
-    res.status(400).json({ errors: err.errors });
+    res.apiError(err.errors, "Validation Failed", 400);
     return;
   }
-  // Trim string values
+
   data.email = data.email.trim().toLowerCase();
   data.password = data.password.trim();
 
   try {
-    // Check email and password
     const user = await prisma.user.findUnique({
       where: { email: data.email },
     });
 
     if (!user) {
-      res.status(400).json({ message: "Email or password is not correct." });
+      res.apiError(null, "Email does not exist.", 400);
       return;
     }
 
     const match = await bcrypt.compare(data.password, user.password);
 
     if (!match) {
-      res.status(400).json({ message: "Email or password is not correct." });
+      res.apiError(null, "Password is not correct.", 400);
       return;
     }
 
-    // Return user info
     const userInfo = {
       id: user.id,
       email: user.email,
@@ -189,18 +172,25 @@ module.exports.login = async (req, res) => {
       user: userInfo,
     });
   } catch (err) {
-    res.status(500).json({ message: "Internal server error" });
+    res.apiError(err.message, "Failed", 500);
   }
 };
 
 module.exports.getAll = async (req, res) => {
-  const users = await prisma.user.findMany({});
-
-  res.json(users);
+  try {
+    const users = await prisma.user.findMany({});
+    res.apiSuccess(users);
+  } catch (err) {
+    res.apiError(err.message, "Failed", 500);
+  }
 };
 
 module.exports.verifyEmail = async (req, res) => {
-  const { email, code } = req.body;
+  const { code } = req.body;
+  const email = req.user.email;
+  if (!code) {
+    return res.apiError(null, "Enter code.", 404);
+  }
   try {
     const user = await prisma.user.findUnique({
       where: {
@@ -218,8 +208,8 @@ module.exports.verifyEmail = async (req, res) => {
       throw new Error("No user found with this email.");
     }
 
-    res.json(user);
+    res.apiSuccess(user, "Email verified successfully");
   } catch (error) {
-    res.json({ error: error.message });
+    res.apiError(error.message, "Failed", 500);
   }
 };
