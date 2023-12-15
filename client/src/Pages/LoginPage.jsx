@@ -33,7 +33,7 @@ const LoginPage = () => {
       {/* Left side */}
       <div className="left-side" >
         <div className="text-center">
-          <h2 className="text-4xl font-semibold mb-4" >Login</h2>
+          <h2 className="text-4xl font-semibold mb-4" style={{textAlign:'center'}} >Login</h2>
           <form className="w-64">
             <div>
              <CustomTextField type="email" iconType={<EmailOutlinedIcon />} label="Email" />
@@ -60,7 +60,7 @@ const LoginPage = () => {
             </button>          
           </form>
           <br></br>
-          <p className="mt-4 text-sm" style={{fontWeight:'bold'}}>
+          <p className="mt-4 text-sm" style={{fontWeight:'bold', textAlign : 'center'}}>
             Don't have an account? <span className="text-blue-500"><Link className="links" href="#" target="_blank" rel="noopener noreferrer">Sign Up</Link></span>
           </p>
         </div>
