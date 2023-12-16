@@ -1,12 +1,15 @@
-:root {
-  --primary-color: #000; /* Primary color */
-  --secondary-color: #437fb8; /* Secondary color */
+.content-center {
+  text-align: center; /* Center text and inline elements */
 }
 
-body {
-    background-color: #f8f9fa;
-  }
-  
+.content-center img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  display: block;
+  margin: auto;
+}
+
   .form-control {
     border-radius: 100px; 
     border: 1px solid #ccc; 
@@ -22,7 +25,7 @@ body {
     background-position: right 10px center; 
   }
   .btn-secondary{
-   color: #437fb8;
+   color:  var(--primary-light);
    background-color: #ffffff;
   }
   
@@ -30,7 +33,6 @@ body {
     font-weight: bold;
     text-align: left;
     display: block;
-    padding-left: 20px;
     margin-bottom: 10px;
   }
 
@@ -40,7 +42,6 @@ body {
   
   .right-align-text{
     text-align:left;
-    padding-left: 20px;
   }
   
   .right-align {
@@ -64,15 +65,40 @@ body {
     overflow: hidden;
   }
 
-  .upload-box-1 {
+  /* .upload-box-1 {
     width: 200px;
     height: 200px;
     border: 2px dashed #000;
     border-radius: 100%;
-    position: relative;
     overflow: hidden;
-    margin-right: 10px;
-  }
+  } */
+
+  .centerRow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    max-width: 600px; /* Adjust as needed */
+}
+
+.upload-box-1 {
+    width: 200px;
+    height: 200px;
+    border: 2px dashed #000;
+    border-radius: 50%; /* 100% can also be used */
+    overflow: hidden;
+    background-size: cover; /* Ensure the background image covers the box */
+}
+
+/* Responsive Image */
+@media (max-width: 768px) {
+    .upload-box-1 {
+        width: 150px; /* Smaller width on smaller screens */
+        height: 150px;
+    }
+}
+
  
   .upload-text {
     display: flex;
@@ -92,10 +118,6 @@ body {
   
   
   .upload-label {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
     cursor: pointer;
     font-family: Arial, sans-serif;
   }
@@ -110,7 +132,7 @@ body {
   }
   
   .blue-text {
-    color: blue;
+    color: var(--primary-dark);
     text-decoration: underline;
   }
    

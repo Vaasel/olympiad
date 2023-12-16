@@ -3,9 +3,9 @@ body {
   background-color: #f5f5f5;
 }
 
-p{
+/* p{
   text-align: left;
-}
+} */
 
 .container {
   background-color: #f5f5f5;
@@ -14,11 +14,11 @@ p{
   /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
 }
 
-h2 , h6{
+/* h2 , h6{
   color: #333333;
   margin-bottom: 20px;
   text-align: left;
-}
+} */
 
 .btn-primary {
   background-color: #0056b3;

@@ -124,7 +124,7 @@ const SignUpPage = () => {
           </form>
           <br></br>
           <p className="mt-4 text-sm" style={{fontWeight:'bold', textAlign:'center'}}>
-            Already registered? <span className="text-blue-500"><Link className="links" href="#" target="_blank" rel="noopener noreferrer">Sign In</Link></span>
+            Already registered? <span className="Tcolor"><Link className="links" href="#" rel="noopener noreferrer">Sign In</Link></span>
           </p>
         </div>
       </div>

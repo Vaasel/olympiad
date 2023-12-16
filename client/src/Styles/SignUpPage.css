@@ -80,7 +80,7 @@ body {
 
 /* Button styling */
 .button {
-  background-color: blue;
+  background-color: var(--primary-dark);
   color: #ffffff;
   padding: 0.5rem 2rem;
   border-radius: 9999px;
@@ -90,11 +90,12 @@ body {
 }
 
 .button:hover {
-  background-color: #2563eb;
+  background-color: var(--primary-light);
 }
 
 .links{
   text-decoration: none;
+  color: var(--primary-dark);
 }
 
 
