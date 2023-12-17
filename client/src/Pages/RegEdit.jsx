@@ -18,6 +18,56 @@ import { useNavigate } from 'react-router-dom';
 const RegEdit = () => {
 
     const navigate = useNavigate();
+
+    const [cnicFront, setCnicFront] = useState("");
+    const [cnicBack, setCnicBack] = useState("");
+    const [stCardFront, setStCardFront] = useState("");
+    const [stCardBack, setStCardBack] = useState("");
+
+    const handleCNICfChange = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setCnicFront(reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    const handleCNICbChange = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setCnicBack(reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    const handleSTfChange = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setStCardFront(reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    const handleSTbfChange = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setStCardBack(reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
     const User = { 
         file_upload_cnicb:"https://templatearchive.com/wp-content/uploads/2018/05/Corporate-ID-1-e1526258858905.jpg",
         file_upload_cnicf:"https://templatearchive.com/wp-content/uploads/2018/05/Corporate-ID-1-e1526258858905.jpg",
@@ -64,50 +114,76 @@ const RegEdit = () => {
   </FormControl>
           </div>
           <div className="col-md-8 mb-3">
-          {/* <label className="bold-label" htmlFor="address">Address</label>
-            <input type="text" className="form-control full-width form-input" id="address" placeholder="H#1 street 23, block A, society F city" required /> */}
+          
             <CustomTextField type="Address" iconType={<HomeOutlinedIcon />} label="Address" value="H12 NUST"fullWidth/>
           </div>  
         </div>
         <div className="row">
           <div className="col-md-4 mb-3">
-          {/* <label className="bold-label" htmlFor="guardian_name">Guardian Name</label>
-            <input type="text" className="form-control form-input" id="guardian_name" placeholder="Carter Alpha" required /> */}
+         
             <CustomTextField type="Person" iconType={<AccountCircleOutlinedIcon />} label="Guardian Name" value="John" />
           </div> 
           <div className="col-md-4 mb-3">
-              {/* <label className="bold-label" htmlFor="guardian_phone">Guardian Number</label>
-            <input type="tel" className="form-control form-input" id="guardian_phone" placeholder="(123) 456-7890" required /> */}
+             
             <CustomTextField type="Phone" iconType={<PhoneAndroidOutlinedIcon />} label="Guardian Contact No." value="034578996" />
           </div>
         </div>
-        {/* <div className="row">
-          <div className="col-md-6 mb-3">
-            <label className="bold-label" htmlFor="cnicFront">CNIC Front Copy</label>
+        <div className="row">
+          <div className="col-md-4 mb-3">
+            
+          <CustomTextField type="stId" iconType={<AccountCircleOutlinedIcon />} label="Student ID" />
           </div>
-          <div className="col-md-6 mb-3">
-            <label className="bold-label" htmlFor="cnicBack">CNIC Back Copy</label>
+          <div className="col-md-4 mb-3">
+            
+            <CustomTextField type="campName" iconType={<HomeOutlinedIcon />} label="Campus Name"/>
           </div>
-        </div> */}
+          <div className="col-md-4 mb-3">
+            
+             <CustomTextField type="ambassadorCode" iconType={<AccountCircleOutlinedIcon />} label="Ambassador Code"/>
+          </div>
+        </div>
+        
         <div className="row">
           <div className="col-md-6 mb-3">
           <div className="col-md-6 mb-3">
             <label className="bold-label" htmlFor="cnicFront">CNIC Front Copy</label>
-            {/* <input type="file" className="form-control-file" id="cnicFront" onChange={handleFileChange} /> */}
+           
           </div>
-          <div class="upload-box px-4" style={{ backgroundImage: `url(${User.file_upload_cnicf})`, backgroundSize: 'cover'}}>
+          <div class="upload-box px-4"  style={{
+              backgroundImage: `url(${cnicFront})`,
+              backgroundSize: "cover",
+            }}>
  
         </div>
+        <label htmlFor="file-upload" className="upload-label pt-2 pb-2">
+              <input
+                id="file_upload_cnicf_Edit"
+                type="file"
+                accept="image/*"
+                onChange={handleCNICfChange}
+              />
+            </label>
           </div>
           <div className="col-md-6 mb-3">
           <div className="col-md-6 mb-3">
             
             <label className="bold-label" htmlFor="cnicBack">CNIC Back Copy</label>
-            {/* <input type="file" className="form-control-file" id="cnicBack" onChange={handleFileChange} /> */}
+            
           </div>
-          <div class="upload-box px-4" style={{ backgroundImage: `url(${User.file_upload_cnicb})`, backgroundSize: 'cover'}}>
+          <div class="upload-box px-4"  style={{
+              backgroundImage: `url(${cnicBack})`,
+              backgroundSize: "cover",
+            }}>
 
         </div>
+        <label htmlFor="file-upload" className="upload-label pt-2 pb-2">
+              <input
+                id="file_upload_cnicb_Edit"
+                type="file"
+                accept="image/*"
+                onChange={handleCNICbChange}
+              />
+            </label>
           </div>
         </div>
         <div className="row">
@@ -115,17 +191,39 @@ const RegEdit = () => {
           <div className="col-md-6 mb-3">
             <label className="bold-label" htmlFor="stcardFront">Student Card front side</label>
           </div>
-          <div class="upload-box px-4" style={{ backgroundImage: `url(${User.stcardFront})`, backgroundSize: 'cover'}}>
+          <div class="upload-box px-4"  style={{
+              backgroundImage: `url(${stCardFront})`,
+              backgroundSize: "cover",
+            }}>
 
         </div>
+        <label htmlFor="file-upload" className="upload-label pt-2 pb-2">
+              <input
+                id="file_upload_stCardf_Edit"
+                type="file"
+                accept="image/*"
+                onChange={handleSTfChange}
+              />
+            </label>
           </div>
           <div className="col-md-6 mb-3">
           <div className="col-md-6 mb-3">
             <label className="bold-label" htmlFor="stcardBack">Student Card back side</label>
           </div>
-          <div class="upload-box px-4" style={{ backgroundImage: `url(${User.stcardBack})`,backgroundSize: 'cover' }}>
+          <div class="upload-box px-4"  style={{
+              backgroundImage: `url(${stCardBack})`,
+              backgroundSize: "cover",
+            }}>
       
           </div>
+          <label htmlFor="file-upload" className="upload-label pt-2 pb-2">
+              <input
+                id="file_upload_stCardb_Edit"
+                type="file"
+                accept="image/*"
+                onChange={handleSTbfChange}
+              />
+            </label>
         </div>  
         </div>
         <button type="submit" className="btn btn-primary right-align " onClick={handleButtonClick}>Edit</button>
