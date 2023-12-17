@@ -13,15 +13,23 @@ import CustomTextField from '../Components/CustomTextField';
 import CustomSelectField from '../Components/CustomSelect';
 // import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import '@fortawesome/fontawesome-free/css/all.css';
+import { useNavigate } from 'react-router-dom';
 
 const RegEdit = () => {
-  
+
+    const navigate = useNavigate();
     const User = { 
         file_upload_cnicb:"https://templatearchive.com/wp-content/uploads/2018/05/Corporate-ID-1-e1526258858905.jpg",
         file_upload_cnicf:"https://templatearchive.com/wp-content/uploads/2018/05/Corporate-ID-1-e1526258858905.jpg",
         stcardFront:"https://templatearchive.com/wp-content/uploads/2018/05/Corporate-ID-1-e1526258858905.jpg",
         stcardBack:"https://templatearchive.com/wp-content/uploads/2018/05/Corporate-ID-1-e1526258858905.jpg"
     };
+
+    const handleButtonClick = () => {
+      navigate('/dashboard');
+    };
+
+
   return (
     <div className="container mt-5">
       <h2 className="text-left">Profile</h2>
@@ -120,7 +128,7 @@ const RegEdit = () => {
           </div>
         </div>  
         </div>
-        <button type="submit" className="btn btn-primary right-align ">Edit</button>
+        <button type="submit" className="btn btn-primary right-align " onClick={handleButtonClick}>Edit</button>
       {/* </form> */}
     </div>
   );

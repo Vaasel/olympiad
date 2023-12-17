@@ -27,12 +27,12 @@ const JoinTeamCard = () => {
 
   return (
     <div>
-      <Card sx={{ borderRadius: '20px', maxWidth: 300, margin: '30px', alignItems: 'center', backgroundColor: '#5D81A5', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
+      <Card sx={{ textAlign: 'center', borderRadius: '20px', maxWidth: 300, margin: '30px', alignItems: 'center', backgroundColor: '#5D81A5', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
         <CardContent sx={{ textAlign: 'center' }}>
           <Typography variant="h5" component="div">
             Join team with a code
           </Typography>
-          {/* <CustomTextField type="email" iconType={<GppBadOutlinedIcon />} label="Team Code" style={{ backgroundColor: 'white' }} /> */}
+          
           <TextField label= "Team Code" variant="outlined" margin="normal" fullWidth required style={{ backgroundColor: 'white' }}></TextField>
           <Button
             variant="contained"

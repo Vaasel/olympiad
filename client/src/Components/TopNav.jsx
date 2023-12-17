@@ -6,13 +6,17 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
+import { useNavigate } from 'react-router-dom';
+import Link from '@mui/material/Link';
 
 const TopNavBar = ({ logoImagePath = `${process.env.PUBLIC_URL}/logo.png`, profileImagePath, userName }) => {
 
   const [loggedIn, setLoggedIn] = useState(true);
+  const navigate = useNavigate();
+
 
   const handleLogout = () => {
-    // Implement your logout logic here
+    navigate('/login');
     setLoggedIn(false);
   };
 
@@ -20,25 +24,25 @@ const TopNavBar = ({ logoImagePath = `${process.env.PUBLIC_URL}/logo.png`, profi
     <AppBar position="static" style={{ backgroundColor: '#01463D' }}>
       <Toolbar style={{ display: 'flex', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          {/* Adjusted styles for the logo image to make it bigger */}
-          <img
+          
+          {/* <img
             src={logoImagePath}
             alt="Logo"
             style={{ width: '80px', height: '80px', objectFit: 'contain', marginRight: '15px' }}
-          />
+          /> */}
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           {loggedIn && (
             <>
               {/* Adjusted styles for the profile image */}
-              <Avatar
+              {/* <Avatar
                 src={profileImagePath}
                 alt="Profile"
                 style={{ width: '40px', height: '40px', objectFit: 'contain', margin: '20px' }}
-              />
-              <Typography variant="body1" style={{ margin: '20px' }}>
+              /> */}
+              <Link href ="/regedit" variant="body1" style={{ margin: '20px',  color:'#ffffff', fontSize: '20px' }}>
                 {userName}
-              </Typography>
+              </Link>
             </>
           )}
           {loggedIn && (

@@ -9,6 +9,7 @@
   --background-light: #FFF8DD;
 }
 
+
 @font-face {
   font-family: 'Facon';
   src: local('Facon'), url(./Styles/fonts/facon.ttf) format('ttf');
@@ -34,16 +35,19 @@
   src: local('LemonMilkRegular'), url(./Styles/fonts/LEMONMILK-Regular.otf) format('otf');
 }
 
+
+*{
+  font-family: 'LemonMilkRegular' !important;  
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'LemonMilkRegular';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: 'LemonMilkRegular',
     monospace;
 }

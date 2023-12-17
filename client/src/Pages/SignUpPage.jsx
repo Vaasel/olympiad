@@ -108,11 +108,11 @@ const SignUpPage = () => {
               />
             </div>
             <br></br>
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <input type="checkbox" id="terms" className="mr-2" required style={{ display: "inline-block", transform: "scale(1.5)" }}/>
-              <label htmlFor="terms" className="text-sm" style={{display:"inline-block"}}>  I agree to the <span><Link className="links" href="#" target="_blank" rel="noopener noreferrer" style={{fontWeight:"bold"}}>Terms and Conditions</Link></span> </label>
+              <label htmlFor="terms" className="text-sm" style={{display:"inline-block"}}>  I agree to the <span><Link className="links" href="#" rel="noopener noreferrer" style={{fontWeight:"bold"}}>Terms and Conditions</Link></span> </label>
             </div>
-            <br></br>
+            <br></br> */}
             <button
               type="submit"
               className="button"
@@ -122,9 +122,9 @@ const SignUpPage = () => {
               Create Account
             </button>          
           </form>
-          <br></br>
+          
           <p className="mt-4 text-sm" style={{fontWeight:'bold', textAlign:'center'}}>
-            Already registered? <span className="text-blue-500"><Link className="links" href="#" target="_blank" rel="noopener noreferrer">Sign In</Link></span>
+            Already registered? <span className="Tcolor"><Link className="links" href="/login" rel="noopener noreferrer">Sign In</Link></span>
           </p>
         </div>
       </div>
