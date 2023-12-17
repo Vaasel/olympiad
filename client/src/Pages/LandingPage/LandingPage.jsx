@@ -6,6 +6,7 @@ import Banner from './Banner';
 import Contact from './Contact';
 import EC from './EC';
 import Sponsors from './Sponsors';
+import Nav from './Nav';
 
 const LandingPage = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -37,6 +38,7 @@ const LandingPage = () => {
         </div>
       ) : (
         <div style={{ backgroundColor: 'white' }}>
+          <Nav />
           <Banner />
           <AboutUsSection />
           <br />
