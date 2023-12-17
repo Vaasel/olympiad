@@ -40,6 +40,16 @@
     border-radius: 50px; 
   }
   
+  .btnColor{
+    background-color: var(--primary-dark);
+    color: white;
+  }
+
+  .btnColor:hover{
+    background-color: var(--primary-light);
+    color: white;
+  }
+  
   .right-align-text{
     text-align:left;
   }
@@ -119,7 +129,7 @@
   
   .upload-label {
     cursor: pointer;
-    font-family: Arial, sans-serif;
+    font-family: 'LemonMilkRegular';
   }
 
   .upload-label-cnic {
@@ -128,7 +138,7 @@
     justify-content: center;
     height: 100%;
     cursor: pointer;
-    font-family: Arial, sans-serif;
+    font-family: 'LemonMilkRegular';
   }
   
   .blue-text {

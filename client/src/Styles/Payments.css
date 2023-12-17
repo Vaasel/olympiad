@@ -48,3 +48,16 @@ body {
 .text-muted {
   font-size: 0.8rem;
 }
+
+.head{
+  font-size: 22px;
+}
+
+.endAlign{
+  text-align: end;
+}
+
+.regFee{
+  font-size: 20px;
+  color: var(--primary-dark);
+}

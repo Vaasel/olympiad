@@ -40,7 +40,7 @@ const Dashboard2 = () => {
   const cardData = selectedHeader === 'individual' ? individualParticipationData : CreateTeamData;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh'}}>
       {/* TopNav */}
       <TopNav
         logoImagePath="https:encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGZpzfGOb1d6ZbEiairsX09aVHH9gROHhbGw&usqp=CAU"
@@ -55,12 +55,11 @@ const Dashboard2 = () => {
         <div
           style={{
             flex: '0 0 15%',
-            borderRight: '1px solid #ccc',
             overflowY: 'auto',
             position: 'sticky',
             top: '64px',
             height: 'calc(100vh - 64px)', 
-            xIndex: 1 
+            xIndex: 1,
           }}
         >
           <SideNav />
@@ -69,15 +68,14 @@ const Dashboard2 = () => {
         {/* Content Container */}
         <div style={{ flex: '1', padding: '20px', backgroundColor: '#f5f5f5' }}>
          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-       <div
-       onClick={() => handleHeaderChange('individual')}
+   <div
+     onClick={() => handleHeaderChange('individual')}
      style={{
        cursor: 'pointer',
        padding: '10px',
-       backgroundColor: selectedHeader === 'individual' ? 'lightblue' : 'white',
-       color: selectedHeader === 'individual' ? 'white' : 'blue',
+       backgroundColor: selectedHeader === 'individual' ? 'var(--primary-dark)' : '',
+       color: selectedHeader === 'individual' ? 'white' : 'var(--primary-dark)',
        borderRadius: '15px',
-       marginRight: '10px',
        marginBottom:'20px'
      }}
    >
@@ -88,8 +86,8 @@ const Dashboard2 = () => {
      style={{
        cursor: 'pointer',
        padding: '10px',
-       backgroundColor: selectedHeader === 'team' ? 'lightblue' : 'white',
-       color: selectedHeader === 'team' ? 'white' : 'blue',
+       backgroundColor: selectedHeader === 'team' ? 'var(--primary-dark)' : '',
+       color: selectedHeader === 'team' ? 'white' : 'var(--primary-dark)',
        borderRadius: '15px',
        marginBottom:'20px'
      }}

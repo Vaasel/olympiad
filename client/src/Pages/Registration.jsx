@@ -232,7 +232,7 @@ const OlympiadRegistration = () => {
       </div>
       <button
         type="submit"
-        className="btn btn-primary right-align"
+        className="btn right-align btnColor"
         onClick={handleButtonClick}
       >
         Next step

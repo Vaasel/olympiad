@@ -59,9 +59,9 @@ const LoginPage = () => {
               Login
             </button>          
           </form>
-          <br></br>
+         
           <p className="mt-4 text-sm" style={{fontWeight:'bold', textAlign : 'center'}}>
-            Don't have an account? <span className="text-blue-500"><Link className="links" href="#" target="_blank" rel="noopener noreferrer">Sign Up</Link></span>
+            Don't have an account? <span className="text-blue-500"><Link className="links" href="/signup" rel="noopener noreferrer">Sign Up</Link></span>
           </p>
         </div>
       </div>

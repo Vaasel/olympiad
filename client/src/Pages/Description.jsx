@@ -78,7 +78,7 @@ const CricketDescription = ({ data }) => {
             ))}
           </div>
           <Button
-            className="btn btn-primary round-edge left-align"
+            className="btn btnColor left-align"
             onClick={handleButtonClick}
           >
             Go Back

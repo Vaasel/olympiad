@@ -13,7 +13,7 @@ import CustomRadioField from '../Components/CustomRadio';
 import CustomTextField from '../Components/CustomTextField';
 import StudentDetails from '../Components/StudentDetails';
 import { useNavigate } from 'react-router-dom';
-
+import olympiad from "../Images/logo/logo.png";
 
 const UserDetails = () => {
 
@@ -36,9 +36,9 @@ const UserDetails = () => {
     };
 
   return (
-    <div className="container mt-5">
-            
-          <h2>Olympiad Registration</h2>
+    <div className="container content-center">
+      <img src={olympiad} alt="olympiad logo" />
+      <h2>Olympiad Registration</h2>
       <p>Please fill the form below to participate in Olympiad. Fill all the required fields</p>
       {/* <form onSubmit={handleSubmit}> */}
       <div className="row">
@@ -63,7 +63,7 @@ const UserDetails = () => {
         variant="contained"
         color="primary"
         type="submit"
-        className="btn btn-primary round-edge right-align">Next step</button>
+        className="btn right-align btnColor">Next step</button>
     </div>
 
       
