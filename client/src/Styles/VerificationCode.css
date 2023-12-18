@@ -1,0 +1,49 @@
+.otp-input {
+    font-size: 24px;
+    border: solid 2px #bbb;
+    margin-right: 10px;
+  }
+   
+  .otp-input:last-child {
+    margin-right: 0;
+  }
+   
+  .btn-container {
+    margin-top: 20px;
+  }
+  .btn-container button {
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 16px;
+  }
+  .btn-container button:hover {
+    cursor: pointer;
+    background-color: #e5e5e5;
+  }
+
+.code{
+    text-align: center;
+    height: 100vh;
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    /* background-image: url(https://img.freepik.com/free-photo/gray-abstract-wireframe-technology-background_53876-101941.jpg?w=996&t=st=1702905383~exp=1702905983~hmac=fbc3287c00821dcf308d5f0bcb04c18b0f9cc8ca4026773730a5ace80af8219a); */
+    /*Add no repeat, cover*/
+    background-image: url('../Images/Element.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.Mycard{
+    width: 800px;
+    height: 500px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--background-light);
+}
