@@ -46,14 +46,23 @@ module.exports.CreateFAQ = async (req, res) => {
 
 
 module.exports.getAllChallans = async (req, res) => {
-    try {
-      const Challans = await prisma.Challan.findMany();
-  
-      res.apiSuccess(Challans);
-    } catch (err) {
-      res.apiError(err.message, 'Internal Server Error', 500);
-    }
-  };
+  try {
+    const Challans = await prisma.Challan.findMany({
+      where: {
+        NOT: {
+          id: 1
+        }
+      },
+      include: {
+        user: true
+      }
+    });
+
+    res.apiSuccess(Challans);
+  } catch (err) {
+    res.apiError(err.message, 'Internal Server Error', 500);
+  }
+};
 
 
 module.exports.setStatus = async (req,res) => {

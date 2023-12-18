@@ -1,54 +1,73 @@
-import React from 'react';
-import { Grid, Typography } from '@mui/material';
-import RegTopNav from '../../Components/RegTopNav';
-import RegSideNav from '../../Components/RegSideNav';
-
+import React, { useState } from "react";
+import { Grid, Typography } from "@mui/material";
+import RegLayout from "../../Components/RegLayout";
+import axios from "axios";
+import API_URL from "../../config";
+import Table from "react-bootstrap/Table";
 
 const Challans = () => {
+  const [challans, setChallans] = useState([]);
 
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-        {/* TopNav */}
-        <RegTopNav/>
-  
-        {/* Main Container */}
-        <div style={{ display: 'flex', flexGrow: 0.5, overflow: 'hidden' }}>
-          {/* SideNav */}
-          <div
-            style={{
-              flex: '0 0 15%',
-              overflowY: 'auto',
-              position: 'sticky',
-              top: '64px',
-              height: 'calc(100vh - 64px)',
-            }}
+  const getChallans = async () => {
+    try {
+      const response = await axios.get(`${API_URL}challan/getAllChallans`, {
+        headers: {
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ3YXFhc2FsaTAwMTIzKzEyMzJAZ21haWwuY29tIiwiaWF0IjoxNzAyODk5NDY0LCJleHAiOjE3MDMwNzIyNjR9.t52Q-eg_4Qts-50Dm6Uluehm3VFvT87twtgk7RChNFo`,
+        },
+      });
 
-            className="SideNavBarFlex"
-          >
-            <RegSideNav />
-          </div>
-  
-          {/* Content */}
-          <div
-            style={{
-              flex: '1',
-              overflow: 'auto',
-              marginLeft: '20px',
-              padding: '20px',
-              minWidth: 0,
-            }}
-          >
-            {/* Dashboard Section */}
-            
-            <Typography variant="h4" component="div"  sx={{ fontWeight: 'bold', fontFamily: 'LemonMilkBold' }}>
-            Challans
-            </Typography>
-            
-          </div>
-        </div>
-      </div>
-    );
+      setChallans(response.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  getChallans();
+
+  return (
+    <RegLayout>
+      <Typography
+        variant="h4"
+        component="div"
+        sx={{ fontWeight: "bold", fontFamily: "LemonMilkBold" }}
+      >
+        Challans
+      </Typography>
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {challans.length === 0 ? (
+            <tr>
+              <td className="text-center" colSpan={7}>
+                No entries Found
+              </td>
+            </tr>
+          ) : (
+            challans.map((challan, index) => {
+              return (
+                <tr>
+                  <td>{index + 1}</td>
+                  <td>{challan.user.name}</td>
+                  <td>{challan.user.email}</td>
+                  <td>{challan.netTotal}</td>
+                  <td>{challan.isPaid}</td>
+                  <td><button>Some Action</button></td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </Table>
+    </RegLayout>
+  );
 };
 export default Challans;
-
-
