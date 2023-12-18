@@ -1,4 +1,4 @@
-const API_URL = '10.7.96.28:500/api';
+const API_URL = 'http://localhost:5000/api/';
 
 export default API_URL;
 
