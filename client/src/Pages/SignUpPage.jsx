@@ -12,7 +12,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import CustomTextField from '../Components/CustomTextField';
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
 import Nav from '../Components/Navigation';
 
 import API_URL from '../config';
@@ -22,8 +22,13 @@ import API_URL from '../config';
 // vaasel-nust-olympiad.onrender.com/api/auth/register
 
 const apiUrl = API_URL+"auth/register";
+const initialState = { name: "" , email: "", password:"" }
+
+
 
 const SignUpPage = () => {
+
+  const [ data, setData ] = useState(initialState);
 
   const navigate = useNavigate();
   // Handle hide password for first password field
@@ -45,26 +50,17 @@ const SignUpPage = () => {
   const visibilityIconStyles = { position: 'relative', right: '10px' };
 
 
-  const handleButtonClick = () => {
-    // You can use the apiRegisterUrl variable in your API calls
-    fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Add any additional headers if needed
-      },
-      // Add any request body or other options if needed
-    })
-      .then(response => response.json())
-      .then(data => {
-        // Handle the API response
-        console.log(data);
-        navigate('/registration');
-      })
-      .catch(error => {
-        // Handle errors
-        console.error('Error:', error);
-      });
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setData({ ...data, [name]: value });
+  };
+
+  const handleButtonClick = async (e) => {
+    console.log(data);
+    e.preventDefault();
+    const response = await axios.post(`${API_URL}/auth/register`, data);
+    console.log(response.data);
+    
   };
 
   // const handleButtonClick = () => {
@@ -79,10 +75,10 @@ const SignUpPage = () => {
       <div className="left-side" >
         <div className="text-center">
           <h2 className="text-4xl font-semibold mb-4" style={{textAlign:'center'}}>Sign Up</h2>
-          <form className="w-64">
+          <form className="w-64" onSubmit={handleButtonClick}>
             <div>
-            <CustomTextField type="text" iconType={<PersonOutlineOutlinedIcon />} label="Name" />  
-            <CustomTextField type="email" iconType={<EmailOutlinedIcon />} label="Email" />
+            <CustomTextField type="text" name="name" iconType={<PersonOutlineOutlinedIcon />} onChange={handleInputChange} label="Name" />  
+            <CustomTextField type="email" name="email" iconType={<EmailOutlinedIcon />} onChange={handleInputChange} label="Email" />
             <TextField
                 label={
                   <span style={{ ...labelStyles }}>
@@ -90,6 +86,8 @@ const SignUpPage = () => {
                     Password
                   </span>
                 }
+                onChange={handleInputChange}
+                name="password"
                 variant="outlined"
                 margin="normal"
                 fullWidth
@@ -147,7 +145,7 @@ const SignUpPage = () => {
             <button
               type="submit"
               className="button"
-              onClick={handleButtonClick}
+              // onClick={handleButtonClick}
               style={{transform: 'scale(1.25)', paddingLeft:'40px', paddingRight:'40px', paddingTop:'20px', paddingBottom:'20px'}}
             >
               Create Account

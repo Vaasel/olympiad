@@ -1,7 +1,7 @@
 import React from 'react';
 import TextField from '@mui/material/TextField';
 
-const CustomTextField = ({ type, iconType, label, req='1', ...props }) => {
+const CustomTextField = ({ type, iconType, label, handleInputChange, req='1', ...props }) => {
   const inputProps = {
     style: { borderRadius: '50px' },
   };
@@ -21,6 +21,7 @@ const CustomTextField = ({ type, iconType, label, req='1', ...props }) => {
         ...inputProps,
       }}
       label={<span style={{ ...labelStyles }}>{iconComponent}{label}</span>}
+      onChange={handleInputChange}
       variant="outlined"
       margin="normal"
       fullWidth
