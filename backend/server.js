@@ -3,6 +3,7 @@ const express= require("express");
 require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const app = express();
+const cors = require('cors');
 const port = process.env.PORT
 const responseMiddleware = require("./middlewares/responseFormatter");
 
@@ -11,6 +12,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Apply response formatting middleware to all routes
 app.use(responseMiddleware);
+app.use(cors());
 
 //routes
 const authRoute = require('./routes/Auth')

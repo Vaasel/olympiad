@@ -45,7 +45,8 @@ const SignUpPage = () => {
   const visibilityIconStyles = { position: 'relative', right: '10px' };
 
 
-  const handleButtonClick = () => {
+  const handleButtonClick = (e) => {
+    e.preventDefault();
     // You can use the apiRegisterUrl variable in your API calls
     fetch(apiUrl, {
       method: 'POST',
@@ -59,7 +60,8 @@ const SignUpPage = () => {
       .then(data => {
         // Handle the API response
         console.log(data);
-        navigate('/registration');
+        alert("data");
+        // navigate('/registration');
       })
       .catch(error => {
         // Handle errors
