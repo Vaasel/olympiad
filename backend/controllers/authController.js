@@ -167,7 +167,7 @@ module.exports.login = async (req, res) => {
       { expiresIn: process.env.JWT_EXPRIES }
     );
 
-    res.json({
+    res.apiSuccess({
       accessToken: accessToken,
       user: userInfo,
     });
