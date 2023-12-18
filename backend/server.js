@@ -2,12 +2,14 @@ const bodyParser = require('body-parser');
 const express= require("express");
 require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
+const cors = require('cors');
 const app = express();
 const port = process.env.PORT
 const responseMiddleware = require("./middlewares/responseFormatter");
 
 app.use(express.json()); // Add this middleware to parse JSON data from requests
 app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 
 // Apply response formatting middleware to all routes
 app.use(responseMiddleware);
