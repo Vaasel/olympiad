@@ -12,10 +12,12 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import CustomTextField from '../Components/CustomTextField';
 import { useNavigate } from 'react-router-dom';
+import API_URL from '../config';
 
 // api link
 // vaasel-nust-olympiad.onrender.com/api/auth/register
 
+const apiUrl = API_URL+"auth/register";
 
 const SignUpPage = () => {
 
@@ -38,9 +40,32 @@ const SignUpPage = () => {
   const lockIconStyles = { position: 'relative', top: '5x', left: '2px' };
   const visibilityIconStyles = { position: 'relative', right: '10px' };
 
+
   const handleButtonClick = () => {
-    navigate('/registration');
+    // You can use the apiRegisterUrl variable in your API calls
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // Add any additional headers if needed
+      },
+      // Add any request body or other options if needed
+    })
+      .then(response => response.json())
+      .then(data => {
+        // Handle the API response
+        console.log(data);
+        navigate('/registration');
+      })
+      .catch(error => {
+        // Handle errors
+        console.error('Error:', error);
+      });
   };
+
+  // const handleButtonClick = () => {
+  //   navigate('/registration');
+  // };
 
   return (
     <div className="Mycontainer" >
