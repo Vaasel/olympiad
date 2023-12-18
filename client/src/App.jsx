@@ -18,6 +18,10 @@ import Details from './Pages/UserDetails';
 import RegEdit from './Pages/RegEdit';
 import Payments from './Pages/Payments';
 import CricketDescription from './Pages/Description';
+import Users from './Pages/RegPortal/Users';
+import AddSports from './Pages/RegPortal/AddSports';
+import AddComp from './Pages/RegPortal/AddComp';
+import Challans from './Pages/RegPortal/Challans';
 
 
 const App = () => {
@@ -74,6 +78,16 @@ const App = () => {
           </Route>
           <Route exact path ='/Description' element={<CricketDescription data={dummyData} />}>
           </Route>
+
+          <Route exact path ='/users' element={<Users />}>
+        </Route>
+        <Route exact path ='/addsports' element={<AddSports />}>
+        </Route>
+        <Route exact path ='/addcomp' element={<AddComp />}>
+        </Route>
+        <Route exact path ='/challans' element={<Challans />}>
+        </Route>
+
 
         </Routes>
     </div>
