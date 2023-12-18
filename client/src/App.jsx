@@ -18,6 +18,7 @@ import Details from './Pages/UserDetails';
 import RegEdit from './Pages/RegEdit';
 import Payments from './Pages/Payments';
 import CricketDescription from './Pages/Description';
+import VerificationCode from './Pages/VerificationCode';
 
 
 const App = () => {
@@ -73,6 +74,9 @@ const App = () => {
           <Route exact path ='/Payments' element={<Payments />}>
           </Route>
           <Route exact path ='/Description' element={<CricketDescription data={dummyData} />}>
+          </Route>
+
+          <Route exact path ='/verifycode' element={<VerificationCode/>}>
           </Route>
 
         </Routes>

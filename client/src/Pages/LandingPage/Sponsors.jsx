@@ -1,5 +1,4 @@
 import React from "react";
-import { Rerousel } from "rerousel";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../../Styles/LandingPage/Sponsors.css";
 import vaasel from "../../Images/sponsors/vaasel.png";
