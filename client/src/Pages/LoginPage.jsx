@@ -10,19 +10,49 @@ import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useNavigate } from 'react-router-dom';
+
 import Nav from '../Components/Navigation';
+
+import API_URL from '../config';
+
 
 // api link
 // vaasel-nust-olympiad.onrender.com/api/auth/login
 
+const apiUrl = API_URL+"auth/login";
+
 const LoginPage = () => {
+
 
   const navigate = useNavigate()
   // Handle hide password for first password field
 
-  const handleButtonClick =() =>{
-    navigate('/dashboard')
-  }
+  // const handleButtonClick =() =>{
+  //   navigate('/dashboard')
+  // }
+
+  const handleButtonClick = () => {
+    // You can use the apiUrl variable in your API calls
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // Add any additional headers if needed
+      },
+      // Add any request body or other options if needed
+    })
+      .then(response => response.json())
+      .then(data => {
+        // Handle the API response
+        console.log(data);
+        navigate('/dashboard');
+      })
+      .catch(error => {
+        // Handle errors
+        console.error('Error:', error);
+      });
+  };
+
   const [showPassword, setShowPassword] = useState(false);
 
   const handleTogglePasswordVisibility = () => {
