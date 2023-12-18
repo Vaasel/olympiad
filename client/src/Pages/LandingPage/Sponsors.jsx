@@ -12,7 +12,7 @@ import jahangir from '../../Images/sponsors/jahangir.png';
 const Sponsors = () => {
   return (
     <>
-      <div className="px-5" >
+      <div className="px-5" id="sponsors">
         <div>
           <div className="row align-items-center">
             <div className="col-md-2 col-sm-3 my-3">

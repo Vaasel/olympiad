@@ -12,6 +12,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import CustomTextField from '../Components/CustomTextField';
 import { useNavigate } from 'react-router-dom';
+import Nav from '../Components/Navigation';
 
 // api link
 // vaasel-nust-olympiad.onrender.com/api/auth/register
@@ -43,6 +44,8 @@ const SignUpPage = () => {
   };
 
   return (
+    <>
+    <Nav />
     <div className="Mycontainer" >
       {/* Left side */}
       <div className="left-side" >
@@ -132,6 +135,7 @@ const SignUpPage = () => {
       {/* Right side */}
       <div className="right-side" style={{backgroundImage: 'url("https://dm0qx8t0i9gc9.cloudfront.net/thumbnails/video/H5BOVymHiplawzr0/videoblocks-silhouette-of-people-rejoicing-and-lifting-up-his-hands-a-group-of-successful-businessmen-happy-and-celebrate-the-victory-on-the-roof-of-the-business-center-slow-motion_bseot2mclw_thumbnail-1080_01.png")'}}></div>
     </div>
+    </>
   );
 };
 

@@ -19,7 +19,7 @@ const Banner = () => {
 
     return (
         // <div className="banner-container" style={{ transform: `translateY(-${scrollPosition / 2}px)` }}>
-        <div className="banner-container">
+        <div className="banner-container" id="banner">
             <video
                 autoPlay
                 muted

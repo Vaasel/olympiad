@@ -7,7 +7,7 @@ const Contact = () => {
         <>
 
 
-        <div className="masthead">
+        <div className="masthead" id="contact">
         <video className="bg-video" playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop"><source src={bgVideo} type="video/mp4" /></video>
             <div className="masthead-content text-white">
                 <div className="container-fluid px-4 px-lg-0"  style={{ textAlign: 'center' }}>

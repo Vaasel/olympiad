@@ -38,6 +38,7 @@
 
 *{
   font-family: 'LemonMilkRegular' !important;  
+  scroll-behavior: smooth !important;
 }
 
 body {
