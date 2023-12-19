@@ -95,3 +95,36 @@ body {
   background-size: cover;
   background-position: center;
 }
+
+@media (max-width: 768px) {
+  .right-side {
+    display: none; /* Hide right side on mobile */
+  }
+
+  .left-side {
+    flex: 1 0 100%; /* Take full width */
+    justify-content: center; /* Center horizontally */
+  }
+
+  .left-side form {
+    width: 90%; /* More responsive form width */
+    max-width: 400px; /* Maximum width */
+    margin: 0 auto; /* Center form */
+  }
+
+  .button {
+    transform: scale(1); /* Adjust button size for mobile */
+    padding: 10px 20px; /* Adjust padding */
+  }
+}
+
+/* Adjustments for smaller mobile devices */
+@media (max-width: 480px) {
+  .left-side h2 {
+    font-size: 1.75rem; /* Smaller font size for headers */
+  }
+
+  .left-side label {
+    font-size: 1rem; /* Smaller font size for labels */
+  }
+}
