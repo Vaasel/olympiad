@@ -16,7 +16,7 @@ const TopNavBar = ({ logoImagePath = `${process.env.PUBLIC_URL}/logo.png`, profi
 
 
   const handleLogout = () => {
-    localStorage.setItem('token', false);
+    localStorage.removeItem('accessToken');
     navigate('/login');
     setLoggedIn(false);
   };
