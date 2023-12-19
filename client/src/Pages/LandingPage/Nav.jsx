@@ -6,8 +6,10 @@ import { useEffect, useState } from 'react';
 const Nav = () => {
 
     const [shrink, setShrink] = useState(false);
+    let loggedIn = localStorage.getItem('accessToken');
 
     useEffect(() => {
+
         const handleScroll = () => {
             if (window.scrollY > 50) {
                 setShrink(true);
@@ -52,8 +54,21 @@ const Nav = () => {
       </li>
     </ul>
     
-    <a href="/login"><button className="btn my-2 my-sm-0 outlinedBtn">Login</button></a>
+
+    {/* <a href="/login"><button className="btn my-2 my-sm-0 outlinedBtn">Login</button></a>
     <a href="/signup"><button className="btn  my-2 my-sm-0 filledBtn" >Register</button></a>
+    <a href="/dashboard"><button className="btn  my-2 my-sm-0 filledBtn" >Dashboard</button></a> */}
+
+{loggedIn ? (
+      // If loggedIn is not null (user is logged in), show Dashboard button
+      <a href="/dashboard"><button className="btn my-2 my-sm-0 filledBtn">Dashboard</button></a>
+    ) : (
+      // If loggedIn is null (user is not logged in), show Login and Register buttons
+      <>
+        <a href="/login"><button className="btn my-2 my-sm-0 outlinedBtn">Login</button></a>
+        <a href="/signup"><button className="btn my-2 my-sm-0 filledBtn">Register</button></a>
+      </>
+    )}
     
   </div>
     	</nav>
