@@ -64,6 +64,7 @@ model BasicInfo {
   phoneno        String
   cnic           String
   gender         Boolean
+  profilePhoto   String?
   guardianName   String
   guardianNumber String
   address        String
