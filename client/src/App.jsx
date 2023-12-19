@@ -22,6 +22,8 @@ import Users from './Pages/RegPortal/Users';
 import AddSports from './Pages/RegPortal/AddSports';
 import AddComp from './Pages/RegPortal/AddComp';
 import Challans from './Pages/RegPortal/Challans';
+import SingleUser from './Pages/RegPortal/SingleUser';
+import ChallanDetails from './Pages/RegPortal/SingleChallan';
 
 
 const App = () => {
@@ -86,6 +88,12 @@ const App = () => {
         <Route exact path ='/addcomp' element={<AddComp />}>
         </Route>
         <Route exact path ='/challans' element={<Challans />}>
+        </Route>
+
+        <Route exact path ='/singleuser' element={<SingleUser />}>
+        </Route>
+
+        <Route exact path ='/challandetails' element={<ChallanDetails />}>
         </Route>
 
 
