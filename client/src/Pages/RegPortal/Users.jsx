@@ -47,27 +47,33 @@ const Users = () => {
           </tr>
         </thead>
         <tbody>
-          {users.length === 0 ? (
-            <tr>
-              <td className="text-center" colSpan={7}>
-                No entries Found
-              </td>
-            </tr>
-          ) : (
-            users.map((user) => {
-              return (
-                <tr>
-                  <td>{user.id}</td>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>{user.isVerified? "Verified" : "Unverified"}</td>
-                  <td>{user.basicInfo.phoneno}</td>
-                  <td>{user.basicInfo.gender?"male":"female"}</td>
-                  <td>{user.basicInfo.status}</td>
-                </tr>
-              );
-            })
-          )}
+        {users.length === 0 ? (
+          <tr>
+            <td className="text-center" colSpan={8}>
+              No entries Found
+            </td>
+          </tr>
+        ) : (
+          users.map((user) => {
+            return user.basicInfo === null ? (
+              <>
+                {/* You can use React.Fragment or an empty div to wrap the content */}
+              </>
+            ) : (
+              <tr key={user.id}>
+                <td>{user.id}</td>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>{user.isVerified ? "Verified" : "Unverified"}</td>
+                <td>{user.basicInfo.phoneno}</td>
+                <td>{user.basicInfo.gender ? "male" : "female"}</td>
+                <td>{user.basicInfo.status}</td>
+                <td><a href="#">view</a></td>
+              </tr>
+            );
+          })
+        )}
+
         </tbody>
       </Table>
     </RegLayout>

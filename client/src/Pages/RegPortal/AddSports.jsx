@@ -48,7 +48,6 @@ const AddSports = () => {
   const addSport = async () => {
     try {
       setShow(false);
-      setShow(false);
 
       // Convert string values to integers
       const intMinPlayer = parseInt(sport.minPlayer);

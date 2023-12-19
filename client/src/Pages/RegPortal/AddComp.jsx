@@ -48,7 +48,6 @@ const AddComp = () => {
   const addcomp = async () => {
     try {
       setShow(false);
-      setShow(false);
 
       // Convert string values to integers
       const intMinPlayer = parseInt(comp.minPlayer);
@@ -70,7 +69,6 @@ const AddComp = () => {
         },
       });
   
-      alert(response.data.message);
   
       setcomp(initialState);
       getcomps();

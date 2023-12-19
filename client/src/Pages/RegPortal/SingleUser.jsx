@@ -14,6 +14,8 @@ const UserDetails = () => {
       >
         Participant Detail
       </Typography>
+
   </RegLayout>
   )
-}
+};
+export default UserDetails;
