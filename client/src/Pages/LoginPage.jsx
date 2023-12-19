@@ -33,6 +33,7 @@ const LoginPage = () => {
 
 
   const navigate = useNavigate()
+
   const [data, setData]= useState(initialState);
   
 
@@ -57,6 +58,7 @@ const LoginPage = () => {
           headers: {
           Authorization: `Bearer ${localStorage.accessToken}`,
         }
+
       })
       console.log(response);
       if (response.data.data.isValidated === false){

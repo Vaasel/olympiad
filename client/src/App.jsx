@@ -19,7 +19,7 @@ import RegEdit from './Pages/RegEdit';
 import Payments from './Pages/Payments';
 import CricketDescription from './Pages/Description';
 import VerificationCode from './Pages/VerificationCode';
-
+import ProtectedRoute from './Components/ProtectedRoute';
 
 const App = () => {
 
@@ -44,7 +44,7 @@ const App = () => {
     <Router>
       <div>
         <Routes>
-        <Route exact path ='/' element={<Landing/>}>
+        <Route exact path ='/' element={<Landing />}>
           
         </Route>
         <Route exact path='/registration' element={<OlympiadRegistration/>}>  
@@ -56,24 +56,24 @@ const App = () => {
         <Route exact path ='/signup' element={<SignUp/>}>
         </Route>
 
-        <Route exact path ='/dashboard' element={<Dashboard />}>
+        <Route exact path ='/dashboard' element={<ProtectedRoute Component={Dashboard} />}>
         </Route>
   
-          <Route exact path ='/createteam' element={<CreateTeam />}>
+          <Route exact path ='/createteam' element={<ProtectedRoute Component={CreateTeam }/>}>
           </Route>
 
-          <Route exact path ='/SportDetails' element={<SportDetails />}>
+          <Route exact path ='/sportdetails' element={<ProtectedRoute Component={SportDetails }/>}>
           </Route>
 
           <Route exact path ='/details' element={<Details />}>
           </Route>
 
-          <Route exact path ='/RegEdit' element={<RegEdit />}>
+          <Route exact path ='/regedit' element={<ProtectedRoute Component={RegEdit }/>}>
           </Route>
 
-          <Route exact path ='/Payments' element={<Payments />}>
+          <Route exact path ='/Payments' element={<ProtectedRoute Component={Payments }/>}>
           </Route>
-          <Route exact path ='/Description' element={<CricketDescription data={dummyData} />}>
+          <Route exact path ='/description' element={<ProtectedRoute Component={() => <CricketDescription data={dummyData} />}/>}>
           </Route>
 
           <Route exact path ='/verifycode' element={<VerificationCode/>}>

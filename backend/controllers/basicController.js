@@ -207,7 +207,7 @@ module.exports.basicInfoUpdate = async (req, res) => {
 
 module.exports.basicInfoCreate = async (req, res) => {
   try {
-    upload.fields([{ name: 'cnicFront', maxCount: 1 }, { name: 'cnicBack', maxCount: 1 }])(req, res, async (err) => {
+    upload.fields([{ name: 'cnicFront', maxCount: 1 }, { name: 'cnicBack', maxCount: 1 }, { name: 'profilePhoto', maxCount: 1 }])(req, res, async (err) => {
       if (err) {
         res.apiError(err.message, "File upload error", 500);
         return;
@@ -215,20 +215,27 @@ module.exports.basicInfoCreate = async (req, res) => {
 
       const cnicFrontFile = req.files['cnicFront'] ? req.files['cnicFront'][0] : null;
       const cnicBackFile = req.files['cnicBack'] ? req.files['cnicBack'][0] : null;
+      const profilePhotoFile = req.files['profilePhoto'] ? req.files['profilePhoto'][0] : null;
 
-      if (!cnicFrontFile || !cnicBackFile) {
-        res.apiError(null, 'Both files (cnicFront and cnicBack) are required', 400);
+      if (!cnicFrontFile || !cnicBackFile || !profilePhotoFile) {
+        res.apiError(null, 'Both the files (cnicFront, cnicBack or profilePhoto) are required', 400);
+        return;
+      }
+
+      if ( !profilePhotoFile) {
+        res.apiError(null, 'The profile photo is required', 400);
         return;
       }
 
       try {
-        if (cnicFrontFile.buffer.length === 0 || cnicBackFile.buffer.length === 0) {
+        if (cnicFrontFile.buffer.length === 0 || cnicBackFile.buffer.length === 0 || profilePhotoFile.buffer.length === 0) {
           res.apiError(null, 'Invalid file buffer', 400);
           return;
         }
 
         const cnicFrontLink = await uploadToWasabi(cnicFrontFile);
         const cnicBackLink = await uploadToWasabi(cnicBackFile);
+        const profilePhotoLink = await uploadToWasabi(profilePhotoFile);
 
         // Validate other fields
         let validationSchema = yup.object().shape({
@@ -262,6 +269,7 @@ module.exports.basicInfoCreate = async (req, res) => {
             address: data.address,
             cnicFront: cnicFrontLink,
             cnicBack: cnicBackLink,
+            profilePhoto: profilePhotoLink,
           },
         });
 
