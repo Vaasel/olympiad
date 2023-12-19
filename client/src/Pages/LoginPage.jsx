@@ -10,6 +10,8 @@ import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
 
 import Nav from '../Components/Navigation';
 
@@ -19,40 +21,64 @@ import API_URL from '../config';
 // api link
 // vaasel-nust-olympiad.onrender.com/api/auth/login
 
-const apiUrl = API_URL+"auth/login";
+const apiUrl = API_URL;
 
+const initialState = { 
+   email: "",
+    password:"" };
+
+
+    
 const LoginPage = () => {
 
 
   const navigate = useNavigate()
-  // Handle hide password for first password field
 
-  // const handleButtonClick =() =>{
-  //   navigate('/dashboard')
-  // }
+  const [data, setData]= useState(initialState);
+  
 
-  const handleButtonClick = () => {
-    localStorage.setItem('token', true);
-    navigate('/dashboard');
-    // You can use the apiUrl variable in your API calls
-    fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Add any additional headers if needed
-      },
-      // Add any request body or other options if needed
-    })
-      .then(response => response.json())
-      .then(data => {
-        // Handle the API response
-        console.log(data);
-        navigate('/dashboard');
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setData({ ...data, [name]: value });
+  };
+
+  const handleButtonClick = async (e) => {
+    try {
+      console.log(data);
+      e.preventDefault();
+      const response = await axios.post(`${API_URL}/auth/login`, data);
+      console.log(response.data);
+      const accessToken = response.data.accessToken;
+      localStorage.setItem('accessToken', accessToken);
+      console.log('Access token set in localStorage:', accessToken);
+
+      try{
+        const response = await axios.get(`${API_URL}/auth/auth`,
+        {
+          headers: {
+          Authorization: `Bearer ${localStorage.accessToken}`,
+        }
+
       })
-      .catch(error => {
-        // Handle errors
-        console.error('Error:', error);
-      });
+      console.log(response);
+      if (response.data.data.isValidated === false){
+        navigate('/verifycode')
+      }
+      else{
+        if (response.data.isParticipant === true){
+          navigate('/dashboard');
+        }
+        else{
+          // redirect to reg portal
+        }
+      }
+      }catch(error){
+        console.log(error);
+      }
+  } catch (error) {
+      console.error('Error:', error);
+  }
+    
   };
 
   const [showPassword, setShowPassword] = useState(false);
@@ -69,10 +95,12 @@ const LoginPage = () => {
       <div className="left-side" >
         <div className="text-center">
           <h2 className="text-4xl font-semibold mb-4" style={{textAlign:'center'}} >Login</h2>
-          <form className="w-64">
+          <form className="w-64" onSubmit={handleButtonClick}>
             <div>
-             <CustomTextField type="email" iconType={<EmailOutlinedIcon />} label="Email" />
+            <CustomTextField type="email" name="email" iconType={<EmailOutlinedIcon />} onChange={handleInputChange} label="Email" />
               <TextField label={<span><LockOutlinedIcon style={{ marginRight: '8px' }} />Password</span>} variant="outlined" margin="normal" fullWidth type={showPassword ? 'text' : 'password'} required 
+              onChange={handleInputChange}
+              name ="password"
               InputProps={{
                 style: { borderRadius: '50px' },
                 endAdornment: (
@@ -88,7 +116,6 @@ const LoginPage = () => {
             <button
               type="submit"
               className="button"
-              onClick={handleButtonClick}
               style={{transform: 'scale(1.25)', paddingLeft:'40px', paddingRight:'40px', paddingTop:'20px', paddingBottom:'20px'}}
             >
               Login
