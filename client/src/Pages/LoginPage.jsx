@@ -32,6 +32,8 @@ const LoginPage = () => {
   // }
 
   const handleButtonClick = () => {
+    localStorage.setItem('token', true);
+    navigate('/dashboard');
     // You can use the apiUrl variable in your API calls
     fetch(apiUrl, {
       method: 'POST',
