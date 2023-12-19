@@ -5,21 +5,25 @@ import OtpInput from 'react-otp-input';
 import olympiad from '../Images/logo/logo.png';
 import axios from 'axios';
 import API_URL from "../config";
+import { useNavigate } from "react-router-dom";
 
 const VerificationCode = () => {
 
     const [otp, setOtp] = useState('');
+
+    const navigate = useNavigate();
  
     const handleVerify = async () => {
       try {
         const response = await axios.post(`${API_URL}/auth/verifyEmail`, { code:otp },
         {
           headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJ1YmFpZC45OWVzQGdtYWlsLmNvbSIsImlhdCI6MTcwMjkwODMzNywiZXhwIjoxNzAzMDgxMTM3fQ.BTwI4AQLPrUDqSj-zbdc-xCqPz3nEaERQc--izPA7Po`,
+          Authorization: `Bearer ${localStorage.accessToken}`,
         }
       });
         // Handle successful verification
         console.log('Verification successful', response.data.data);
+        navigate('/dashboard');
         
       } catch (error) {
         // Handle errors
