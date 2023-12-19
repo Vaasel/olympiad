@@ -52,16 +52,6 @@ body {
   font-weight: 500;
 }
 
-/* .left-side input {
-  margin-top: 0.25rem;
-  padding: 0.5rem;
-  width: 100%;
-  border: 1px solid #e2e8f0;
-  border-radius: 9999px;
-  outline: none;
-  transition: border-color 0.3s ease-in-out;
-} */
-
 .left-side input:focus {
   border-color: #93c5fd;
 }
