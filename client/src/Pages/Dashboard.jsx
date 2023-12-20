@@ -18,7 +18,7 @@ const Dashboard = () => {
 
   const [isApplied, setIsApplied] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
-  const customDialogContent = "Are you sure you want to apply for accomodation?"
+  const customDialogContent = "Are you sure you want to apply for accommodation?"
   
   const handleApplyClick = () => {
     // Display the AlertBox when the 'Apply' button is clicked
