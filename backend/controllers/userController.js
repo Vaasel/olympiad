@@ -20,3 +20,23 @@ module.exports.allUsers = async (req, res) => {
     res.apiError(error.message, 'Internal Server Error', 500);
   }
 };
+
+module.exports.getUser = async (req, res) => {
+  const {id} = req.params;
+  try {
+    const users = await prisma.user.findMany({
+      where : {
+        isParticipant : true,
+        id: parseInt(id)
+      },
+      include: {
+        basicInfo:true
+      }
+    });
+
+    res.apiSuccess(users);
+
+  } catch (error) {
+    res.apiError(error.message, 'Internal Server Error', 500);
+  }
+};

@@ -90,10 +90,10 @@ const App = () => {
         <Route exact path ='/challans' element={<Challans />}>
         </Route>
 
-        <Route exact path ='/singleuser' element={<SingleUser />}>
+        <Route exact path ='/user/:id' element={<SingleUser />}>
         </Route>
 
-        <Route exact path ='/challandetails' element={<ChallanDetails />}>
+        <Route exact path ='/challan/:id' element={<ChallanDetails />}>
         </Route>
 
 

@@ -115,7 +115,10 @@ module.exports.setStatus = async (req,res) => {
 module.exports.CalculateChallan = async (req, res) => {
     try {
       const userId = req.user.id;
-  
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { challan: true,basicInfo:true },
+      });
       const sportsTeams = await prisma.sports_Teams.findMany({
         where: {
           userId: userId,
@@ -148,13 +151,23 @@ module.exports.CalculateChallan = async (req, res) => {
         id: team.sport.id,
         name: team.sport.name,
         price: team.sport.price,
+        isIndividual: team.sport.minPlayer == 1 && team.sport.maxPlayer == 1
       }));
       
       const sportsPrices = getTeamPrices(sportsTeams);
       const competitionPrices = getTeamPrices(competitionTeams);
 
       const details = [...sportsPrices, ...competitionPrices];
-
+      if (user && user.challan === null) {
+        const registrationPrice = user.basicInfo && user.basicInfo.studentOf === "nust" ? 500 : 1000;
+      
+        details.push({
+          id: 0,
+          name: "Registration",
+          price: registrationPrice,
+          isIndividual: false,
+        });
+      }
 
 
 
@@ -177,7 +190,10 @@ module.exports.CalculateChallan = async (req, res) => {
   module.exports.CreateChallan = async (req, res) => {
     try {
       const userId = req.user.id;
-  
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { challan: true,basicInfo:true },
+      });
       // Calculate total amount for sports teams
       const sportsTeams = await prisma.sports_Teams.findMany({
         where: {
@@ -214,6 +230,7 @@ module.exports.CalculateChallan = async (req, res) => {
         id: team.sport.id,
         name: team.sport.name,
         price: team.sport.price,
+        isIndividual: team.sport.minPlayer == 1 && team.sport.maxPlayer == 1
       }));
       
       const sportsPrices = getTeamPrices(sportsTeams);
@@ -221,6 +238,16 @@ module.exports.CalculateChallan = async (req, res) => {
 
       const details = [...sportsPrices, ...competitionPrices];
 
+if (user && user.challan === null) {
+  const registrationPrice = user.basicInfo && user.basicInfo.studentOf === "nust" ? 500 : 1000;
+
+  details.push({
+    id: 0,
+    name: "Registration",
+    price: registrationPrice,
+    isIndividual: false,
+  });
+}
 
       const createdChallan = await prisma.challan.create({
         data: {
@@ -248,6 +275,26 @@ module.exports.CalculateChallan = async (req, res) => {
     } catch (error) {
       console.error(error);
       res.apiError(error.message, 'Internal Server Error', 500);
+    }
+  };
+  
+
+  module.exports.getChallan = async (req, res) => {
+    try {
+      const {id} = req.params;
+
+      const Challans = await prisma.Challan.findFirst({
+        where: {
+            id : parseInt(id)
+        },
+        include: {
+          user: true
+        }
+      });
+  
+      res.apiSuccess(Challans);
+    } catch (err) {
+      res.apiError(err.message, 'Internal Server Error', 500);
     }
   };
   
