@@ -4,15 +4,20 @@ import RegLayout from "../../Components/RegLayout";
 import axios from "axios";
 import API_URL from "../../config";
 import Table from "react-bootstrap/Table";
+import { useNavigate } from "react-router-dom";
 
 const Challans = () => {
   const [challans, setChallans] = useState([]);
+  const navigate = useNavigate();
+
+  const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsImVtYWlsIjoid2FxYXNhbGkwMDEyMysxMjMyQGdtYWlsLmNvbSIsImlhdCI6MTcwMzA3NzI4MCwiZXhwIjoxNzAzMjUwMDgwfQ.f5R3WitUx0Sqq6ucscyYPFQvqLvj_IJPI6DphzPEBd8";
 
   const getChallans = async () => {
     try {
       const response = await axios.get(`${API_URL}challan/getAllChallans`, {
         headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ3YXFhc2FsaTAwMTIzKzEyMzJAZ21haWwuY29tIiwiaWF0IjoxNzAyODk5NDY0LCJleHAiOjE3MDMwNzIyNjR9.t52Q-eg_4Qts-50Dm6Uluehm3VFvT87twtgk7RChNFo`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -60,7 +65,7 @@ const Challans = () => {
                   <td>{challan.user.email}</td>
                   <td>{challan.netTotal}</td>
                   <td>{challan.isPaid}</td>
-                  <td><button>Some Action</button></td>
+                  <td><button onClick={()=>navigate(`/challan/${challan.id}`)}>View</button></td>
                 </tr>
               );
             })
