@@ -22,12 +22,23 @@ const OlympiadRegistration = () => {
   const [cnicFront, setCnicFront] = useState("");
   const [cnicBack, setCnicBack] = useState("");
 
-  const handleButtonClick = () => {
-    navigate("/details");
+  const handleButtonClick = (e) => {
+    try{
+      e.preventDefault();
+      navigate("/details");
+    }catch(err){
+      console.log(err);
+    }
   };
 
   const handleProfilePicChange = (event) => {
     const file = event.target.files[0];
+    
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size should not exceed 10 MB');
+      return;
+    }
+
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -68,7 +79,7 @@ const OlympiadRegistration = () => {
           required fields
         </p>
 
-
+        <form onSubmit={handleButtonClick}>
       <div className="row mb-5 centerRow">
           <div
             className="upload-box-1"
@@ -81,12 +92,14 @@ const OlympiadRegistration = () => {
           </div>
           <h4>Upload picture</h4>
           <p>Upload your picture by clicking on the upload sign</p>
+
           <label htmlFor="file-upload" className="upload-label">
             <input
               id="file_upload_pfp"
               type="file"
-              accept="image/*"
+              accept="image/png, image/jpeg, image/jpg"
               onChange={handleProfilePicChange}
+              required
             />
           </label>
       </div>
@@ -197,8 +210,9 @@ const OlympiadRegistration = () => {
               <input
                 id="file_upload_cnicf"
                 type="file"
-                accept="image/*"
+                accept="image/png, image/jpeg, image/jpg"
                 onChange={handleCnicFrontChange}
+                required
               />
             </label>
           </div>
@@ -223,8 +237,9 @@ const OlympiadRegistration = () => {
               <input
                 id="file_upload_cnicb"
                 type="file"
-                accept="image/*"
+                accept="image/png, image/jpeg, image/jpg"
                 onChange={handleCnicBackChange}
+                required
               />
             </label>
           </div>
@@ -233,11 +248,10 @@ const OlympiadRegistration = () => {
       <button
         type="submit"
         className="btn right-align btnColor"
-        onClick={handleButtonClick}
       >
         Next step
       </button>
-      {/* </form> */}
+      </form>
     </div>
   );
 };

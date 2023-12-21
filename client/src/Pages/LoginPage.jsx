@@ -44,13 +44,14 @@ const LoginPage = () => {
 
   const handleButtonClick = async (e) => {
     try {
-      console.log(data);
       e.preventDefault();
       const response = await axios.post(`${API_URL}/auth/login`, data);
-      console.log(response.data);
       const accessToken = response.data.accessToken;
+      const UserID = response.data.user.id;
       localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('UserID', UserID);
       console.log('Access token set in localStorage:', accessToken);
+      console.log('UserID set in localStorage:', UserID);
 
       try{
         const response = await axios.get(`${API_URL}/auth/auth`,
@@ -76,7 +77,7 @@ const LoginPage = () => {
         console.log(error);
       }
   } catch (error) {
-      console.error('Error:', error);
+      alert('Invalid credentials! Please try again.');
   }
     
   };

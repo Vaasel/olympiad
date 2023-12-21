@@ -29,6 +29,7 @@ const initialState = { name: "" , email: "", password:"" }
 const SignUpPage = () => {
 
   const [ data, setData ] = useState(initialState);
+  const [ wrongPassword, setWrongPassword ] = useState();
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [passwordMatchError, setPasswordMatchError] = useState(false);
 
@@ -82,6 +83,7 @@ const SignUpPage = () => {
     if (error.response.data.data === null){
       alert(error.response.data.message)
     }else{
+      setWrongPassword(true);
       alert(error.response.data.data)
       // console.error('Error:', error.response.data.data);
   }}
@@ -162,9 +164,14 @@ const SignUpPage = () => {
                   ),
                 }}
               />
-            <Typography className='text-muted text-left'>Password must have at least 1 uppercase letter.</Typography>
-            <Typography className='text-muted text-left'>Password must have at least 3 numbers.</Typography>
-            <Typography className='text-muted text-left'>Password must have at least 1 special character.</Typography>
+              {wrongPassword && (
+                <>
+                <Typography className='text-left text-muted'>Password must have at least 1 uppercase letter.</Typography>
+                <Typography className='text-muted text-left'>Password must have at least 3 numbers.</Typography>
+                <Typography className='text-muted text-left'>Password must have at least 1 special character.</Typography>
+                </>
+              )
+              }
             </div>
             <br></br>
             {/* <div className="mb-4">
