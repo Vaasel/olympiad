@@ -4,15 +4,19 @@ import RegLayout from "../../Components/RegLayout";
 import axios from "axios";
 import API_URL from "../../config";
 import Table from "react-bootstrap/Table";
+import { useNavigate } from "react-router-dom";
 
 const Users = () => {
-  const [users, setUsers] = useState([]);
+  const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsImVtYWlsIjoid2FxYXNhbGkwMDEyMysxMjMyQGdtYWlsLmNvbSIsImlhdCI6MTcwMzA3NzI4MCwiZXhwIjoxNzAzMjUwMDgwfQ.f5R3WitUx0Sqq6ucscyYPFQvqLvj_IJPI6DphzPEBd8";
 
+  const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
   const getUsers = async () => {
     try {
       const response = await axios.get(`${API_URL}user/allUsers`, {
         headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ3YXFhc2FsaTAwMTIzKzEyMzJAZ21haWwuY29tIiwiaWF0IjoxNzAyODk5NDY0LCJleHAiOjE3MDMwNzIyNjR9.t52Q-eg_4Qts-50Dm6Uluehm3VFvT87twtgk7RChNFo`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -68,7 +72,7 @@ const Users = () => {
                 <td>{user.basicInfo.phoneno}</td>
                 <td>{user.basicInfo.gender ? "male" : "female"}</td>
                 <td>{user.basicInfo.status}</td>
-                <td><a href="#">view</a></td>
+                <td><button onClick={()=>navigate(`/user/${user.id}`)}>View</button></td>
               </tr>
             );
           })

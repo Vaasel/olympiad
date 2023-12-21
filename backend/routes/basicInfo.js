@@ -16,6 +16,6 @@ router.get('/basicDisplay',validateToken, basicDisplay)
 router.post('/basicSetStatus',validateReg, setStatus)
 router.post('/basicApplyAccomodation',validateToken, ApplyAccomodation)
 router.get('/basicAllUsers',validateReg, getAllUserDetails)
-router.get('/basicSingleUser',validateReg, getSingleUserDetails)
+router.get('/basicSingleUser/:id',validateReg, getSingleUserDetails)
 
 module.exports = router

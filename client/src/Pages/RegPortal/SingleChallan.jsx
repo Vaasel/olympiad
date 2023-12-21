@@ -10,9 +10,9 @@ import axios from "axios";
 import API_URL from "../../config";
 
 const ChallanDetails = () => {
-  const [details, setDetails] = useState([]);
+  const [details, setDetails] = useState(null);
   const { id } = useParams();
-  const [regObj, setRegObj] = useState([]);
+  const [regObj, setRegObj] = useState(null);
   const [teams, setTeams] = useState([]);
   const [individuals, setIndividuals] = useState([]);
   const navigate = useNavigate();
@@ -53,12 +53,12 @@ const ChallanDetails = () => {
 
       console.log(teamsArray);
       console.log(individualsArray);
-      console.log(regObj);
+      console.log(regObject);
 
       setTeams(teamsArray);
       setIndividuals(individualsArray);
       if (regObject) {
-        setRegObj([regObject]);
+        setRegObj(regObject);
       }
 
       setDetails(data.data);
@@ -79,121 +79,138 @@ const ChallanDetails = () => {
 
   return (
     <RegLayout>
-      <Typography
-        variant="h4"
-        component="div"
-        sx={{ fontWeight: "bold", fontFamily: "LemonMilkBold" }}
-      >
-        Challan Detail
-      </Typography>
-      <>
-        <div className="container">
+      {details == null ? (
+        <h1>Loading...</h1>
+      ) : (
+        <>
           <Typography
-            variant="h6"
+            variant="h4"
             component="div"
-            sx={{ fontWeight: "normal", fontFamily: "LemonMilkBold" }}
+            sx={{ fontWeight: "bold", fontFamily: "LemonMilkBold" }}
           >
-            UserName: 1
+            Challan Detail
           </Typography>
-        </div>
-
-        <div className="container">
-          <div className="row">
-            <div className="col-md-10">
-              <div className="row">
-                <div className="col">
-                  <div className="col" onClick={togglePreview}>
-                    <img
-                      src="https://dm0qx8t0i9gc9.cloudfront.net/thumbnails/video/H5BOVymHiplawzr0/videoblocks-silhouette-of-people-rejoicing-and-lifting-up-his-hands-a-group-of-successful-businessmen-happy-and-celebrate-the-victory-on-the-roof-of-the-business-center-slow-motion_bseot2mclw_thumbnail-1080_01.png"
-                      alt="Preview"
-                      style={{ width: "100%", cursor: "pointer" }}
-                    />
-                  </div>
-
-                  {/* Modal/Preview */}
-                  {showPreview && (
-                    <div
-                      className="modal"
-                      style={{ display: "block", padding: "50px" }}
-                    >
-                      <span
-                        onClick={togglePreview}
-                        className="btn btn-danger"
-                        style={{ cursor: "pointer" }}
-                      >
-                        Close
-                      </span>
+          <div className="container">
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{ fontWeight: "normal", fontFamily: "LemonMilkBold" }}
+            >
+              UserName: {details.user.name}
+            </Typography>
+          </div>
+          <div className="container">
+            <div className="row">
+              <div className="col-md-10">
+                <div className="row">
+                  <div className="col">
+                    <div className="col" onClick={togglePreview}>
                       <img
-                        onClick={togglePreview}
-                        src="https://dm0qx8t0i9gc9.cloudfront.net/thumbnails/video/H5BOVymHiplawzr0/videoblocks-silhouette-of-people-rejoicing-and-lifting-up-his-hands-a-group-of-successful-businessmen-happy-and-celebrate-the-victory-on-the-roof-of-the-business-center-slow-motion_bseot2mclw_thumbnail-1080_01.png"
-                        alt="Full Size"
-                        style={{ width: "100%" /* Style as needed */ }}
+                        src={details.paymentProof}
+                        alt="Preview"
+                        style={{ width: "100%", cursor: "pointer" }}
                       />
                     </div>
-                  )}
-                </div>
-                <div className="col-md-6">
-                  {/* Summary/Details section */}
-                  <div className="ps-5">
-                    <h2>Summary/Details</h2>
-                    <hr />
-                    <div className="row mb-3 regFee">
-                      <div className="col">
-                        <h6 className="regFee">Registration Fee</h6>
+
+                    {/* Modal/Preview */}
+                    {showPreview && (
+                      <div
+                        className="modal"
+                        style={{ display: "block", padding: "50px" }}
+                      >
+                        <span
+                          onClick={togglePreview}
+                          className="btn btn-danger"
+                          style={{ cursor: "pointer" }}
+                        >
+                          Close
+                        </span>
+                        <img
+                          onClick={togglePreview}
+                          src={details.paymentProof}
+                          alt="Full Size"
+                          style={{ width: "100%" /* Style as needed */ }}
+                        />
                       </div>
-                      <div className="col endAlign">
-                        <p>Rs {}</p>
+                    )}
+                  </div>
+                  <div className="col-md-6">
+                    {/* Summary/Details section */}
+                    <div className="ps-5">
+                      <h2>Summary/Details</h2>
+                      <hr />
+
+                      {regObj !== null ? (
+                        <>
+                        <div className="row mb-3 regFee">
+                          <div className="col">
+                            <h6 className="regFee">Registration Fee</h6>
+                          </div>
+                          <div className="col endAlign">
+                            <p>Rs {regObj.price}</p>
+                          </div>
+                        </div>
+                        <hr/>
+                        </>
+                      ) : (
+                        <></>
+                      )}
+                      {individuals.length > 0 ? (
+                        <>
+                          <h6 className="text-muted head">Individual</h6>
+                          {individuals.map((individual, index) => (
+                            <div key={index} className="row mb-3">
+                              <div className="col">
+                                <p className="ps-2">
+                                  <b>{individual.name}</b>
+                                </p>
+                              </div>
+                              <div className="col endAlign">
+                                <p>Rs {individual.price}</p>
+                              </div>
+                            </div>
+                          ))}
+                          <hr/>
+                        </>
+                      
+                      ) : (
+                        <></>
+                      )}
+                      {teams.length > 0 ? (
+                        <>
+                          <h6 className="text-muted head">Team</h6>
+                          {teams.map((individual, index) => (
+                            <div key={index} className="row mb-3">
+                              <div className="col">
+                                <p className="ps-2">
+                                  <b>{individual.name}</b>
+                                </p>
+                              </div>
+                              <div className="col endAlign">
+                                <p>Rs {individual.price}</p>
+                              </div>
+                            </div>
+                          ))}
+                          <hr/>
+                        </>
+                      ) : (
+                        <></>
+                      )}
+                      <hr />
+                      <div className="d-flex justify-content-between mb-3">
+                        <h3>Total</h3>
+                        <h3>
+                          Rs <b>{details.netTotal}</b>
+                        </h3>
                       </div>
-                    </div>
-                    <h6 className="text-muted head">Individual</h6>
-                    <div className="row mb-3">
-                      <div className="col">
-                        <p className="ps-2">
-                          <b>Tennis</b>
-                        </p>
-                      </div>
-                      <div className="col endAlign">
-                        <p>Rs {10}</p>
-                      </div>
-                    </div>
-                    <div className="row mb-3">
-                      <div className="col">
-                        <p className="ps-2">
-                          <b>Futsal</b>
-                        </p>
-                      </div>
-                      <div className="col endAlign">
-                        <p>Rs {10}</p>
-                      </div>
-                    </div>
-                    <h6 className="text-muted head">Team</h6>
-                    <div className="row mb-3">
-                      <div className="col">
-                        <p className="ps-2">
-                          <b>Football</b>
-                          <span>
-                            <p>(Rs {10} per person)</p>
-                          </span>
-                        </p>
-                      </div>
-                      <div className="col endAlign">
-                        <p>Rs {10}</p>
-                      </div>
-                    </div>
-                    <hr />
-                    <div className="d-flex justify-content-between mb-3">
-                      <h3>Total</h3>
-                      <h3>
-                        Rs <b>{10}</b>
-                      </h3>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </>
+        </>
+      )}
     </RegLayout>
   );
 };

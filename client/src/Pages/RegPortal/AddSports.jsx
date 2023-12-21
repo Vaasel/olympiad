@@ -18,6 +18,9 @@ const initialState = {
 };
 
 const AddSports = () => {
+  const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsImVtYWlsIjoid2FxYXNhbGkwMDEyMysxMjMyQGdtYWlsLmNvbSIsImlhdCI6MTcwMzA3NzI4MCwiZXhwIjoxNzAzMjUwMDgwfQ.f5R3WitUx0Sqq6ucscyYPFQvqLvj_IJPI6DphzPEBd8";
+
   const [sports, setSports] = useState([]);
   const [sport, setSport] = useState(initialState);
   const [show, setShow] = useState(false);
@@ -34,7 +37,7 @@ const AddSports = () => {
     try {
       const response = await axios.get(`${API_URL}sports/AllSports`, {
         headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ3YXFhc2FsaTAwMTIzKzEyMzJAZ21haWwuY29tIiwiaWF0IjoxNzAyODk5NDY0LCJleHAiOjE3MDMwNzIyNjR9.t52Q-eg_4Qts-50Dm6Uluehm3VFvT87twtgk7RChNFo`,
+          Authorization: `Bearer ${token}`,
         },
       });
 

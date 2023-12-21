@@ -3,6 +3,7 @@ import '../../Styles/Registration.css';
 import React, { useEffect, useState } from "react";
 import RegLayout from "../../Components/RegLayout";
 import { Grid, Typography } from "@mui/material";
+import { MaleOutlined, FemaleOutlined } from '@mui/icons-material';
 import { Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
@@ -15,72 +16,53 @@ import CustomTextField from '../../Components/CustomTextField';
 import CustomSelectField from '../../Components/CustomSelect';
 // import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import '@fortawesome/fontawesome-free/css/all.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
+import API_URL from '../../config';
 
 const UserDetails = () => {
+  const token =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsImVtYWlsIjoid2FxYXNhbGkwMDEyMysxMjMyQGdtYWlsLmNvbSIsImlhdCI6MTcwMzA3NzI4MCwiZXhwIjoxNzAzMjUwMDgwfQ.f5R3WitUx0Sqq6ucscyYPFQvqLvj_IJPI6DphzPEBd8";
 
   const navigate = useNavigate();
+  const {id} = useParams();
 
+  const [details, setDetails] = useState(null);
   const [cnicFront, setCnicFront] = useState("");
   const [cnicBack, setCnicBack] = useState("");
   const [stCardFront, setStCardFront] = useState("");
   const [stCardBack, setStCardBack] = useState("");
 
-  const handleCNICfChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCnicFront(reader.result);
-      };
-      reader.readAsDataURL(file);
+  const getSingleUser = async()=>{
+    try {
+      const { data } = await axios.get(`${API_URL}basic/basicSingleUser/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (data && data.status === 200 && data.data) {
+        const { basicInfo } = data.data;
+
+        if (basicInfo) {
+          setCnicFront(basicInfo.cnicFront || ""); // Update state with API values
+          setCnicBack(basicInfo.cnicBack || "");
+          setStCardFront(basicInfo.stdFront || "");
+          setStCardBack(basicInfo.stdBack || "");
+        }
+
+        setDetails(data.data);
+
+        console.log(data);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  const handleCNICbChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCnicBack(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSTfChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setStCardFront(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSTbfChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setStCardBack(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const User = { 
-      file_upload_cnicb:"https://templatearchive.com/wp-content/uploads/2018/05/Corporate-ID-1-e1526258858905.jpg",
-      file_upload_cnicf:"https://templatearchive.com/wp-content/uploads/2018/05/Corporate-ID-1-e1526258858905.jpg",
-      stcardFront:"https://templatearchive.com/wp-content/uploads/2018/05/Corporate-ID-1-e1526258858905.jpg",
-      stcardBack:"https://templatearchive.com/wp-content/uploads/2018/05/Corporate-ID-1-e1526258858905.jpg"
-  };
-
-  const handleButtonClick = () => {
-    // navigate('/dashboard');
-  };
-
+  useEffect(() => {
+    getSingleUser();
+  }, []); // Call the API only once when the component mounts
 
 
   return (
@@ -93,23 +75,26 @@ const UserDetails = () => {
         Participant Detail
       </Typography>
 
+    {
+      details === null ? 
+      <h1>Loading...</h1> :
       <div className="container">
       <h2 className="text-left">Details</h2>
         <div className="row">
           <div className="col-md-4 mb-3">
             {/* <label className="bold-label" htmlFor="name"> Name </label> */}
           {/* <input type="text" style={{ backgroundImage: 'url("/Images/user.png")' }} className="form-control form-input" id="name" placeholder='John Carter' required /> */}
-          <CustomTextField type="Person" iconType={<AccountCircleOutlinedIcon />} label="Name" />
+          <CustomTextField type="Person" iconType={<AccountCircleOutlinedIcon />} label="Name" value={details.name} />
           </div>
           <div className="col-md-4 mb-3">
             {/* <label className="bold-label" htmlFor="phone">Phone Number</label>
             <input type="tel" className="form-control form-input" id="phone" placeholder="(123) 456-7890" required /> */}
-            <CustomTextField type="Phone" iconType={<PhoneAndroidOutlinedIcon />} label="Phone" value="03345677980"/>
+            <CustomTextField type="Phone" iconType={<PhoneAndroidOutlinedIcon />} label="Phone" value={details.basicInfo.phoneno} />
           </div>
           <div className="col-md-4 mb-3">
             {/* <label className="bold-label" htmlFor="cnic">CNIC</label>
             <input type="text" className="form-control form-input" id="cnic" placeholder="1234-567890-1" required /> */}
-             <CustomTextField type="CNIC" iconType={<CreditCardOutlinedIcon />} label="CNIC" value="345789966532"/>
+             <CustomTextField type="CNIC" iconType={<CreditCardOutlinedIcon />} label="CNIC" value={details.basicInfo.cnic} />
           </div>
         </div>
         <div className="row">
@@ -121,37 +106,36 @@ const UserDetails = () => {
   </select>      */}
   <FormControl fullWidth variant="outlined"
       margin="normal" required style={{ marginTop: '15px'}}>
-        <InputLabel id="demo-simple-select-label"><WcOutlinedIcon style={{ marginRight: '8px' }}/>Gender</InputLabel>
-        <CustomSelectField value="male"/>
+        <CustomTextField type="Gender" iconType={details.basicInfo.gender ? <MaleOutlined /> : <FemaleOutlined />} label="Gender" value={details.basicInfo.gender?"Male":"Female"} fullWidth/>
   </FormControl>
           </div>
           <div className="col-md-8 mb-3">
           
-            <CustomTextField type="Address" iconType={<HomeOutlinedIcon />} label="Address" value="H12 NUST"fullWidth/>
+            <CustomTextField type="Address" iconType={<HomeOutlinedIcon />} label="Address" value={details.basicInfo.address} fullWidth/>
           </div>  
         </div>
         <div className="row">
           <div className="col-md-4 mb-3">
          
-            <CustomTextField type="Person" iconType={<AccountCircleOutlinedIcon />} label="Guardian Name" value="John" />
+            <CustomTextField type="Person" iconType={<AccountCircleOutlinedIcon />} label="Guardian Name" value={details.basicInfo.guardianName} />
           </div> 
           <div className="col-md-4 mb-3">
              
-            <CustomTextField type="Phone" iconType={<PhoneAndroidOutlinedIcon />} label="Guardian Contact No." value="034578996" />
+            <CustomTextField type="Phone" iconType={<PhoneAndroidOutlinedIcon />} label="Guardian Contact No." value={details.basicInfo.guardianNumber} />
           </div>
         </div>
         <div className="row">
           <div className="col-md-4 mb-3">
             
-          <CustomTextField type="stId" iconType={<AccountCircleOutlinedIcon />} label="Student ID" />
+          <CustomTextField type="stId" iconType={<AccountCircleOutlinedIcon />} label="Student ID" value={details.basicInfo.student_id} />
           </div>
           <div className="col-md-4 mb-3">
             
-            <CustomTextField type="campName" iconType={<HomeOutlinedIcon />} label="Campus Name"/>
+            <CustomTextField type="campName" iconType={<HomeOutlinedIcon />} label="Campus Name" value={details.basicInfo.schoolName} />
           </div>
           <div className="col-md-4 mb-3">
             
-             <CustomTextField type="ambassadorCode" iconType={<AccountCircleOutlinedIcon />} label="Ambassador Code"/>
+             <CustomTextField type="ambassadorCode" iconType={<AccountCircleOutlinedIcon />} label="Ambassador Code" value={details.basicInfo.ambassadorcode} />
           </div>
         </div>
         
@@ -167,14 +151,7 @@ const UserDetails = () => {
             }}>
  
         </div>
-        <label htmlFor="file-upload" className="upload-label pt-2 pb-2">
-              <input
-                id="file_upload_cnicf_Edit"
-                type="file"
-                accept="image/*"
-                onChange={handleCNICfChange}
-              />
-            </label>
+
           </div>
           <div className="col-md-6 mb-3">
           <div className="col-md-6 mb-3">
@@ -188,14 +165,6 @@ const UserDetails = () => {
             }}>
 
         </div>
-        <label htmlFor="file-upload" className="upload-label pt-2 pb-2">
-              <input
-                id="file_upload_cnicb_Edit"
-                type="file"
-                accept="image/*"
-                onChange={handleCNICbChange}
-              />
-            </label>
           </div>
         </div>
         <div className="row">
@@ -209,14 +178,6 @@ const UserDetails = () => {
             }}>
 
         </div>
-        <label htmlFor="file-upload" className="upload-label pt-2 pb-2">
-              <input
-                id="file_upload_stCardf_Edit"
-                type="file"
-                accept="image/*"
-                onChange={handleSTfChange}
-              />
-            </label>
           </div>
           <div className="col-md-6 mb-3">
           <div className="col-md-6 mb-3">
@@ -228,14 +189,6 @@ const UserDetails = () => {
             }}>
       
           </div>
-          <label htmlFor="file-upload" className="upload-label pt-2 pb-2">
-              <input
-                id="file_upload_stCardb_Edit"
-                type="file"
-                accept="image/*"
-                onChange={handleSTbfChange}
-              />
-            </label>
         </div>  
         </div>
         <div className="row pt-5">
@@ -249,6 +202,8 @@ const UserDetails = () => {
         </div>
       {/* </form> */}
     </div>
+    }
+      
 
   </RegLayout>
   )

@@ -38,7 +38,7 @@ module.exports.getSingleUserDetails = async (req, res) => {
   try {
     const userDetails = await prisma.user.findUnique({
       where: {
-        id: req.body.id,
+        id: parseInt(req.params.id),
       },
       include: {
         basicInfo: true,
