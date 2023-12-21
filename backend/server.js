@@ -4,6 +4,7 @@ require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const cors = require('cors');
 const app = express();
+const cors = require('cors');
 const port = process.env.PORT
 const responseMiddleware = require("./middlewares/responseFormatter");
 
@@ -13,6 +14,7 @@ app.use(cors());
 
 // Apply response formatting middleware to all routes
 app.use(responseMiddleware);
+app.use(cors());
 
 //routes
 const authRoute = require('./routes/Auth')

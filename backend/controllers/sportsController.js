@@ -375,6 +375,7 @@ const getMembers = async (req, res) => {
                 select: {
                   id: true,
                   name: true,
+                  email: true
                 },
               },
             },

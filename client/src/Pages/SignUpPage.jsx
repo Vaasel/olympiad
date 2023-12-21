@@ -85,7 +85,6 @@ const SignUpPage = () => {
       alert(error.response.data.data)
       // console.error('Error:', error.response.data.data);
   }}
-    
   };
 
   // const handleButtonClick = () => {

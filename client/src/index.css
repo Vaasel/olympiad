@@ -9,6 +9,11 @@
   --background-light: #FFF8DD;
 }
 
+@media (max-width: 767px) {
+  .SideNavBarFlex {
+    flex: 0 0 2% !important;
+  }
+}
 
 @font-face {
   font-family: 'Facon';

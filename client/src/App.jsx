@@ -20,6 +20,13 @@ import Payments from './Pages/Payments';
 import CricketDescription from './Pages/Description';
 import VerificationCode from './Pages/VerificationCode';
 import ProtectedRoute from './Components/ProtectedRoute';
+import Users from './Pages/RegPortal/Users';
+import AddSports from './Pages/RegPortal/AddSports';
+import AddComp from './Pages/RegPortal/AddComp';
+import Challans from './Pages/RegPortal/Challans';
+import SingleUser from './Pages/RegPortal/SingleUser';
+import ChallanDetails from './Pages/RegPortal/SingleChallan';
+
 
 const App = () => {
 
@@ -78,6 +85,22 @@ const App = () => {
 
           <Route exact path ='/verifycode' element={<VerificationCode/>}>
           </Route>
+
+          <Route exact path ='/users' element={<Users />}>
+        </Route>
+        <Route exact path ='/addsports' element={<AddSports />}>
+        </Route>
+        <Route exact path ='/addcomp' element={<AddComp />}>
+        </Route>
+        <Route exact path ='/challans' element={<Challans />}>
+        </Route>
+
+        <Route exact path ='/user/:id' element={<SingleUser />}>
+        </Route>
+
+        <Route exact path ='/challan/:id' element={<ChallanDetails />}>
+        </Route>
+
 
         </Routes>
     </div>

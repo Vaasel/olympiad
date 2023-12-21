@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
-const { validateToken } = require('../middlewares/auth');
-const {allUsers} = require('../controllers/userController')
+const { validateReg } = require('../middlewares/regAuth');
+const {allUsers, getUser} = require('../controllers/userController')
 
 
-router.get('/allUsers',validateToken,allUsers)
+router.get('/allUsers', validateReg,allUsers)
+router.get('/getUser/:id', validateReg,getUser)
 
 module.exports = router
