@@ -8,7 +8,7 @@ const { validateToken } = require('../middlewares/auth');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() }); // Store the file buffer in memory
 const {transporter} = require("../utils/mailer");
-
+const { uploadToWasabi, readFromWasabi } = require('../middlewares/wasabi');
 
 const prisma = new PrismaClient();
 
@@ -122,6 +122,7 @@ module.exports.CalculateChallan = async (req, res) => {
       const sportsTeams = await prisma.sports_Teams.findMany({
         where: {
           userId: userId,
+          challanId: 1,
         },
         include: {
           sport: true,
@@ -131,9 +132,10 @@ module.exports.CalculateChallan = async (req, res) => {
       const competitionTeams = await prisma.competitions_Teams.findMany({
         where: {
           userId: userId,
+          challanId: 1,
         },
         include: {
-          sport: true,
+          competition: true,
         },
       });
   
@@ -147,6 +149,11 @@ module.exports.CalculateChallan = async (req, res) => {
   
       const totalPrice = totalSportsPrice + totalCompetitionsPrice;
   
+
+      if (totalPrice === 0){
+        return res.apiError("No sport/competition selected");
+      }
+
       const getTeamPrices = (teams) => teams.map(team => ({
         id: team.sport.id,
         name: team.sport.name,
@@ -189,11 +196,34 @@ module.exports.CalculateChallan = async (req, res) => {
 
   module.exports.CreateChallan = async (req, res) => {
     try {
-      const userId = req.user.id;
-      const user = await prisma.user.findUnique({
+
+      upload.fields([{ name: 'paymentProof', maxCount: 1 }])(req, res, async (err) => {
+        if (err) {
+          res.apiError(err.message, 'File upload error', 400);
+          return;
+        }
+        const userId = req.user.id;
+        const user = await prisma.user.findUnique({
         where: { id: userId },
         include: { challan: true,basicInfo:true },
       });
+        const paymentProofFile = req.files['paymentProof'] ? req.files['paymentProof'][0] : null;
+        
+        if (!paymentProofFile) {
+          res.apiError(null, 'Payment proof is required.', 400);
+          return;
+        }
+
+        // try {
+          if (paymentProofFile.buffer.length === 0 ) {
+            res.apiError(null, 'Invalid file buffer', 400);
+            return;
+          }
+
+          const paymentProofLink= await uploadToWasabi(paymentProofFile);
+          
+  
+
       // Calculate total amount for sports teams
       const sportsTeams = await prisma.sports_Teams.findMany({
         where: {
@@ -216,7 +246,7 @@ module.exports.CalculateChallan = async (req, res) => {
           challanId: 1,
         },
         include: {
-          sport: true,
+          competition: true,
         },
       });
   
@@ -225,6 +255,11 @@ module.exports.CalculateChallan = async (req, res) => {
       }, 0);
 
       const netTotal = totalSportsPrice + totalCompetitionsPrice;
+
+
+      if (netTotal === 0){
+        return res.apiError("No challan generated", "failed", 400);
+      }
 
       const getTeamPrices = (teams) => teams.map(team => ({
         id: team.sport.id,
@@ -260,7 +295,7 @@ if (user && user.challan === null) {
           competitionsTeams: {
             connect: competitionTeams.map((team) => ({ id: team.id })),
           },
-          paymentProof: req.body.paymentProof,
+          paymentProof: paymentProofLink,
         },
       });
 
@@ -272,13 +307,14 @@ if (user && user.challan === null) {
         netTotal: netTotal,
         challan: createdChallan,
       });
+    });
     } catch (error) {
       console.error(error);
       res.apiError(error.message, 'Internal Server Error', 500);
     }
+
   };
   
-
   module.exports.getChallan = async (req, res) => {
     try {
       const {id} = req.params;
@@ -297,4 +333,3 @@ if (user && user.challan === null) {
       res.apiError(err.message, 'Internal Server Error', 500);
     }
   };
-  

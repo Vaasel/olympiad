@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Grid, Typography } from '@mui/material';
 import CustomCard from '../Components/CustomCard';
 import StatusCard from '../Components/StatusCards';
@@ -11,7 +11,8 @@ import AlertBox from '../Components/AlertBox';
 import Button from '@mui/material/Button';
 // import SideNav from '../Components/SideNav';
 import logo from '../Images/logo/logo.png';
-
+import API_URL from '../config';
+import axios from 'axios';
 
 const Dashboard = () => {
 

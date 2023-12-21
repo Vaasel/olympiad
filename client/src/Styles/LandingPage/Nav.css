@@ -7,6 +7,12 @@
     transition: background-color 0.3s ease, padding 0.3s ease;
 }
 
+@media screen and (max-width: 768px){
+    .navbar{
+        position: relative;
+    }
+}
+
 .outlinedBtn{
     border: 2px solid var(--primary-dark);
     color: var(--primary-dark);

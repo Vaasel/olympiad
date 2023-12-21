@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import '../Styles/SignUpPage.css'; // Import the CSS file
-import { TextField } from '@mui/material';
+import { TextField, Typography } from '@mui/material';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Link from '@mui/material/Link';
@@ -12,7 +11,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import CustomTextField from '../Components/CustomTextField';
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
 import Nav from '../Components/Navigation';
 
 import API_URL from '../config';
@@ -21,13 +20,27 @@ import API_URL from '../config';
 // api link
 // vaasel-nust-olympiad.onrender.com/api/auth/register
 
-const apiUrl = API_URL+"auth/register";
+const apiUrl = API_URL;
+const initialState = { name: "" , email: "", password:"" }
+
+
+
 
 const SignUpPage = () => {
+
+  const [ data, setData ] = useState(initialState);
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [passwordMatchError, setPasswordMatchError] = useState(false);
 
   const navigate = useNavigate();
   // Handle hide password for first password field
   const [showPassword, setShowPassword] = useState(false);
+
+  const handlePasswordConfirmChange = (e) => {
+    const value = e.target.value;
+    setPasswordConfirm(value);
+    setPasswordMatchError(value !== data.password);
+  };
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -45,28 +58,33 @@ const SignUpPage = () => {
   const visibilityIconStyles = { position: 'relative', right: '10px' };
 
 
-  const handleButtonClick = (e) => {
-    e.preventDefault();
-    // You can use the apiRegisterUrl variable in your API calls
-    fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Add any additional headers if needed
-      },
-      // Add any request body or other options if needed
-    })
-      .then(response => response.json())
-      .then(data => {
-        // Handle the API response
-        console.log(data);
-        alert("data");
-        // navigate('/registration');
-      })
-      .catch(error => {
-        // Handle errors
-        console.error('Error:', error);
-      });
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setData({ ...data, [name]: value });
+  };
+
+  const handleButtonClick = async (e) => {
+    try {
+      if (data.password !== passwordConfirm) {
+        setPasswordMatchError(true);}
+      // console.log(data);
+      e.preventDefault();
+      const response = await axios.post(`${API_URL}/auth/register`, data);
+      // console.log(response.data);
+      console.log(response);
+  
+        const accessToken = response.data.data.accessToken;
+        localStorage.setItem('accessToken', accessToken);
+        console.log('Access token set in localStorage:', accessToken);
+      // console.log(response.data.accessToken)
+      navigate('/verifycode');
+  } catch (error) {
+    if (error.response.data.data === null){
+      alert(error.response.data.message)
+    }else{
+      alert(error.response.data.data)
+      // console.error('Error:', error.response.data.data);
+  }}
   };
 
   // const handleButtonClick = () => {
@@ -81,10 +99,10 @@ const SignUpPage = () => {
       <div className="left-side" >
         <div className="text-center">
           <h2 className="text-4xl font-semibold mb-4" style={{textAlign:'center'}}>Sign Up</h2>
-          <form className="w-64">
+          <form className="w-64" onSubmit={handleButtonClick}>
             <div>
-            <CustomTextField type="text" iconType={<PersonOutlineOutlinedIcon />} label="Name" />  
-            <CustomTextField type="email" iconType={<EmailOutlinedIcon />} label="Email" />
+            <CustomTextField type="text" name="name" iconType={<PersonOutlineOutlinedIcon />} onChange={handleInputChange} label="Name" />  
+            <CustomTextField type="email" name="email" iconType={<EmailOutlinedIcon />} onChange={handleInputChange} label="Email" />
             <TextField
                 label={
                   <span style={{ ...labelStyles }}>
@@ -92,6 +110,8 @@ const SignUpPage = () => {
                     Password
                   </span>
                 }
+                onChange={handleInputChange}
+                name="password"
                 variant="outlined"
                 margin="normal"
                 fullWidth
@@ -124,6 +144,9 @@ const SignUpPage = () => {
                 fullWidth
                 type={showPasswordConfirm  ? 'text' : 'password'}
                 required
+                error={passwordMatchError}
+                helperText={passwordMatchError ? 'Passwords do not match' : ''}
+                onChange={handlePasswordConfirmChange}
                 InputProps={{
                   style: { borderRadius: '50px' },
                   endAdornment: (
@@ -139,6 +162,9 @@ const SignUpPage = () => {
                   ),
                 }}
               />
+            <Typography className='text-muted text-left'>Password must have at least 1 uppercase letter.</Typography>
+            <Typography className='text-muted text-left'>Password must have at least 3 numbers.</Typography>
+            <Typography className='text-muted text-left'>Password must have at least 1 special character.</Typography>
             </div>
             <br></br>
             {/* <div className="mb-4">
@@ -146,10 +172,11 @@ const SignUpPage = () => {
               <label htmlFor="terms" className="text-sm" style={{display:"inline-block"}}>  I agree to the <span><Link className="links" href="#" rel="noopener noreferrer" style={{fontWeight:"bold"}}>Terms and Conditions</Link></span> </label>
             </div>
             <br></br> */}
+
             <button
               type="submit"
               className="button"
-              onClick={handleButtonClick}
+              // onClick={handleButtonClick}
               style={{transform: 'scale(1.25)', paddingLeft:'40px', paddingRight:'40px', paddingTop:'20px', paddingBottom:'20px'}}
             >
               Create Account
@@ -163,7 +190,7 @@ const SignUpPage = () => {
       </div>
 
       {/* Right side */}
-      <div className="right-side" style={{backgroundImage: 'url("https://dm0qx8t0i9gc9.cloudfront.net/thumbnails/video/H5BOVymHiplawzr0/videoblocks-silhouette-of-people-rejoicing-and-lifting-up-his-hands-a-group-of-successful-businessmen-happy-and-celebrate-the-victory-on-the-roof-of-the-business-center-slow-motion_bseot2mclw_thumbnail-1080_01.png")'}}></div>
+      <div className="right-side" style={{backgroundImage: 'url("https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")'}}></div>
     </div>
     </>
   );
