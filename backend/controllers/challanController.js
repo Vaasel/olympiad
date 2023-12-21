@@ -82,7 +82,7 @@ module.exports.setStatus = async (req,res) => {
     
     
     const updatedStatusChallan = await prisma.Challan.update({
-      where: { userId: data.userId },
+      where: { id: data.id },
       data: {
         isPaid: data.isPaid,
       },
@@ -93,7 +93,7 @@ module.exports.setStatus = async (req,res) => {
         from: "info.olympiad@nust.edu.pk",
         to: user.email, // Email address you want to send the email to
         subject: "Test Email from Nodemailer",
-        html: `<h1>Status Changed</h1><p>Your new status is <br/><h2><code>${data.status}</code></h2> and the reason is ${data.reason}</p>`,
+        html: `<div><h1>Status Changed</h1>Your new status is <br/><h2><code>${data.isPaid}</code></h2> and the reason is ${data.reason}</div>`,
       };
     
       transporter.sendMail(mailOptions, (error, info) => {

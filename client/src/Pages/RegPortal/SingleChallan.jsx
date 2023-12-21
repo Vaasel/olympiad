@@ -8,6 +8,8 @@ import DownloadForOfflineOutlinedIcon from "@mui/icons-material/DownloadForOffli
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import API_URL from "../../config";
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 
 const ChallanDetails = () => {
   const [details, setDetails] = useState(null);
@@ -15,11 +17,50 @@ const ChallanDetails = () => {
   const [regObj, setRegObj] = useState(null);
   const [teams, setTeams] = useState([]);
   const [individuals, setIndividuals] = useState([]);
+  const [show, setShow] = useState(false);
+  const [reason, setReason] = useState("");
   const navigate = useNavigate();
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  const [action, setAction] = useState(null);
+
+  // Function to handle the action click
+  const handleAction = (actionType) => {
+    setAction(actionType);
+  };
+
 
   if (parseInt(id) === 1) {
     navigate("/challans");
   }
+  
+  const setStatus = async()=>{
+    try {
+      const token =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsImVtYWlsIjoid2FxYXNhbGkwMDEyMysxMjMyQGdtYWlsLmNvbSIsImlhdCI6MTcwMzA3NzI4MCwiZXhwIjoxNzAzMjUwMDgwfQ.f5R3WitUx0Sqq6ucscyYPFQvqLvj_IJPI6DphzPEBd8";
+  
+      const {data} = await axios.post(`${API_URL}challan/setStatusChallan`,{
+        userId : parseInt(details.user.id),
+        reason,
+        isPaid : action,
+        id : parseInt(id)
+      },{
+        headers : {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      if (data.status === 200) {
+        return  navigate('/challans');
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
 
   const getChallanDetails = async () => {
     try {
@@ -209,6 +250,58 @@ const ChallanDetails = () => {
               </div>
             </div>
           </div>
+
+
+
+          <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Set User Status</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+            <label >Reason:</label>
+            <input type="text" placeholder='Write reason here' value={reason} onChange={(e)=>setReason(e.target.value)} />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={()=>{
+            handleClose()
+            setStatus()
+            }}>
+            Set Status
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      
+
+      <div className="row pt-5">
+            
+            <div className="col text-end">
+              <a href="#">
+                <Button
+                  className="btn my-2 my-sm-0 outlinedBtn"
+                  onClick={() => {
+                    handleShow();
+                    handleAction("rejected");
+                  }}
+                >
+                  Reject
+                </Button>
+              </a>
+              <a href="#">
+                <Button
+                  className="btn  my-2 my-sm-0 filledBtn"
+                  onClick={() => {
+                    handleShow();
+                    handleAction("verified");
+                  }}
+                >
+                  Verify
+                </Button>
+              </a>
+            </div>
+            </div>
         </>
       )}
     </RegLayout>
