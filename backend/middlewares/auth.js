@@ -26,5 +26,25 @@ const validateToken = async (req, res, next) => {
     return res.sendStatus(401);
   }
 };
+const validateLogin = async (req, res, next) => {
+  try {
+    const accessToken = req.header("Authorization").split(" ")[1];
+    if (!accessToken) {
+      return res.sendStatus(401);
+    }
 
-module.exports = { validateToken };
+    const payload = verify(accessToken, process.env.APP_SECRET);
+    req.user = await prisma.user.findUnique({
+      where: {
+        id: payload.id,
+      },
+    });
+
+
+    return next();
+  } catch (err) {
+    return res.sendStatus(401);
+  }
+};
+
+module.exports = { validateToken, validateLogin };
