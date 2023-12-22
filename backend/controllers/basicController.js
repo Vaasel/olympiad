@@ -11,7 +11,7 @@ const {transporter} = require("../utils/mailer");
 
 
 // const upload = multer({ dest: '../middlewares' }); // Specify the destination folder
-const { uploadToWasabi, readFromWasabi } = require('../middlewares/wasabi');
+const { uploadToWasabi, readFromWasabi, getSingleImage } = require('../middlewares/wasabi');
 // const { uploadFileToWasabi } = require('../middlewares/uploadservice');
 
 
@@ -324,6 +324,22 @@ module.exports.basicInfoCreate = async (req, res) => {
 
 module.exports.SecondPage = async (req, res) => {
   try {
+    upload.fields([{ name: 'stdFront', maxCount: 1 }, { name: 'stdBack', maxCount: 1 }, 
+    { name: 'studentOf', maxCount: 1 }, 
+    { name: 'schoolName', maxCount: 1 }, 
+    { name: 'ambassadorcode', maxCount: 1 }, 
+    { name: 'student_id', maxCount: 1 }])(req, res, async (err) => {
+      if (err) {
+        res.apiError(err.message, 'File upload error', 400);
+        return;
+      }
+
+      // tudentOf: studentOf,
+      //       student_id: student_id || null,
+      //       schoolName: schoolName || null,
+      //       ambassadorcode: ambassadorcode || null,
+      //       stdFront: stdFrontLink || null,
+      //       stdBack: stdBackLink || null,
     const userId = req.user.id;
 
     // Check if user is available in req object
@@ -332,9 +348,9 @@ module.exports.SecondPage = async (req, res) => {
       return;
     }
 
-    console.log(req);
-    const { studentOf } = req.body;
-    console.log(req.body);
+    // console.log(req);
+    // const { studentOf } = req.body;
+    // console.log(req.body);
 
     // const studentOf = 'nust';
     // const student_id = '3';
@@ -343,14 +359,15 @@ module.exports.SecondPage = async (req, res) => {
 
     let validationSchema;
     
-    if (studentOf === 'other') {
+    if (req.body.studentOf === 'other') {
+      console.log("correct")
       validationSchema = yup.object().shape({
         studentOf: yup.string().trim().required(),
       });
       console.log("Before try.");
       try {
         await validationSchema.validate(
-          { studentOf },
+          { studentOf: req.body.studentOf },
           { abortEarly: false, strict: true }
         );
       } catch (err) {
@@ -361,7 +378,7 @@ module.exports.SecondPage = async (req, res) => {
       const updatedBasicInfo = await prisma.BasicInfo.update({
         where: { userId: parseInt(userId) },
         data: {
-          studentOf: studentOf,
+          studentOf: req.body.studentOf,
           student_id:  null,
           schoolName:  null,
           ambassadorcode: null,
@@ -383,7 +400,11 @@ module.exports.SecondPage = async (req, res) => {
       return res.apiSuccess({updatedBasicInfo, accessToken},'BasicInfo updated successfully');      
     
     } else {
-      const { student_id, schoolName, ambassadorcode } = req.body;
+      // const { student_id, schoolName, ambassadorcode } = req.body;
+      const student_id = req.body.student_id;
+      const schoolName = req.body.schoolName;
+      const ambassadorcode = req.body.ambassadorcode;
+
       validationSchema = yup.object().shape({
         student_id: yup.string().trim().required(),
         schoolName: yup.string().trim().required(),
@@ -392,7 +413,7 @@ module.exports.SecondPage = async (req, res) => {
 
       try {
         await validationSchema.validate(
-          { student_id, schoolName, ambassadorcode },
+          { student_id: req.body.student_id, schoolName: req.body.schoolName, ambassadorcode: req.body.ambassadorcode },
           { abortEarly: false, strict: true }
         );
       } catch (err) {
@@ -404,14 +425,14 @@ module.exports.SecondPage = async (req, res) => {
 
 
     
-    if (studentOf !== 'other'){
+    if (req.body.studentOf !== 'other'){
       let stdFrontLink, stdBackLink;
 
-      upload.fields([{ name: 'stdFront', maxCount: 1 }, { name: 'stdBack', maxCount: 1 }])(req, res, async (err) => {
-        if (err) {
-          res.apiError(err.message, 'File upload error', 400);
-          return;
-        }
+      // upload.fields([{ name: 'stdFront', maxCount: 1 }, { name: 'stdBack', maxCount: 1 }])(req, res, async (err) => {
+      //   if (err) {
+      //     res.apiError(err.message, 'File upload error', 400);
+      //     return;
+      //   }
   
         const stdFrontFile = req.files['stdFront'] ? req.files['stdFront'][0] : null;
         const stdBackFile = req.files['stdBack'] ? req.files['stdBack'][0] : null;
@@ -434,10 +455,10 @@ module.exports.SecondPage = async (req, res) => {
         const updatedBasicInfo = await prisma.BasicInfo.update({
           where: { userId: parseInt(userId) },
           data: {
-            studentOf: studentOf,
-            student_id: student_id || null,
-            schoolName: schoolName || null,
-            ambassadorcode: ambassadorcode || null,
+            studentOf: req.body.studentOf,
+            student_id: req.body.student_id || null,
+            schoolName: req.body.schoolName || null,
+            ambassadorcode: req.body.ambassadorcode || null,
             stdFront: stdFrontLink || null,
             stdBack: stdBackLink || null,
           },
@@ -456,21 +477,11 @@ module.exports.SecondPage = async (req, res) => {
         const accessToken = sign(userInfo, process.env.APP_SECRET);
   
         res.apiSuccess({updatedBasicInfo, accessToken},'BasicInfo updated successfully')
-      });
+      // });
 
     }
 
-    // try {
-    //   await validationSchema.validate(
-    //     { studentOf, student_id, schoolName, ambassadorcode },
-    //     { abortEarly: false, strict: true }
-    //   );
-    // } catch (err) {
-    //   res.status(400).json({ errors: err.errors });
-    //   return;
-    // }
-    // Process image uploads if available
-    
+  }); 
   } catch (error) {
     console.error(error);
     res.apiError(error.message, 'Internal server error', 500);
@@ -495,19 +506,10 @@ module.exports.SecondPage = async (req, res) => {
   module.exports.getImage = async (req, res) => {
     const fileKey = req.body.fileKey;
     try {
-      const objectData = await readFromWasabi(fileKey);
-  
-      // Check if objectData is already a Buffer
-      const imageData = Buffer.isBuffer(objectData) ? objectData : Buffer.from(objectData);
-  
-      // Convert the image data to a base64 string
-      const base64Image = imageData.toString('base64');
-  
-      // Set the appropriate content type for the image
-      res.set('Content-Type', 'text/html');
-  
+      const base64Image = await getSingleImage(fileKey);
+      res.send(base64Image);
       // Embed the image data in an HTML img tag and send it in the response
-      res.send(`<img src="data:image/jpeg;base64,${base64Image}" alt="Image">`);
+      // res.send(`<img src="data:image/jpeg;base64,${base64Image}" alt="Image">`);
     } catch (error) {
       console.error('Error retrieving object:', error);
       res.status(500).send('Error retrieving image');
