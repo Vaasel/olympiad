@@ -98,5 +98,19 @@ const readFromWasabi = async (fileKey) => {
     throw error;
   }
 };
+const getSingleImage = async (fileKey) => {
+  // const fileKey = req.body.fileKey;
+    const objectData = await readFromWasabi(fileKey);
 
-module.exports = { uploadToWasabi, readFromWasabi };
+    // Check if objectData is already a Buffer
+    const imageData = Buffer.isBuffer(objectData) ? objectData : Buffer.from(objectData);
+
+    // Convert the image data to a base64 string
+    const base64Image = imageData.toString('base64');
+    
+    return base64Image;
+};
+
+
+
+module.exports = { uploadToWasabi, readFromWasabi, getSingleImage };
