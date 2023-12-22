@@ -98,6 +98,8 @@ const readFromWasabi = async (fileKey) => {
     throw error;
   }
 };
+
+
 const getSingleImage = async (fileKey) => {
   // const fileKey = req.body.fileKey;
     const objectData = await readFromWasabi(fileKey);
