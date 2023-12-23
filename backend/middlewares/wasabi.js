@@ -108,7 +108,7 @@ const getSingleImage = async (fileKey) => {
     const imageData = Buffer.isBuffer(objectData) ? objectData : Buffer.from(objectData);
 
     // Convert the image data to a base64 string
-    const base64Image = imageData.toString('base64');
+    const base64Image = `data:image/jpeg;base64,${imageData.toString('base64')}`;
     
     return base64Image;
 };

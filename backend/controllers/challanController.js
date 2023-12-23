@@ -8,7 +8,7 @@ const { validateToken } = require('../middlewares/auth');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() }); // Store the file buffer in memory
 const {transporter} = require("../utils/mailer");
-const { uploadToWasabi, readFromWasabi } = require('../middlewares/wasabi');
+const { uploadToWasabi, getSingleImage } = require('../middlewares/wasabi');
 
 const prisma = new PrismaClient();
 
@@ -147,7 +147,7 @@ module.exports.CalculateChallan = async (req, res) => {
         return acc + (competitionTeam.sport.price || 0);
       }, 0);
   
-      const totalPrice = totalSportsPrice + totalCompetitionsPrice;
+      let totalPrice = totalSportsPrice + totalCompetitionsPrice;
   
 
       if (totalPrice === 0){
@@ -165,8 +165,9 @@ module.exports.CalculateChallan = async (req, res) => {
       const competitionPrices = getTeamPrices(competitionTeams);
 
       const details = [...sportsPrices, ...competitionPrices];
-      if (user && user.challan === null) {
+      if (user &&  user.challan.length ===0) {
         const registrationPrice = user.basicInfo && user.basicInfo.studentOf === "nust" ? 500 : 1000;
+        totalPrice += registrationPrice;
       
         details.push({
           id: 0,
@@ -175,9 +176,6 @@ module.exports.CalculateChallan = async (req, res) => {
           isIndividual: false,
         });
       }
-
-
-
       res.apiSuccess({
         userId: userId,
         totalSportsPrice: totalSportsPrice,
@@ -254,7 +252,7 @@ module.exports.CalculateChallan = async (req, res) => {
         return acc + (competitionTeam.sport.price || 0);
       }, 0);
 
-      const netTotal = totalSportsPrice + totalCompetitionsPrice;
+      let netTotal = totalSportsPrice + totalCompetitionsPrice;
 
 
       if (netTotal === 0){
@@ -273,9 +271,10 @@ module.exports.CalculateChallan = async (req, res) => {
 
       const details = [...sportsPrices, ...competitionPrices];
 
-if (user && user.challan === null) {
+if (user && user.challan.length === 0) {
   const registrationPrice = user.basicInfo && user.basicInfo.studentOf === "nust" ? 500 : 1000;
 
+  netTotal+=registrationPrice;
   details.push({
     id: 0,
     name: "Registration",
@@ -327,7 +326,8 @@ if (user && user.challan === null) {
           user: true
         }
       });
-  
+      const base64Image = await getSingleImage(Challans.paymentProof);
+      Challans.paymentProof = base64Image;
       res.apiSuccess(Challans);
     } catch (err) {
       res.apiError(err.message, 'Internal Server Error', 500);

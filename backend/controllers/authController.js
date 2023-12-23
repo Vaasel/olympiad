@@ -140,6 +140,9 @@ module.exports.login = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { email: data.email },
+      include:{
+        basicInfo:true
+      }
     });
 
     if (!user) {
@@ -156,11 +159,10 @@ module.exports.login = async (req, res) => {
 
     const userInfo = {
       id: user.id,
-      email: user.email,
-      profilePicture: user.profilePicture,
-      verified: user.verified,
+      email: user.email
     };
 
+    user.basicInfo = user.basicInfo !== null;
     const accessToken = sign(
       { id: userInfo.id, email: userInfo.email },
       process.env.APP_SECRET,
@@ -169,7 +171,7 @@ module.exports.login = async (req, res) => {
 
     res.apiSuccess({
       accessToken: accessToken,
-      user: userInfo,
+      user: user,
     });
   } catch (err) {
     res.apiError(err.message, "Failed", 500);
@@ -199,16 +201,22 @@ module.exports.verifyEmail = async (req, res) => {
     });
 
     if (user) {
-      if (user.token == code) {
-        user.isValidated = true;
-      } else {
+      if (user.token != code) {
         throw new Error("Wrong code entered.");
       }
     } else {
       throw new Error("No user found with this email.");
     }
+    const updatedUser = await prisma.user.update({
+      where: {
+        email,
+      },
+      data: {
+        isValidated: true,
+      },
+    });
 
-    res.apiSuccess(user, "Email verified successfully");
+    res.apiSuccess(updatedUser, "Email verified successfully");
   } catch (error) {
     res.apiError(error.message, "Failed", 500);
   }
