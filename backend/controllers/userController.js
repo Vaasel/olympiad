@@ -5,14 +5,18 @@ const prisma = new PrismaClient()
 // 1) get all users
 module.exports.allUsers = async (req, res) => {
   try {
-    const users = await prisma.user.findMany({
+    let users = await prisma.user.findMany({
       where : {
-        isParticipant : true
+        isParticipant : true,
+        NOT:{
+          basicInfo: null
+        }
       },
       include: {
         basicInfo:true
       }
     });
+    users = users.filter((user) => user.basicInfo.studentOf !== null);
 
     res.apiSuccess(users);
 

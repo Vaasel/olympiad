@@ -44,6 +44,10 @@ module.exports.getSingleUserDetails = async (req, res) => {
         basicInfo: true,
       },
     });
+    userDetails.basicInfo.cnicBack = await getSingleImage(userDetails.basicInfo.cnicBack);
+    userDetails.basicInfo.cnicFront = await getSingleImage(userDetails.basicInfo.cnicFront);
+    userDetails.basicInfo.stdBack = userDetails.basicInfo.stdBack==null ? null : await getSingleImage(userDetails.basicInfo.stdBack);
+    userDetails.basicInfo.stdFront = userDetails.basicInfo.stdFront==null ? null: await getSingleImage(userDetails.basicInfo.stdFront);
 
     res.apiSuccess(userDetails);
     
@@ -111,6 +115,10 @@ module.exports.basicDisplay = async (req, res) => {
       where: { userId: req.user.id },
     });
 
+    entry.cnicBack = await getSingleImage(entry.cnicBack);
+    entry.cnicFront = await getSingleImage(entry.cnicFront);
+    entry.stdBack = entry.stdBack==null?null:await getSingleImage(entry.stdBack);
+    entry.stdFront = entry.stdFront==null?null:await getSingleImage(entry.stdFront);
     res.apiSuccess(entry);
 
 
@@ -265,7 +273,7 @@ module.exports.basicInfoCreate = async (req, res) => {
             guardianName: data.guardianName,
             guardianNumber: data.guardianNumber.toString(),
             schoolName: data.schoolName,
-            gender: data.gender == "male",
+            gender: data.gender,
             address: data.address,
             cnicFront: cnicFrontLink,
             cnicBack: cnicBackLink,
