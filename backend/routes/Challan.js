@@ -2,11 +2,13 @@ const express = require('express')
 const router = express.Router()
 const { validateToken } = require('../middlewares/auth');
 const { validateReg } = require('../middlewares/regAuth');
-const { CalculateChallan, CreateChallan, getAllChallans, setStatus, getAllFAQs, CreateFAQ, getChallan } = require('../controllers/challanController');
+const { CalculateChallan,updateChallan, CreateChallan, getAllChallans, setStatus, getAllFAQs, CreateFAQ, getChallan, getUserChallans } = require('../controllers/challanController');
 
 
 
 router.get('/getBill',validateToken, CalculateChallan)
+router.get('/getBills',validateToken, getUserChallans)
+router.post('/updateChallan',validateToken, updateChallan)
 router.post('/generateChallan',validateToken, CreateChallan)
 router.get('/getAllChallans',validateReg, getAllChallans)
 router.get('/getAllFAQs', getAllFAQs)

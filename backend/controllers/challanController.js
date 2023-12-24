@@ -63,6 +63,67 @@ module.exports.getAllChallans = async (req, res) => {
     res.apiError(err.message, 'Internal Server Error', 500);
   }
 };
+module.exports.getUserChallans = async (req, res) => {
+  try {
+    const Challans = await prisma.Challan.findMany({
+      where: {
+        userId: req.user.id,
+      }
+    });
+    for (const challan of Challans) {
+      challan.paymentProof = await getSingleImage(challan.paymentProof);
+    }
+    res.apiSuccess(Challans);
+  } catch (err) {
+    res.apiError(err.message, 'Internal Server Error', 500);
+  }
+};
+module.exports.updateChallan = async (req, res) => {
+  try {
+    // Use upload middleware to handle file upload
+    upload.fields([{ name: 'paymentProof', maxCount: 1 }])(req, res, async (err) => {
+      if (err) {
+        return res.apiError(err.message, 'File upload error', 400);
+      }
+
+      const paymentProofFile = req.files['paymentProof'] ? req.files['paymentProof'][0] : null;
+
+      if (!paymentProofFile) {
+        return res.apiError(null, 'Payment proof is required.', 400);
+      }
+
+      // Validate file buffer length
+      if (paymentProofFile.buffer.length === 0) {
+        return res.apiError(null, 'Invalid file buffer', 400);
+      }
+
+      // Upload the file to Wasabi
+      const paymentProofLink = await uploadToWasabi(paymentProofFile);
+
+      // Extract challanId from the request body
+      const { challanId } = req.body;
+
+      // Update the corresponding Challan record in the database
+      const updatedChallan = await prisma.Challan.update({
+        where: { 
+          id: parseInt(challanId),
+          userId :req.user.id
+         },
+        data: {
+          paymentProof: paymentProofLink,
+        },
+      });
+
+      // Respond with the updated Challan record
+      return res.apiSuccess(updatedChallan);
+    });
+
+  } catch (err) {
+    // Handle other errors and log them
+    console.error(err);
+    return res.apiError(err.message, 'Internal Server Error', 500);
+  }
+};
 
 
 module.exports.setStatus = async (req,res) => {
