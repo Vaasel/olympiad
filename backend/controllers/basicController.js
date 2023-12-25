@@ -273,7 +273,7 @@ module.exports.basicInfoCreate = async (req, res) => {
             guardianName: data.guardianName,
             guardianNumber: data.guardianNumber.toString(),
             schoolName: data.schoolName,
-            gender: data.gender,
+            gender: data.gender === "true",
             address: data.address,
             cnicFront: cnicFrontLink,
             cnicBack: cnicBackLink,
