@@ -89,12 +89,44 @@ module.exports.setStatus = async (req,res) => {
     },
   });
 
-  const mailOptions = {
-    from: "info.olympiad@nust.edu.pk",
-    to: user.email, // Email address you want to send the email to
-    subject: "Test Email from Nodemailer",
-    html: `<h1>Status Changed</h1><p>Your new status is <br/><h2><code>${data.status}</code></h2> and the reason is ${data.reason}</p>`,
-  };
+  let mailOptions
+  if (data.status == "rejected") {
+    mailOptions = {
+      from: "info.olympiad@nust.edu.pk",
+      to: user.email, // Email address you want to send the email to
+      subject: "Olympiad'24 Application Status",
+      html: ` <h3>Dear ${user.name},</h3>
+      <p>After careful review, we regret to inform you that your user profile for Olympiad'24 has not been approved. Reason : ${data.reason}</p>
+      <p>For any inquiries or clarification regarding the rejection, please contact our dedicated support team.</p>
+      <p>We appreciate your understanding and hope to see your continued interest in the future.</p>
+      <p>Best regards,</p>`,
+    };  
+  }else if(data.status == "verified"){
+    mailOptions = {
+      from: "info.olympiad@nust.edu.pk",
+      to: user.email, // Email address you want to send the email to
+      subject: "Welcome to Olympiad'24 - Your User Profile Has Been Approved!",
+      html: `<h3>Dear ${user.name},</h3>
+      <p>We are delighted to announce that your user profile has been successfully generated and approved on our platform. Welcome to Olympiad'24!</p>
+      <p>With your approved user profile, you have access to all the exciting features and benefits we offer. We're confident your journey with us will be filled with learning, growth, and exciting opportunities.</p>
+      <p>Thank you for choosing to reignite the torch with Olympiad'24! Your participation adds immense value to our community, and we look forward to seeing your achievements and contributions.</p>
+      <p>If you have any questions or require further assistance, our dedicated support team is here to help.</p>
+      <p>Best regards,</p>
+      `,
+    }; 
+  }else if(data.status == "ban"){
+    mailOptions = {
+      from: "info.olympiad@nust.edu.pk",
+      to: user.email, // Email address you want to send the email to
+      subject: "Important Notice: Olympiad Account Suspension",
+      html: `<h3>Dear ${user.name},</h3>
+      <p>We regret to inform you that your Olympiad account has been suspended due to ${data.reason}.</p>
+      <p>For a detailed understanding of the reasons behind this action, please review our policies <a href="[link to policies]">here</a>.</p>
+      <p>If you believe this suspension was issued in error or have any concerns, we encourage you to contact our dedicated support team at [support email] for further assistance.</p>
+      <p>Best regards,</p>`,
+    }; 
+  }
+  
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {

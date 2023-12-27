@@ -101,8 +101,15 @@ module.exports.register = async (req, res) => {
     const mailOptions = {
       from: "info.olympiad@nust.edu.pk",
       to: user.email,
-      subject: "Test Email from Nodemailer",
-      html: `<h1>Mail Confirmation</h1><p>Your email verification code is <br/><h2><code>${user.token}</code></h2></p>`,
+      subject: "Verification Code for Your Registration",
+      html: `<h3>Dear ${user.name},</h3>
+      <p>We're thrilled to welcome you to Olympiad'24, where greatness begins!</p>
+      <p>To complete the verification process, please enter the following verification code on your account:</p>
+      <p><strong>Verification Code: ${code}</strong></p>
+      <p>Thank you for registering for Olympiad’24 and choosing to reignite the torch!</p>
+      <p>If you have any questions or concerns, please reach out to our support team at ______.</p>
+      <p>Best regards,</p>
+      `,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
