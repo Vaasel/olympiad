@@ -287,7 +287,7 @@ const createTeam = async (req, res) => {
 const joinTeam = async (req, res) => {
   try {
     const { code } = req.body;
-    const user = req.user;
+    const userId = req.user.id;
 
     const sportsTeam = await prisma.competitions_Teams.findFirst({
       where: {
@@ -297,9 +297,21 @@ const joinTeam = async (req, res) => {
         competition: true,
       },
     });
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        basicInfo: true,
+      },
+    });
+
 
     if (!sportsTeam) {
-      return res.status(404).json({ error: "Sport team not found." });
+      return res.apiError("Failed to join sport team.", 'Invalid Code', 500);
+    }
+    if (user.basicInfo.gender !== sportsTeam.competition.gender) {
+      return res.apiError("Not for your gender.", 'Not Found', 404);
     }
 
     const teamMembersCount = await prisma.competitions_Teams_Members.count({
@@ -309,7 +321,7 @@ const joinTeam = async (req, res) => {
     });
 
     if (teamMembersCount >= sportsTeam.competition.maxPlayer) {
-      return res.status(500).json({ error: "Team is full." });
+      return res.apiError("Failed to join team because it exceeds limit.", 'Internal Server Error', 500);
     }
 
     const teamMember = await prisma.competitions_Teams_Members.findFirst({
@@ -320,7 +332,7 @@ const joinTeam = async (req, res) => {
     });
 
     if (teamMember) {
-      return res.status(500).json({ error: "You are already in the team." });
+      return res.apiError("You are already in the team.", 'Internal Server Error', 500);
     }
 
     await prisma.competitions_Teams_Members.create({

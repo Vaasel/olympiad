@@ -292,7 +292,7 @@ const createTeam = async (req, res) => {
 const joinTeam = async (req, res) => {
   try {
     const { code } = req.body;
-    const user = req.user;
+    const userId = req.user.id;
 
     const sportsTeam = await prisma.sports_Teams.findFirst({
       where: {
@@ -302,9 +302,21 @@ const joinTeam = async (req, res) => {
         sport: true,
       },
     });
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        basicInfo: true,
+      },
+    });
 
+    
     if (!sportsTeam) {
-      return res.apiError("Failed to join sport team.", 'Internal Server Error', 500);
+      return res.apiError("Failed to join sport team.", 'Invalid Code', 500);
+    }
+    if (user.basicInfo.gender !== sportsTeam.sport.gender) {
+      return res.apiError("Not for your gender.", 'Not Found', 404);
     }
 
     const teamMembersCount = await prisma.sports_Teams_Members.count({
@@ -395,7 +407,7 @@ const getMembers = async (req, res) => {
       }
     }
 
-    res.apiSuccess({ success: true, sportDetails });
+    res.apiSuccess(sportDetails );
   } catch (error) {
     res.apiError("Failed to fetch sport members", 'Internal Server Error', 500);
   }
