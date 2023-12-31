@@ -55,6 +55,7 @@ model BasicInfo {
   ambassadorcode String?
   stdFront       String?
   stdBack        String?
+  socials	       SocialEnum? @default(nosocials)
   user           User       @relation(fields: [userId], references: [id])
 }
 
@@ -152,4 +153,10 @@ enum ChallanStatus {
   pending
   verified
   rejected
+}
+enum SocialEnum {
+  nosocials
+  qawali
+  concert
+  all
 }

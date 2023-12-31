@@ -359,12 +359,19 @@ module.exports.CreateChallan = async (req, res) => {
         if (user && user.challan.length === 0) {
           const registrationPrice =
             user.basicInfo && user.basicInfo.studentOf === "nust" ? 500 : 1000;
-
-          netTotal += registrationPrice;
+            const social =user.basicInfo.socials;
+            const socialPrice = social !== 'nosocials'
+            ? social !== 'all'
+              ? social === 'concert'
+                ? 1000
+                : 500
+              : 1500
+            : 0;          
+          netTotal += registrationPrice+socialPrice;
           details.push({
             id: 0,
             name: "Registration",
-            price: registrationPrice,
+            price: {base:registrationPrice,social:socialPrice},
             isIndividual: false,
           });
         }

@@ -368,7 +368,9 @@ module.exports.SecondPage = async (req, res) => {
     { name: 'studentOf', maxCount: 1 }, 
     { name: 'schoolName', maxCount: 1 }, 
     { name: 'ambassadorcode', maxCount: 1 }, 
-    { name: 'student_id', maxCount: 1 }])(req, res, async (err) => {
+    { name: 'student_id', maxCount: 1 },
+    { name: 'socials',maxCount:1}
+  ])(req, res, async (err) => {
       if (err) {
         res.apiError(err.message, 'File upload error', 400);
         return;
@@ -403,11 +405,13 @@ module.exports.SecondPage = async (req, res) => {
       console.log("correct")
       validationSchema = yup.object().shape({
         studentOf: yup.string().trim().required(),
+        socials: yup.string().trim().required()
       });
       console.log("Before try.");
       try {
         await validationSchema.validate(
-          { studentOf: req.body.studentOf },
+          { studentOf: req.body.studentOf, 
+            socials:req.body.socials },
           { abortEarly: false, strict: true }
         );
       } catch (err) {
@@ -419,6 +423,7 @@ module.exports.SecondPage = async (req, res) => {
         where: { userId: parseInt(userId) },
         data: {
           studentOf: req.body.studentOf,
+          socials:req.body.socials,
           student_id:  null,
           schoolName:  null,
           ambassadorcode: null,
@@ -447,13 +452,15 @@ module.exports.SecondPage = async (req, res) => {
 
       validationSchema = yup.object().shape({
         student_id: yup.string().trim().required(),
+        socials: yup.string().trim().required(),
         schoolName: yup.string().trim().required(),
         ambassadorcode: yup.string().trim().required(),
       });
 
       try {
         await validationSchema.validate(
-          { student_id: req.body.student_id, schoolName: req.body.schoolName, ambassadorcode: req.body.ambassadorcode },
+          { student_id: req.body.student_id, schoolName: req.body.schoolName, ambassadorcode: req.body.ambassadorcode, 
+            socials:req.body.socials  },
           { abortEarly: false, strict: true }
         );
       } catch (err) {
@@ -496,6 +503,7 @@ module.exports.SecondPage = async (req, res) => {
           where: { userId: parseInt(userId) },
           data: {
             studentOf: req.body.studentOf,
+            socials:req.body.socials,
             student_id: req.body.student_id || null,
             schoolName: req.body.schoolName || null,
             ambassadorcode: req.body.ambassadorcode || null,
