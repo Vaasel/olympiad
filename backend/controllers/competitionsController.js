@@ -81,11 +81,11 @@ const genderTeamSports = async (req, res) => {
       },
     });
 
-    const userSportIds = user.competitions.map((sport) => sport.sport.sportsId);
+    const userSportIds = user.competitions.map((sport) => sport.competition.competitionId);
 
-    const sportsWithMinAndMaxPlayers = await prisma.sports.findMany({
+    const sportsWithMinAndMaxPlayers = await prisma.competitions.findMany({
       where: {
-        gender: true,
+        gender: user.basicInfo.gender,
         NOT: {
           AND: [{ minPlayer: 1 }, { maxPlayer: 1 }],
         },
@@ -100,7 +100,7 @@ const genderTeamSports = async (req, res) => {
     const sportsWithCode = sportsWithHasApplied.map((sport) => ({
       ...sport,
       code: sport.hasApplied
-        ? user.sports.find((us) => us.sport.sportsId === sport.id)?.sport
+        ? user.competitions.find((us) => us.competition.competitionId === sport.id)?.competition
             .code || null
         : null,
     }));

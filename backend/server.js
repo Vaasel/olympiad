@@ -8,7 +8,6 @@ const port = process.env.PORT
 const responseMiddleware = require("./middlewares/responseFormatter");
 
 app.use(express.json()); // Add this middleware to parse JSON data from requests
-app.use(cors());
 
 // Apply response formatting middleware to all routes
 app.use(responseMiddleware);
