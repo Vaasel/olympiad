@@ -216,6 +216,7 @@ module.exports.basicInfoUpdate = async (req, res) => {
       // console.log(stdBackLink);
       const updatedBasicInfoData = {
         ...filteredUpdatedData,
+        status: 'pending',
       };
 
       if (stdFrontLink !== null) updatedBasicInfoData.stdFront = stdFrontLink;

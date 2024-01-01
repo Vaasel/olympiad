@@ -248,17 +248,23 @@ const createTeam = async (req, res) => {
     var code;
     var loopExit = false;
 
+    if (codeList.length === 0) {
+      loopExit = true;
+      code = generateUniqueCode();
+    }else{
     codeList.forEach((item) => {
       if (!item) {
         loopExit = true;
         return;
       }
     });
+    console.log(loopExit);
+    console.log(codeList);
 
     do {
       code = generateUniqueCode();
       loopExit = code.includes(codeList);
-    } while (loopExit);
+    } while (loopExit);}
 
     const createdSportTeam = await prisma.competitions_Teams.create({
       data: {

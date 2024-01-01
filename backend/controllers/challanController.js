@@ -111,6 +111,7 @@ module.exports.updateChallan = async (req, res) => {
           },
           data: {
             paymentProof: paymentProofLink,
+            isPaid: "pending",
           },
         });
 
@@ -249,12 +250,19 @@ module.exports.CalculateChallan = async (req, res) => {
     if (user && user.challan.length === 0) {
       const registrationPrice =
         user.basicInfo && user.basicInfo.studentOf === "nust" ? 500 : 1000;
-      totalPrice += registrationPrice;
-
+        const social =user.basicInfo.socials;
+        const socialPrice = social !== 'nosocials'
+        ? social !== 'all'
+          ? social === 'concert'
+            ? 1000
+            : 500
+          : 1500
+        : 0;          
+        totalPrice += registrationPrice+socialPrice;
       details.push({
         id: 0,
         name: "Registration",
-        price: registrationPrice,
+        price: {base:registrationPrice,social:socialPrice},
         isIndividual: false,
       });
     }
@@ -355,7 +363,6 @@ module.exports.CreateChallan = async (req, res) => {
         const competitionPrices = getTeamPrices(competitionTeams);
 
         const details = [...sportsPrices, ...competitionPrices];
-
         if (user && user.challan.length === 0) {
           const registrationPrice =
             user.basicInfo && user.basicInfo.studentOf === "nust" ? 500 : 1000;
