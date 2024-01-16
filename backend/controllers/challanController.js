@@ -151,7 +151,7 @@ module.exports.setStatus = async (req, res) => {
   let mailOptions;
 
   if (data.isPaid == "verified") {
-     mailOptions = {
+    mailOptions = {
       from: "info.olympiad@nust.edu.pk",
       to: user.email, // Email address you want to send the email to
       subject: "Payment Confirmation - Olympiad'24 Participation",
@@ -163,9 +163,9 @@ module.exports.setStatus = async (req, res) => {
           <p>Best regards,</p>
 		  <p>Olympiad Team</p>
 		  </div>`,
-    };    
-  }else{
-     mailOptions = {
+    };
+  } else {
+    mailOptions = {
       from: "info.olympiad@nust.edu.pk",
       to: user.email, // Email address you want to send the email to
       subject: "NUST Olympiad'24 Challan Payment Status",
@@ -179,7 +179,7 @@ module.exports.setStatus = async (req, res) => {
       <p>Best Regards</p>
 	  <p>Olympiad Team</p>
 	  </div>`,
-    };  
+    };
   }
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -198,30 +198,33 @@ module.exports.setStatus = async (req, res) => {
 module.exports.CalculateChallan = async (req, res) => {
   try {
     const userId = req.user.id;
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: { challan: true, basicInfo: true },
     });
-    const sportsTeams = await prisma.sports_Teams.findMany({
-      where: {
-        userId: userId,
-        challanId: 1,
-      },
-      include: {
-        sport: true,
-      },
-    });
 
-    const competitionTeams = await prisma.competitions_Teams.findMany({
-      where: {
-        userId: userId,
-        challanId: 1,
-      },
-      include: {
-        competition: true,
-      },
-    });
-
+    const [sportsTeams, competitionTeams] = await Promise.all([
+      prisma.sports_Teams.findMany({
+        where: {
+          userId: userId,
+          challanId: 1,
+        },
+        include: {
+          sport: true,
+        },
+      }),
+      prisma.competitions_Teams.findMany({
+        where: {
+          userId: userId,
+          challanId: 1,
+        },
+        include: {
+          competition: true,
+        },
+      }),
+    ]);
+    
     const totalSportsPrice = sportsTeams.reduce((acc, sportsTeam) => {
       return acc + (sportsTeam.sport.price || 0);
     }, 0);
@@ -246,12 +249,13 @@ module.exports.CalculateChallan = async (req, res) => {
         price: team.sport.price,
         isIndividual: team.sport.minPlayer == 1 && team.sport.maxPlayer == 1,
       }));
-	  const getCompTeamPrices = (teams) =>
+    const getCompTeamPrices = (teams) =>
       teams.map((team) => ({
         id: team.competition.id,
         name: team.competition.name,
         price: team.competition.price,
-        isIndividual: team.competition.minPlayer == 1 && team.competition.maxPlayer == 1,
+        isIndividual:
+          team.competition.minPlayer == 1 && team.competition.maxPlayer == 1,
       }));
 
     const sportsPrices = getTeamPrices(sportsTeams);
@@ -261,19 +265,20 @@ module.exports.CalculateChallan = async (req, res) => {
     if (user && user.challan.length === 0) {
       const registrationPrice =
         user.basicInfo && user.basicInfo.studentOf === "nust" ? 500 : 1000;
-        const social =user.basicInfo.socials;
-        const socialPrice = social !== 'nosocials'
-        ? social !== 'all'
-          ? social === 'concert'
-            ? 1000
-            : 500
-          : 1500
-        : 0;          
-        totalPrice += registrationPrice+socialPrice;
+      const social = user.basicInfo.socials;
+      const socialPrice =
+        social !== "nosocials"
+          ? social !== "all"
+            ? social === "concert"
+              ? 1000
+              : 500
+            : 1500
+          : 0;
+      totalPrice += registrationPrice + socialPrice;
       details.push({
         id: 0,
         name: "Registration",
-        price: {base:registrationPrice,social:socialPrice},
+        price: { base: registrationPrice, social: socialPrice },
         isIndividual: false,
       });
     }
@@ -292,108 +297,109 @@ module.exports.CalculateChallan = async (req, res) => {
 
 module.exports.CreateChallan = async (req, res) => {
   try {
+    const userId = req.user.id;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { challan: true, basicInfo: true },
+    });
+    
+    // try {
+    
+    // Calculate total amount for sports teams
+    const sportsTeams = await prisma.sports_Teams.findMany({
+      where: {
+        userId: userId,
+        challanId: 1,
+      },
+      include: {
+        sport: true,
+      },
+    });
+
+    const totalSportsPrice = sportsTeams.reduce((acc, sportsTeam) => {
+      return acc + (sportsTeam.sport.price || 0);
+    }, 0);
+
+    // Calculate total amount for competition teams
+    const competitionTeams = await prisma.competitions_Teams.findMany({
+      where: {
+        userId: userId,
+        challanId: 1,
+      },
+      include: {
+        competition: true,
+      },
+    });
+
+    const totalCompetitionsPrice = competitionTeams.reduce(
+      (acc, competitionTeam) => {
+        return acc + (competitionTeam.sport.price || 0);
+      },
+      0
+    );
+
+    let netTotal = totalSportsPrice + totalCompetitionsPrice;
+
+    if (netTotal === 0) {
+      return res.apiError("No challan generated", "failed", 400);
+    }
+
+    const getTeamPrices = (teams) =>
+      teams.map((team) => ({
+        id: team.sport.id,
+        name: team.sport.name,
+        price: team.sport.price,
+        isIndividual: team.sport.minPlayer == 1 && team.sport.maxPlayer == 1,
+      }));
+
+    const sportsPrices = getTeamPrices(sportsTeams);
+    const competitionPrices = getTeamPrices(competitionTeams);
+
+    const details = [...sportsPrices, ...competitionPrices];
+    if (user && user.challan.length === 0) {
+      const registrationPrice =
+        user.basicInfo && user.basicInfo.studentOf === "nust" ? 500 : 1000;
+      const social = user.basicInfo.socials;
+      const socialPrice =
+        social !== "nosocials"
+          ? social !== "all"
+            ? social === "concert"
+              ? 1000
+              : 500
+            : 1500
+          : 0;
+      netTotal += registrationPrice + socialPrice;
+      details.push({
+        id: 0,
+        name: "Registration",
+        price: { base: registrationPrice, social: socialPrice },
+        isIndividual: false,
+      });
+    }
     upload.fields([{ name: "paymentProof", maxCount: 1 }])(
       req,
       res,
       async (err) => {
+        
         if (err) {
           res.apiError(err.message, "File upload error", 400);
           return;
         }
-        const userId = req.user.id;
-        const user = await prisma.user.findUnique({
-          where: { id: userId },
-          include: { challan: true, basicInfo: true },
-        });
         const paymentProofFile = req.files["paymentProof"]
           ? req.files["paymentProof"][0]
           : null;
-
+    
         if (!paymentProofFile) {
           res.apiError(null, "Payment proof is required.", 400);
           return;
         }
 
-        // try {
         if (paymentProofFile.buffer.length === 0) {
           res.apiError(null, "Invalid file buffer", 400);
           return;
         }
-
+    
         const paymentProofLink = await uploadToWasabi(paymentProofFile);
-
-        // Calculate total amount for sports teams
-        const sportsTeams = await prisma.sports_Teams.findMany({
-          where: {
-            userId: userId,
-            challanId: 1,
-          },
-          include: {
-            sport: true,
-          },
-        });
-
-        const totalSportsPrice = sportsTeams.reduce((acc, sportsTeam) => {
-          return acc + (sportsTeam.sport.price || 0);
-        }, 0);
-
-        // Calculate total amount for competition teams
-        const competitionTeams = await prisma.competitions_Teams.findMany({
-          where: {
-            userId: userId,
-            challanId: 1,
-          },
-          include: {
-            competition: true,
-          },
-        });
-
-        const totalCompetitionsPrice = competitionTeams.reduce(
-          (acc, competitionTeam) => {
-            return acc + (competitionTeam.sport.price || 0);
-          },
-          0
-        );
-
-        let netTotal = totalSportsPrice + totalCompetitionsPrice;
-
-        if (netTotal === 0) {
-          return res.apiError("No challan generated", "failed", 400);
-        }
-
-        const getTeamPrices = (teams) =>
-          teams.map((team) => ({
-            id: team.sport.id,
-            name: team.sport.name,
-            price: team.sport.price,
-            isIndividual:
-              team.sport.minPlayer == 1 && team.sport.maxPlayer == 1,
-          }));
-
-        const sportsPrices = getTeamPrices(sportsTeams);
-        const competitionPrices = getTeamPrices(competitionTeams);
-
-        const details = [...sportsPrices, ...competitionPrices];
-        if (user && user.challan.length === 0) {
-          const registrationPrice =
-            user.basicInfo && user.basicInfo.studentOf === "nust" ? 500 : 1000;
-            const social =user.basicInfo.socials;
-            const socialPrice = social !== 'nosocials'
-            ? social !== 'all'
-              ? social === 'concert'
-                ? 1000
-                : 500
-              : 1500
-            : 0;          
-          netTotal += registrationPrice+socialPrice;
-          details.push({
-            id: 0,
-            name: "Registration",
-            price: {base:registrationPrice,social:socialPrice},
-            isIndividual: false,
-          });
-        }
-
         const createdChallan = await prisma.challan.create({
           data: {
             userId: userId,
