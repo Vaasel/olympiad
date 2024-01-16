@@ -99,7 +99,9 @@ module.exports.setStatus = async (req,res) => {
       <p>After careful review, we regret to inform you that your user profile for Olympiad'24 has not been approved. Reason : ${data.reason}</p>
       <p>For any inquiries or clarification regarding the rejection, please contact our dedicated support team.</p>
       <p>We appreciate your understanding and hope to see your continued interest in the future.</p>
-      <p>Best regards,</p>`,
+      <p>Best regards,</p>
+	  <p>Olympiad Team</p>
+	  `,
     };  
   }else if(data.status == "verified"){
     mailOptions = {
@@ -112,6 +114,7 @@ module.exports.setStatus = async (req,res) => {
       <p>Thank you for choosing to reignite the torch with Olympiad'24! Your participation adds immense value to our community, and we look forward to seeing your achievements and contributions.</p>
       <p>If you have any questions or require further assistance, our dedicated support team is here to help.</p>
       <p>Best regards,</p>
+	  <p>Olympiad Team</p>
       `,
     }; 
   }else if(data.status == "ban"){
@@ -123,7 +126,9 @@ module.exports.setStatus = async (req,res) => {
       <p>We regret to inform you that your Olympiad account has been suspended due to ${data.reason}.</p>
       <p>For a detailed understanding of the reasons behind this action, please review our policies <a href="[link to policies]">here</a>.</p>
       <p>If you believe this suspension was issued in error or have any concerns, we encourage you to contact our dedicated support team at [support email] for further assistance.</p>
-      <p>Best regards,</p>`,
+      <p>Best regards,</p>
+	  <p>Olympiad Team</p>
+	  `,
     }; 
   }
   
@@ -146,6 +151,10 @@ module.exports.basicDisplay = async (req, res) => {
     const entry = await prisma.BasicInfo.findUnique({
       where: { userId: req.user.id },
     });
+	  if(entry===null){
+		 res.apiSuccess(entry);
+		 return;
+	 }
 
     entry.cnicBack = await getSingleImage(entry.cnicBack);
     entry.cnicFront = await getSingleImage(entry.cnicFront);

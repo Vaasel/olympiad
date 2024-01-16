@@ -48,7 +48,6 @@ const genderSingleSports = async (req, res) => {
 
     const allSports = await prisma.competitions.findMany({
       where: {
-        gender: false,
         minPlayer: 1,
         maxPlayer: 1,
       },
@@ -85,7 +84,6 @@ const genderTeamSports = async (req, res) => {
 
     const sportsWithMinAndMaxPlayers = await prisma.competitions.findMany({
       where: {
-        gender: user.basicInfo.gender,
         NOT: {
           AND: [{ minPlayer: 1 }, { maxPlayer: 1 }],
         },
@@ -139,9 +137,9 @@ const applyIndividualSport = async (req, res) => {
       },
     });
 
-    if (user.basicInfo.gender !== sport.gender) {
-      return res.status(404).json({ error: "Not for your gender." });
-    }
+    //if (user.basicInfo.gender !== sport.gender) {
+    //  return res.status(404).json({ error: "Not for your gender." });
+    //}
 
     const team = await prisma.competitions_Teams.findFirst({
       where: {
@@ -207,9 +205,9 @@ const createTeam = async (req, res) => {
       },
     });
 
-    if (user.basicInfo.gender !== sport.gender) {
-      return res.status(404).json({ error: "Not for your gender." });
-    }
+    //if (user.basicInfo.gender !== sport.gender) {
+    //  return res.status(404).json({ error: "Not for your gender." });
+    //}
 
     const team = await prisma.competitions_Teams.findFirst({
       where: {
@@ -316,9 +314,9 @@ const joinTeam = async (req, res) => {
     if (!sportsTeam) {
       return res.apiError("Failed to join sport team.", 'Invalid Code', 500);
     }
-    if (user.basicInfo.gender !== sportsTeam.competition.gender) {
-      return res.apiError("Not for your gender.", 'Not Found', 404);
-    }
+    //if (user.basicInfo.gender !== sportsTeam.competition.gender) {
+    //  return res.apiError("Not for your gender.", 'Not Found', 404);
+    //}
 
     const teamMembersCount = await prisma.competitions_Teams_Members.count({
       where: {

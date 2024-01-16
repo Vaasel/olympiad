@@ -160,7 +160,9 @@ module.exports.setStatus = async (req, res) => {
           <p>To stay informed about upcoming events, expect additional details to be sent to this email address. Please keep an eye on your inbox for these updates.</p>
           <p>For any immediate questions or concerns, our dedicated support team is at your service.</p>
           <p>Thank you once again for choosing to be a part of Olympiad'24 and reigniting the torch!</p>
-          <p>Best regards,</p></div>`,
+          <p>Best regards,</p>
+		  <p>Olympiad Team</p>
+		  </div>`,
     };    
   }else{
      mailOptions = {
@@ -170,11 +172,13 @@ module.exports.setStatus = async (req, res) => {
       html: `<div><h2>Dear Participant,</h2>
       <p>We acknowledge your prompt response in submitting your challan payment form for the upcoming NUST Olympiad'24. After a thorough review, we regret to inform you that an issue has been identified with your payment, preventing further processing. This can be attributed to incomplete information or inaccuracies during the challan documentation process.</p>
       <p>We understand the potential disappointment and sincerely apologize for any inconvenience. To expedite the resolution, we request that you review the details in your challan payment form and rectify any errors or omissions. Once corrected, please promptly resubmit the updated form.</p>
-      <p>Should you have any queries or require assistance during this process, please do not hesitate to contact [Olympiad helpline].</p>
+      <p>Should you have any queries or require assistance during this process, please do not hesitate to contact <a href="mailto:info.olympiad@nust.edu.pk">info.olympiad@nust.edu.pk</a>.</p>
       <p>We greatly appreciate your cooperation as we work towards ensuring a seamless experience for all participants. Thank you for your keen interest in NUST Olympiad'24, and we look forward to your continued participation.</p>
       <h3>Reason:</h3>
       <p>${data.reason}</p>
-      <p>Best Regards</p></div>`,
+      <p>Best Regards</p>
+	  <p>Olympiad Team</p>
+	  </div>`,
     };  
   }
 
@@ -224,7 +228,7 @@ module.exports.CalculateChallan = async (req, res) => {
 
     const totalCompetitionsPrice = competitionTeams.reduce(
       (acc, competitionTeam) => {
-        return acc + (competitionTeam.sport.price || 0);
+        return acc + (competitionTeam.competition.price || 0);
       },
       0
     );
@@ -242,9 +246,16 @@ module.exports.CalculateChallan = async (req, res) => {
         price: team.sport.price,
         isIndividual: team.sport.minPlayer == 1 && team.sport.maxPlayer == 1,
       }));
+	  const getCompTeamPrices = (teams) =>
+      teams.map((team) => ({
+        id: team.competition.id,
+        name: team.competition.name,
+        price: team.competition.price,
+        isIndividual: team.competition.minPlayer == 1 && team.competition.maxPlayer == 1,
+      }));
 
     const sportsPrices = getTeamPrices(sportsTeams);
-    const competitionPrices = getTeamPrices(competitionTeams);
+    const competitionPrices = getCompTeamPrices(competitionTeams);
 
     const details = [...sportsPrices, ...competitionPrices];
     if (user && user.challan.length === 0) {

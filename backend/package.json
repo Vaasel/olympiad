@@ -16,7 +16,9 @@
 
     "start": "node server",
 
-    "dev": "nodemon server"
+    "dev": "nodemon server",
+	"migrate": "prisma db push",
+		"dbpull": "prisma db pull"
 
   },
 

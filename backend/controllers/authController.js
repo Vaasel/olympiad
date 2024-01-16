@@ -107,8 +107,9 @@ module.exports.register = async (req, res) => {
       <p>To complete the verification process, please enter the following verification code on your account:</p>
       <p><strong>Verification Code: ${code}</strong></p>
       <p>Thank you for registering for Olympiad’24 and choosing to reignite the torch!</p>
-      <p>If you have any questions or concerns, please reach out to our support team at ______.</p>
+      <p>If you have any questions or concerns, please reach out to our support team at <a href="mailto:info.olympiad@nust.edu.pk">info.olympiad@nust.edu.pk</a>.</p>
       <p>Best regards,</p>
+	  <p>Olympiad Team</p>
       `,
     };
 
