@@ -58,6 +58,7 @@ module.exports.getAllChallans = async (req, res) => {
     res.apiError(err.message, "Internal Server Error", 500);
   }
 };
+
 module.exports.getUserChallans = async (req, res) => {
   try {
     const Challans = await prisma.Challan.findMany({
@@ -65,14 +66,21 @@ module.exports.getUserChallans = async (req, res) => {
         userId: req.user.id,
       },
     });
-    for (const challan of Challans) {
+
+    // Create an array of promises for fetching images
+    const imagePromises = Challans.map(async (challan) => {
       challan.paymentProof = await getSingleImage(challan.paymentProof);
-    }
+    });
+
+    // Wait for all promises to resolve
+    await Promise.all(imagePromises);
+
     res.apiSuccess(Challans);
   } catch (err) {
     res.apiError(err.message, "Internal Server Error", 500);
   }
 };
+
 module.exports.updateChallan = async (req, res) => {
   try {
     // Use upload middleware to handle file upload
@@ -135,18 +143,20 @@ module.exports.setStatus = async (req, res) => {
   //   where: { userId: data.userId},
   // });
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: data.userId,
-    },
-  });
-
-  const updatedStatusChallan = await prisma.Challan.update({
-    where: { id: data.id },
-    data: {
-      isPaid: data.isPaid,
-    },
-  });
+  // Assuming data is an object with properties userId and id
+  const [user, updatedStatusChallan] = await Promise.all([
+    prisma.user.findUnique({
+      where: {
+        id: data.userId,
+      },
+    }),
+    prisma.Challan.update({
+      where: { id: data.id },
+      data: {
+        isPaid: data.isPaid,
+      },
+    }),
+  ]);
 
   let mailOptions;
 
@@ -199,12 +209,11 @@ module.exports.CalculateChallan = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { challan: true, basicInfo: true },
-    });
-
-    const [sportsTeams, competitionTeams] = await Promise.all([
+    const [user, sportsTeams, competitionTeams] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        include: { challan: true, basicInfo: true },
+      }),
       prisma.sports_Teams.findMany({
         where: {
           userId: userId,
@@ -224,7 +233,7 @@ module.exports.CalculateChallan = async (req, res) => {
         },
       }),
     ]);
-    
+
     const totalSportsPrice = sportsTeams.reduce((acc, sportsTeam) => {
       return acc + (sportsTeam.sport.price || 0);
     }, 0);
@@ -298,38 +307,39 @@ module.exports.CalculateChallan = async (req, res) => {
 module.exports.CreateChallan = async (req, res) => {
   try {
     const userId = req.user.id;
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { challan: true, basicInfo: true },
-    });
-    
-    // try {
-    
-    // Calculate total amount for sports teams
-    const sportsTeams = await prisma.sports_Teams.findMany({
-      where: {
-        userId: userId,
-        challanId: 1,
-      },
-      include: {
-        sport: true,
-      },
-    });
+
+    // Fetch user details, sports teams, and competition teams concurrently
+    const [user, sportsTeams, competitionTeams] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        include: { challan: true, basicInfo: true },
+      }),
+      prisma.sports_Teams.findMany({
+        where: {
+          userId: userId,
+          challanId: 1,
+        },
+        include: {
+          sport: true,
+        },
+      }),
+      prisma.competitions_Teams.findMany({
+        where: {
+          userId: userId,
+          challanId: 1,
+        },
+        include: {
+          competition: true,
+        },
+      }),
+    ]);
+
+    // Rest of the code
+    // Calculate total amount for sports teams and competition teams using the fetched data
 
     const totalSportsPrice = sportsTeams.reduce((acc, sportsTeam) => {
       return acc + (sportsTeam.sport.price || 0);
     }, 0);
-
-    // Calculate total amount for competition teams
-    const competitionTeams = await prisma.competitions_Teams.findMany({
-      where: {
-        userId: userId,
-        challanId: 1,
-      },
-      include: {
-        competition: true,
-      },
-    });
 
     const totalCompetitionsPrice = competitionTeams.reduce(
       (acc, competitionTeam) => {
@@ -380,7 +390,6 @@ module.exports.CreateChallan = async (req, res) => {
       req,
       res,
       async (err) => {
-        
         if (err) {
           res.apiError(err.message, "File upload error", 400);
           return;
@@ -388,7 +397,7 @@ module.exports.CreateChallan = async (req, res) => {
         const paymentProofFile = req.files["paymentProof"]
           ? req.files["paymentProof"][0]
           : null;
-    
+
         if (!paymentProofFile) {
           res.apiError(null, "Payment proof is required.", 400);
           return;
@@ -398,7 +407,7 @@ module.exports.CreateChallan = async (req, res) => {
           res.apiError(null, "Invalid file buffer", 400);
           return;
         }
-    
+
         const paymentProofLink = await uploadToWasabi(paymentProofFile);
         const createdChallan = await prisma.challan.create({
           data: {

@@ -28,7 +28,7 @@ module.exports.allUsers = async (req, res) => {
 module.exports.getUser = async (req, res) => {
   const {id} = req.params;
   try {
-    const users = await prisma.user.findMany({
+    const users = await prisma.user.findUnique({
       where : {
         isParticipant : true,
         id: parseInt(id)

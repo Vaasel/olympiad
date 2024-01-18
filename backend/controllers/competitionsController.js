@@ -114,44 +114,42 @@ const applyIndividualSport = async (req, res) => {
   try {
     const { sportId } = req.body;
 
-    const sport = await prisma.competitions.findUnique({
-      where: {
-        id: sportId,
-      },
-    });
+    const [sport, user, team] = await Promise.all([
+      prisma.competitions.findUnique({
+        where: {
+          id: sportId,
+        },
+      }),
+      prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        include: {
+          basicInfo: true,
+        },
+      }),
+      prisma.competitions_Teams.findFirst({
+        where: {
+          userId,
+          competitionId: sportId,
+        },
+      }),
+    ]);
 
+    // Validate sport existence
     if (!sport) {
       return res.status(404).json({ error: "Sport not found" });
     }
 
+    // Validate if the sport is for single players
     if (sport.minPlayer !== 1 && sport.maxPlayer !== 1) {
       return res.status(404).json({ error: "Not for single players." });
     }
 
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      include: {
-        basicInfo: true,
-      },
-    });
-
-    //if (user.basicInfo.gender !== sport.gender) {
-    //  return res.status(404).json({ error: "Not for your gender." });
-    //}
-
-    const team = await prisma.competitions_Teams.findFirst({
-      where: {
-        userId,
-        competitionId: sportId,
-      },
-    });
-
+    // Validate if the user is already in the team
     if (team) {
       return res.status(500).json({ error: "You are already in the team." });
     }
-
     const hashedId = await bcrypt.hash(user.email, 10);
 
     const createdSportTeam = await prisma.competitions_Teams.create({
@@ -182,64 +180,63 @@ const createTeam = async (req, res) => {
   try {
     const { sportId, teamName } = req.body;
 
-    const sport = await prisma.competitions.findUnique({
-      where: {
-        id: sportId,
-      },
-    });
-
+    const [sport, user] = await Promise.all([
+      prisma.competitions.findUnique({
+        where: {
+          id: sportId,
+        },
+      }),
+      prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        include: {
+          basicInfo: true,
+        },
+      }),
+    ]);
+  
     if (!sport) {
       return res.status(404).json({ error: "Sport not found" });
     }
-
+  
     if (sport.minPlayer === 1 && sport.maxPlayer === 1) {
       return res.status(404).json({ error: "Not for single players." });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      include: {
-        basicInfo: true,
-      },
-    });
-
-    //if (user.basicInfo.gender !== sport.gender) {
+    }    //if (user.basicInfo.gender !== sport.gender) {
     //  return res.status(404).json({ error: "Not for your gender." });
     //}
 
-    const team = await prisma.competitions_Teams.findFirst({
-      where: {
-        userId: user.id,
-        competitionId: sportId,
-      },
-    });
-
+    const [team, teamMembers, codes] = await Promise.all([
+      prisma.competitions_Teams.findFirst({
+        where: {
+          userId: user.id,
+          competitionId: sportId,
+        },
+      }),
+      prisma.competitions_Teams_Members.findMany({
+        where: {
+          userId: user.id,
+        },
+        include: {
+          competition: true,
+        },
+      }),
+      prisma.competitions_Teams.findMany({
+        select: {
+          code: true,
+        },
+      }),
+    ]);
+  
     if (team) {
       return res.status(500).json({ error: "You are already in the team." });
     }
-
-    const teamMember = await prisma.competitions_Teams_Members.findMany({
-      where: {
-        userId: user.id,
-      },
-      include: {
-        competition: true,
-      },
-    });
-
-    for (const member of teamMember) {
+  
+    for (const member of teamMembers) {
       if (member.competition.competitionId === sportId) {
         return res.status(500).json({ error: "You are already in the team." });
       }
     }
-
-    const codes = await prisma.competitions_Teams.findMany({
-      select: {
-        code: true,
-      },
-    });
 
     const codeList = codes.map((team) => team.code);
 
@@ -293,27 +290,29 @@ const joinTeam = async (req, res) => {
     const { code } = req.body;
     const userId = req.user.id;
 
-    const sportsTeam = await prisma.competitions_Teams.findFirst({
-      where: {
-        code,
-      },
-      include: {
-        competition: true,
-      },
-    });
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      include: {
-        basicInfo: true,
-      },
-    });
-
-
+    const [sportsTeam, user] = await Promise.all([
+      prisma.competitions_Teams.findFirst({
+        where: {
+          code,
+        },
+        include: {
+          competition: true,
+        },
+      }),
+      prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        include: {
+          basicInfo: true,
+        },
+      }),
+    ]);
+  
     if (!sportsTeam) {
       return res.apiError("Failed to join sport team.", 'Invalid Code', 500);
     }
+    
     //if (user.basicInfo.gender !== sportsTeam.competition.gender) {
     //  return res.apiError("Not for your gender.", 'Not Found', 404);
     //}

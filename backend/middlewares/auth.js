@@ -26,6 +26,7 @@ const validateToken = async (req, res, next) => {
     return res.sendStatus(401);
   }
 };
+
 const validateLogin = async (req, res, next) => {
   try {
     const accessToken = req.header("Authorization").split(" ")[1];

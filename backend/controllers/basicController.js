@@ -44,10 +44,29 @@ module.exports.getSingleUserDetails = async (req, res) => {
         basicInfo: true,
       },
     });
-    userDetails.basicInfo.cnicBack = await getSingleImage(userDetails.basicInfo.cnicBack);
-    userDetails.basicInfo.cnicFront = await getSingleImage(userDetails.basicInfo.cnicFront);
-    userDetails.basicInfo.stdBack = userDetails.basicInfo.stdBack==null ? null : await getSingleImage(userDetails.basicInfo.stdBack);
-    userDetails.basicInfo.stdFront = userDetails.basicInfo.stdFront==null ? null: await getSingleImage(userDetails.basicInfo.stdFront);
+
+    // Define an array of promises for image fetching
+    const imagePromises = [
+      getSingleImage(userDetails.basicInfo.cnicBack),
+      getSingleImage(userDetails.basicInfo.cnicFront),
+    ];
+
+    // Check if stdBack and stdFront are not null before adding them to imagePromises
+    if (userDetails.basicInfo.stdBack !== null) {
+      imagePromises.push(getSingleImage(userDetails.basicInfo.stdBack));
+    }
+    if (userDetails.basicInfo.stdFront !== null) {
+      imagePromises.push(getSingleImage(userDetails.basicInfo.stdFront));
+    }
+
+    // Use Promise.all to fetch all images concurrently
+    const images = await Promise.all(imagePromises);
+
+    // Assign the fetched images to the userDetails object
+    userDetails.basicInfo.cnicBack = images[0];
+    userDetails.basicInfo.cnicFront = images[1];
+    userDetails.basicInfo.stdBack = userDetails.basicInfo.stdBack === null ? null : images[2];
+    userDetails.basicInfo.stdFront = userDetails.basicInfo.stdFront === null ? null : images[3];
 
     res.apiSuccess(userDetails);
     
@@ -75,19 +94,19 @@ module.exports.ApplyAccomodation = async (req,res) => {
 module.exports.setStatus = async (req,res) => {
   const data = req.body;
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: data.userId,
-    }
-  });
-
-
-  const updatedBasicInfo = await prisma.basicInfo.update({
-    where: { userId: data.userId },
-    data: {
-      status: data.status,
-    },
-  });
+  const [user, updatedBasicInfo] = await Promise.all([
+    prisma.user.findUnique({
+      where: {
+        id: data.userId,
+      },
+    }),
+    prisma.basicInfo.update({
+      where: { userId: data.userId },
+      data: {
+        status: data.status,
+      },
+    }),
+  ]);
 
   let mailOptions
   if (data.status == "rejected") {
@@ -146,26 +165,44 @@ module.exports.setStatus = async (req,res) => {
 }
 
 module.exports.basicDisplay = async (req, res) => {
-  try{
+  try {
     const id = req.user.id;
     const entry = await prisma.BasicInfo.findUnique({
       where: { userId: req.user.id },
     });
-	  if(entry===null){
-		 res.apiSuccess(entry);
-		 return;
-	 }
 
-    entry.cnicBack = await getSingleImage(entry.cnicBack);
-    entry.cnicFront = await getSingleImage(entry.cnicFront);
-    entry.stdBack = entry.stdBack==null?null:await getSingleImage(entry.stdBack);
-    entry.stdFront = entry.stdFront==null?null:await getSingleImage(entry.stdFront);
+    // Check if entry is null and respond immediately if so
+    if (entry === null) {
+      res.apiSuccess(entry);
+      return;
+    }
+
+    // Define an array of promises for image fetching
+    const imagePromises = [
+      getSingleImage(entry.cnicBack),
+      getSingleImage(entry.cnicFront),
+    ];
+
+    // Check if stdBack and stdFront are not null before adding them to imagePromises
+    if (entry.stdBack !== null) {
+      imagePromises.push(getSingleImage(entry.stdBack));
+    }
+    if (entry.stdFront !== null) {
+      imagePromises.push(getSingleImage(entry.stdFront));
+    }
+
+    // Use Promise.all to fetch all images concurrently
+    const images = await Promise.all(imagePromises);
+
+    // Assign the fetched images to the entry object
+    entry.cnicBack = images[0];
+    entry.cnicFront = images[1];
+    entry.stdBack = entry.stdBack === null ? null : images[2];
+    entry.stdFront = entry.stdFront === null ? null : images[3];
+
     res.apiSuccess(entry);
-
-
   } catch (error) {
     console.error(error);
-    
     res.apiError(error.message, "Failed", 500);
   }
 };
@@ -178,88 +215,69 @@ module.exports.basicInfoUpdate = async (req, res) => {
     const filteredUpdatedData = Object.fromEntries(
       Object.entries(updatedData).filter(([_, value]) => value !== undefined && value !== null)
     );
-    
-    // let fileup = [];
-    upload.fields([{ name: 'cnicFront', maxCount: 1 }, { name: 'cnicBack', maxCount: 1 }, { name: 'stdFront', maxCount: 1 }, { name: 'stdBack', maxCount: 1 }])(req, res, async (err) => {
-      if (err) {
-        res.apiError(err.message, 'File upload error', 400);
-        return;
+
+    const uploadPromises = ['cnicFront', 'cnicBack', 'stdFront', 'stdBack'].map(async (fileKey) => {
+      if (req.files[fileKey]) {
+        const link = await uploadToWasabi(req.files[fileKey][0]);
+        return { [fileKey]: link };
       }
-
-      fileup = {};
-      const uploadAndAddToDictionary = async (fileKey) => {
-        if (req.files[fileKey]) {
-          const link = await uploadToWasabi(req.files[fileKey][0]);
-          fileup[fileKey] = link;
-        }
-      };
-      
-      await uploadAndAddToDictionary('cnicFront');
-      await uploadAndAddToDictionary('cnicBack');
-      await uploadAndAddToDictionary('stdFront');
-      await uploadAndAddToDictionary('stdBack');
-
-
-      const getFileLink = (fileName) => {
-        try {
-          if (fileup.hasOwnProperty(fileName)) {
-            return fileup[fileName];
-          } else {
-            return null;
-          }
-        } catch (error) {
-          console.error(error.message);
-          return null; // or handle the error as needed
-        }
-      };
-      
-      // console.log(fileup);
-      const cnicFrontLink = getFileLink('cnicFront');
-      const cnicBackLink = getFileLink('cnicBack');
-      const stdFrontLink = getFileLink('stdFront');
-      const stdBackLink = getFileLink('stdBack');
-
-      // console.log(cnicFrontLink); 
-      // console.log(cnicBackLink);
-      // console.log(stdFrontLink);
-      // console.log(stdBackLink);
-      const updatedBasicInfoData = {
-        ...filteredUpdatedData,
-        status: 'pending',
-      };
-
-      if (stdFrontLink !== null) updatedBasicInfoData.stdFront = stdFrontLink;
-      if (stdBackLink !== null) updatedBasicInfoData.stdBack = stdBackLink;
-      if (cnicFrontLink !== null) updatedBasicInfoData.cnicFront = cnicFrontLink;
-      if (cnicBackLink !== null) updatedBasicInfoData.cnicBack = cnicBackLink;
-      // console.log(updatedBasicInfoData);
-
-      const updatedBasicInfo = await prisma.BasicInfo.update({
-        where: { userId: userId },
-        data: updatedBasicInfoData,
-      });
-  
-
-      res.apiSuccess(updatedBasicInfo,'BasicInfo updated successfully');
-    
-
+      return { [fileKey]: null };
     });
 
+    const fileupArray = await Promise.all(uploadPromises);
+    const fileup = Object.assign({}, ...fileupArray);
+
+    const getFileLink = (fileName) => {
+      try {
+        if (fileup.hasOwnProperty(fileName)) {
+          return fileup[fileName];
+        } else {
+          return null;
+        }
+      } catch (error) {
+        console.error(error.message);
+        return null; // or handle the error as needed
+      }
+    };
+
+    const [cnicFrontLink, cnicBackLink, stdFrontLink, stdBackLink] = await Promise.all([
+      getFileLink('cnicFront'),
+      getFileLink('cnicBack'),
+      getFileLink('stdFront'),
+      getFileLink('stdBack'),
+    ]);
+
+    const updatedBasicInfoData = {
+      ...filteredUpdatedData,
+      status: 'pending',
+      stdFront: stdFrontLink,
+      stdBack: stdBackLink,
+      cnicFront: cnicFrontLink,
+      cnicBack: cnicBackLink,
+    };
+
+    const updatedBasicInfo = await prisma.BasicInfo.update({
+      where: { userId: userId },
+      data: updatedBasicInfoData,
+    });
+
+    res.apiSuccess(updatedBasicInfo, 'BasicInfo updated successfully');
   } catch (error) {
     console.error(error);
-    res.apiError(error.message, "Failed", 500);
+    res.apiError(error.message, 'Failed', 500);
   }
 };
 
 
-
-
-
 module.exports.basicInfoCreate = async (req, res) => {
   try {
-    upload.fields([{ name: 'cnicFront', maxCount: 1 }, { name: 'cnicBack', maxCount: 1 }, { name: 'profilePhoto', maxCount: 1 }])(req, res, async (err) => {
+    upload.fields([
+      { name: 'cnicFront', maxCount: 1 },
+      { name: 'cnicBack', maxCount: 1 },
+      { name: 'profilePhoto', maxCount: 1 },
+    ])(req, res, async (err) => {
       if (err) {
-        res.apiError(err.message, "File upload error", 500);
+        res.apiError(err.message, 'File upload error', 500);
         return;
       }
 
@@ -268,11 +286,11 @@ module.exports.basicInfoCreate = async (req, res) => {
       const profilePhotoFile = req.files['profilePhoto'] ? req.files['profilePhoto'][0] : null;
 
       if (!cnicFrontFile || !cnicBackFile || !profilePhotoFile) {
-        res.apiError(null, 'Both the files (cnicFront, cnicBack or profilePhoto) are required', 400);
+        res.apiError(null, 'Both the files (cnicFront, cnicBack, or profilePhoto) are required', 400);
         return;
       }
 
-      if ( !profilePhotoFile) {
+      if (!profilePhotoFile) {
         res.apiError(null, 'The profile photo is required', 400);
         return;
       }
@@ -283,9 +301,12 @@ module.exports.basicInfoCreate = async (req, res) => {
           return;
         }
 
-        const cnicFrontLink = await uploadToWasabi(cnicFrontFile);
-        const cnicBackLink = await uploadToWasabi(cnicBackFile);
-        const profilePhotoLink = await uploadToWasabi(profilePhotoFile);
+        // Use Promise.all for parallel file uploads
+        const [cnicFrontLink, cnicBackLink, profilePhotoLink] = await Promise.all([
+          uploadToWasabi(cnicFrontFile),
+          uploadToWasabi(cnicBackFile),
+          uploadToWasabi(profilePhotoFile),
+        ]);
 
         // Validate other fields
         let validationSchema = yup.object().shape({
@@ -307,66 +328,49 @@ module.exports.basicInfoCreate = async (req, res) => {
         }
 
         // Create BasicInfo row with file links and other fields
-        const createdBasicInfo = await prisma.BasicInfo.create({
-          data: {
-            userId: req.user.id,
-            phoneno: data.phoneno.toString(),
-            cnic: data.cnic.toString(),
-            guardianName: data.guardianName,
-            guardianNumber: data.guardianNumber.toString(),
-            schoolName: data.schoolName,
-            gender: data.gender === "true",
-            address: data.address,
-            cnicFront: cnicFrontLink,
-            cnicBack: cnicBackLink,
-            profilePhoto: profilePhotoLink,
-          },
-        });
-
-        const user = await prisma.user.findUnique({
-          where: { id: req.user.id },
-        });
-
+        const [createdBasicInfo, user] = await Promise.all([
+          prisma.BasicInfo.create({
+            data: {
+              userId: req.user.id,
+              phoneno: data.phoneno.toString(),
+              cnic: data.cnic.toString(),
+              guardianName: data.guardianName,
+              guardianNumber: data.guardianNumber.toString(),
+              schoolName: data.schoolName,
+              gender: data.gender === 'true',
+              address: data.address,
+              cnicFront: cnicFrontLink,
+              cnicBack: cnicBackLink,
+              profilePhoto: profilePhotoLink,
+            },
+          }),
+          prisma.user.findUnique({
+            where: { id: req.user.id },
+          }),
+        ]);
+        
         const userInfo = {
           id: user.id,
           email: user.email,
         };
-
-        // const BasicInfoCreated = {
-        //   id: req.user.id,
-        // }
-
+        
+        // Rest of the code remains unchanged
         const accessToken = sign(userInfo, process.env.APP_SECRET);
-
-        // const accessToken = sign(
-        //   { id: userInfo.id, email: userInfo.email, basicid: createdBasicInfo.userId },
-        //   process.env.APP_SECRET,
-        //   { expiresIn: process.env.JWT_EXPRIES }
-        // );
-    
-        // res.json({
-        //   accessToken: accessToken,
-        //   user: userInfo,
-        // });
-         
+        
         const resdata = {
-          "accessToken": accessToken,
-          "user": userInfo,
-          "basicInfo": createdBasicInfo,
+          accessToken: accessToken,
+          user: userInfo,
+          basicInfo: createdBasicInfo,
         };
         res.apiSuccess(resdata);
-    
       } catch (error) {
         console.error('Wasabi upload error:', error);
-        res.apiError(error.message, "Wasabi upload error", 500);
-        return;
-        
+        res.apiError(error.message, 'Wasabi upload error', 500);
       }
     });
   } catch (error) {
     console.error(error);
     res.apiError(error.message, 'Internal server error', 500);
-    // res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
@@ -429,23 +433,23 @@ module.exports.SecondPage = async (req, res) => {
           return;
       }
         console.log("After try");
-      const updatedBasicInfo = await prisma.BasicInfo.update({
-        where: { userId: parseInt(userId) },
-        data: {
-          studentOf: req.body.studentOf,
-          socials:req.body.socials,
-          student_id:  null,
-          schoolName:  null,
-          ambassadorcode: null,
-          stdFront: null,
-          stdBack: null,
-        },
-      });
-
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-      });
-
+        const [updatedBasicInfo, user] = await Promise.all([
+          prisma.BasicInfo.update({
+            where: { userId: parseInt(userId) },
+            data: {
+              studentOf: req.body.studentOf,
+              socials: req.body.socials,
+              student_id: null,
+              schoolName: null,
+              ambassadorcode: null,
+              stdFront: null,
+              stdBack: null,
+            },
+          }),
+          prisma.user.findUnique({
+            where: { id: userId },
+          }),
+        ]);
       const userInfo = {
         id: user.id,
         email: user.email,
@@ -496,8 +500,11 @@ module.exports.SecondPage = async (req, res) => {
   
         if (stdFrontFile && stdBackFile) {
           try {
-            stdFrontLink = await uploadToWasabi(stdFrontFile);
-            stdBackLink = await uploadToWasabi(stdBackFile);
+            const [stdFrontLink, stdBackLink] = await Promise.all([
+              uploadToWasabi(stdFrontFile),
+              uploadToWasabi(stdBackFile)
+            ]);
+            
           } catch (error) {
             res.apiError(error.message, 'Wasabi upload error', 500);
             console.error('Wasabi upload error:', error);
@@ -509,23 +516,23 @@ module.exports.SecondPage = async (req, res) => {
         
   
         // Update BasicInfo record
-        const updatedBasicInfo = await prisma.BasicInfo.update({
-          where: { userId: parseInt(userId) },
-          data: {
-            studentOf: req.body.studentOf,
-            socials:req.body.socials,
-            student_id: req.body.student_id || null,
-            schoolName: req.body.schoolName || null,
-            ambassadorcode: req.body.ambassadorcode || null,
-            stdFront: stdFrontLink || null,
-            stdBack: stdBackLink || null,
-          },
-        });
-  
-        // Generate access token and send the response
-        const user = await prisma.user.findUnique({
-          where: { id: userId },
-        });
+        const [updatedBasicInfo, user] = await Promise.all([
+          prisma.BasicInfo.update({
+            where: { userId: parseInt(userId) },
+            data: {
+              studentOf: req.body.studentOf,
+              socials: req.body.socials,
+              student_id: req.body.student_id || null,
+              schoolName: req.body.schoolName || null,
+              ambassadorcode: req.body.ambassadorcode || null,
+              stdFront: stdFrontLink || null,
+              stdBack: stdBackLink || null,
+            },
+          }),
+          prisma.user.findUnique({
+            where: { id: userId },
+          }),
+        ]);
   
         const userInfo = {
           id: user.id,
