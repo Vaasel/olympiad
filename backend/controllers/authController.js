@@ -18,6 +18,9 @@ const prisma = new PrismaClient();
 module.exports.getUsers = async (req, res) => {
   try {
     const users = await prisma.user.findMany();
+    if (!users || users.length === 0) {
+      return res.apiError('No users found', 'Not Found', 404);
+    }
     res.apiSuccess(users);
   } catch (err) {
     res.apiError(err.message, "Failed", 500);
@@ -171,6 +174,7 @@ module.exports.login = async (req, res) => {
     };
 
     user.basicInfo = user.basicInfo !== null;
+
     const accessToken = sign(
       { id: userInfo.id, email: userInfo.email },
       process.env.APP_SECRET,
@@ -189,6 +193,9 @@ module.exports.login = async (req, res) => {
 module.exports.getAll = async (req, res) => {
   try {
     const users = await prisma.user.findMany({});
+    if (!users || users.length === 0) {
+      return res.apiError('No users found', 'Not Found', 404);
+    }
     res.apiSuccess(users);
   } catch (err) {
     res.apiError(err.message, "Failed", 500);

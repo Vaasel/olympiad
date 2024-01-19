@@ -4,6 +4,7 @@ require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const cors = require('cors');
+const bcrypt = require('bcrypt')
 const app = express();
 const port = process.env.PORT
 const responseMiddleware = require("./middlewares/responseFormatter");
@@ -70,11 +71,12 @@ app.post("/add-dummy-data", async (req, res) => {
           price: 500,
         })),
       });
+      
       const indcreatedSports = await prisma.sports.createMany({
         data: Array.from({ length: 10 }, (_, index) => ({
-          name: `Dummy Sport ${index + 1}`,
+          name: `Individual Sport ${index + 1}`,
           gender: Math.random() < 0.5,
-          description: `Dummy Sport Description ${index + 1}`,
+          description: `Individual Sport Description ${index + 1}`,
           minPlayer: 1,
           maxPlayer: 1,
           teamCap: 20,
@@ -82,6 +84,7 @@ app.post("/add-dummy-data", async (req, res) => {
           price: 500,
         })),
       });
+      
       const indcreatedComp = await prisma.competitions.createMany({
         data: Array.from({ length: 10 }, (_, index) => ({
           name: `Dummy comp ${index + 1}`,
@@ -182,12 +185,12 @@ app.post("/add-dummy-data", async (req, res) => {
         }
       });
         
-      }
-    
-  catch (error) {
+      res.send("Insertion Done");
+  } catch (error) {
     console.error(error);
   }
 })
+
 app.get("/",(req,res)=>{
 res.send("app is working")
 });

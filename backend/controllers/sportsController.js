@@ -1,7 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
-
+const yup = require("yup");
 function generateUniqueCode() {
   const length = 6;
   const characters =
@@ -20,8 +20,14 @@ function generateUniqueCode() {
 const allSports = async (req, res) => {
   try {
     const sports = await prisma.sports.findMany({});
+
+    if (!sports || sports.length === 0) {
+      return res.apiError("No sports found", "Not Found", 404);
+    }
+
     res.apiSuccess(sports);
   } catch (error) {
+    console.error(error);
     res.apiError(error.message, "Internal Server Error", 500);
   }
 };
@@ -29,9 +35,18 @@ const allSports = async (req, res) => {
 //Just single player sports
 const genderSingleSports = async (req, res) => {
   try {
+    const userId = req.user.id;
+
+    const idSchema = yup.number().required().positive().integer();
+    try {
+      await idSchema.validate(userId);
+    } catch (validationError) {
+      return res.apiError("Invalid request", validationError.message, 400);
+    }
+
     const user = await prisma.user.findUnique({
       where: {
-        id: req.user.id,
+        id: userId,
       },
       include: {
         basicInfo: true,
@@ -42,6 +57,10 @@ const genderSingleSports = async (req, res) => {
         },
       },
     });
+
+    if (!user) {
+      return res.apiError("User not found", "Not Found", 404);
+    }
 
     const gender = user.basicInfo.gender;
     const userSportIds = user.sports.map((sport) => sport.sport.sportsId);
@@ -61,15 +80,26 @@ const genderSingleSports = async (req, res) => {
 
     res.apiSuccess(sportsWithHasApplied);
   } catch (error) {
+    console.error(error);
     res.apiError(error.message, "Internal Server Error", 500);
   }
 };
 
+
 const genderTeamSports = async (req, res) => {
   try {
+    const userId = req.user.id;
+
+    const idSchema = yup.number().required().positive().integer();
+    try {
+      await idSchema.validate(userId);
+    } catch (validationError) {
+      return res.apiError("Invalid request", validationError.message, 400);
+    }
+
     const user = await prisma.user.findUnique({
       where: {
-        id: req.user.id,
+        id: userId,
       },
       include: {
         basicInfo: true,
@@ -80,6 +110,10 @@ const genderTeamSports = async (req, res) => {
         },
       },
     });
+
+    if (!user) {
+      return res.apiError("User not found", "Not Found", 404);
+    }
 
     const gender = user.basicInfo.gender;
     const userSportIds = user.sports.map((sport) => sport.sport.sportsId);
@@ -108,12 +142,24 @@ const genderTeamSports = async (req, res) => {
 
     res.apiSuccess(sportsWithCode);
   } catch (error) {
+    console.error(error);
     res.apiError(error.message, "Internal Server Error", 500);
   }
 };
 
+
+
+
 const applyIndividualSport = async (req, res) => {
   const userId = req.user.id;
+
+  const idSchema = yup.number().required().positive().integer();
+  try {
+    await idSchema.validate(userId);
+  } catch (validationError) {
+    return res.apiError("Invalid request", validationError.message, 400);
+  }
+
   try {
     const { sportId } = req.body;
 
@@ -141,36 +187,35 @@ const applyIndividualSport = async (req, res) => {
 
     // Validate sport existence
     if (!sport) {
-      throw new Error("Sport not found");
+      return res.apiError("Sport not found", "Not Found", 404);
     }
 
     // Validate if the sport is for single players
     if (sport.minPlayer !== 1 && sport.maxPlayer !== 1) {
-      throw new Error("Not for single players.");
+      return res.apiError("Not for single players", "Bad Request", 400);
     }
 
     // Validate if the sport is suitable for the user's gender
     if (user.basicInfo.gender !== sport.gender) {
-      throw new Error("Not for your gender.");
+      return res.apiError("Not for your gender", "Bad Request", 400);
     }
 
     // Validate if the user is already in the team
     if (team) {
-      throw new Error("You are already in the team.");
+      return res.apiError("You are already in the team", "Bad Request", 400);
     }
 
     const hashedId = await bcrypt.hash(user.email, 10);
 
     const createdSportTeam = await prisma.sports_Teams.create({
       data: {
-        name: sport.name + user.name + hashedId, // Or any relevant data
+        name: sport.name + user.name + hashedId,
         userId,
         sportsId: sportId,
         challanId: 1,
       },
     });
 
-    // Create an entry in Sports_Teams_Members for the user
     await prisma.sports_Teams_Members.create({
       data: {
         sportsTeamId: createdSportTeam.id,
@@ -180,9 +225,12 @@ const applyIndividualSport = async (req, res) => {
 
     res.apiSuccess("Joined sport team successfully");
   } catch (error) {
+    console.error(error);
     res.apiError("Failed to join sport team", "Internal Server Error", 500);
   }
 };
+
+
 
 const createTeam = async (req, res) => {
   const userId = req.user.id;
@@ -190,7 +238,7 @@ const createTeam = async (req, res) => {
     const { sportId, teamName } = req.body;
 
     // Check if the sportId exists
-    const sportAndUserPromises = Promise.all([
+    const [sport, user] = await Promise.all([
       prisma.sports.findUnique({
         where: {
           id: sportId,
@@ -205,8 +253,6 @@ const createTeam = async (req, res) => {
         },
       }),
     ]);
-
-    const [sport, user] = await sportAndUserPromises;
 
     // Validate sport existence
     if (!sport) {
@@ -223,7 +269,7 @@ const createTeam = async (req, res) => {
       return res.apiError("Not for your gender.", "Not Found", 404);
     }
 
-    const teamAndMembersAndCodesPromises = Promise.all([
+    const [team, teamMembers, codes] = await Promise.all([
       prisma.sports_Teams.findFirst({
         where: {
           userId: user.id,
@@ -245,25 +291,15 @@ const createTeam = async (req, res) => {
       }),
     ]);
 
-    const [team, teamMembers, codes] = await teamAndMembersAndCodesPromises;
-
     // Check if the user is already in a team
     if (team) {
-      return res.apiError(
-        "You are already in the team.",
-        "Internal Server Error",
-        500
-      );
+      return res.apiError("You are already in the team.", "Internal Server Error", 409);
     }
 
     // Check if the user is already in a team based on membership
     for (const member of teamMembers) {
       if (member.sport.sportsId === sportId) {
-        return res.apiError(
-          "You are already in the team.",
-          "Internal Server Error",
-          500
-        );
+        return res.apiError("You are already in the team.", "Internal Server Error", 409);
       }
     }
 
@@ -319,6 +355,15 @@ const joinTeam = async (req, res) => {
     const { code } = req.body;
     const userId = req.user.id;
 
+    // Validate code and user ID
+    if (!code) {
+      return res.status(400).json({ error: "Code is required." });
+    }
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required." });
+    }
+
     const [sportsTeam, user] = await Promise.all([
       prisma.sports_Teams.findFirst({
         where: {
@@ -337,12 +382,11 @@ const joinTeam = async (req, res) => {
         },
       }),
     ]);
-  
-    // Now you have 'sportsTeam' and 'user' available for further processing
+
     if (!sportsTeam) {
       return res.status(404).json({ error: "Sports team not found." });
     }
-  
+
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }
@@ -351,27 +395,26 @@ const joinTeam = async (req, res) => {
       return res.apiError("Not for your gender.", "Not Found", 404);
     }
 
-      const [teamMembersCount, teamMember] = await Promise.all([
-    prisma.sports_Teams_Members.count({
+    const teamMembersCount = await prisma.sports_Teams_Members.count({
       where: {
         sportsTeamId: parseInt(sportsTeam.id),
       },
-    }),
-    prisma.sports_Teams_Members.findFirst({
+    });
+
+    if (teamMembersCount >= sportsTeam.sport.maxPlayer) {
+      return res.apiError(
+        "Failed to join team because it exceeds the limit.",
+        "Internal Server Error",
+        500
+      );
+    }
+
+    const teamMember = await prisma.sports_Teams_Members.findFirst({
       where: {
         userId: user.id,
         sportsTeamId: sportsTeam.id,
       },
-    }),
-  ]);
-
-  if (teamMembersCount >= sportsTeam.sport.maxPlayer) {
-    return res.apiError(
-      "Failed to join team because it exceeds the limit.",
-      "Internal Server Error",
-      500
-    );
-  }
+    });
 
     if (teamMember) {
       return res.apiError(
@@ -390,15 +433,23 @@ const joinTeam = async (req, res) => {
 
     res.apiSuccess("Joined sport team successfully");
   } catch (error) {
+    console.error(error);
     res.apiError("Failed to join sport team", "Internal Server Error", 500);
   }
 };
-
 const getMembers = async (req, res) => {
   const { sportId } = req.params;
-  const userId = req.user.id; // Assuming the user ID is available in req.user
+  const userId = req.user.id;
 
   try {
+    if (!sportId) {
+      return res.apiError("Sport ID is required.", "Bad Request", 400);
+    }
+
+    if (!userId) {
+      return res.apiError("User ID is required.", "Bad Request", 400);
+    }
+
     const sport = await prisma.sports.findUnique({
       where: {
         id: parseInt(sportId),
@@ -450,7 +501,7 @@ const getMembers = async (req, res) => {
 
     res.apiSuccess(sportDetails);
   } catch (error) {
-    res.apiError("Failed to fetch sport members", "Internal Server Error", 500);
+    res.apiError("Failed to fetch sport members.", "Internal Server Error", 500);
   }
 };
 
@@ -459,6 +510,10 @@ const addSport = async (req, res) => {
     req.body;
 
   try {
+    if (!name || !description || !minPlayer || !maxPlayer || !price || !gender || !teamCap) {
+      return res.apiError("Missing required fields.", "Bad Request", 400);
+    }
+
     // Use Prisma to create a new sport in the database
     const newSport = await prisma.sports.create({
       data: {
@@ -474,15 +529,22 @@ const addSport = async (req, res) => {
 
     res.apiSuccess({ success: true, sport: newSport });
   } catch (error) {
-    res.apiError("Failed to add a new sport", "Internal Server Error", 500);
+    res.apiError("Failed to add a new sport.", "Internal Server Error", 500);
   }
 };
-
 const withdrawSingleSport = async (req, res) => {
   const { sportId } = req.body;
   const userId = req.user.id;
 
   try {
+    if (!sportId) {
+      return res.apiError("Sport ID is required.", "Bad Request", 400);
+    }
+
+    if (!userId) {
+      return res.apiError("User ID is required.", "Bad Request", 400);
+    }
+
     const sportsTeam = await prisma.sports_Teams.findFirst({
       where: {
         sportsId: parseInt(sportId),
@@ -510,14 +572,12 @@ const withdrawSingleSport = async (req, res) => {
       }
     }
 
-    // Delete records in sports_Teams_Members table first
     await prisma.sports_Teams_Members.deleteMany({
       where: {
         sportsTeamId: sportsTeam.id,
       },
     });
 
-    // Then delete the sportsTeam record
     await prisma.sports_Teams.delete({
       where: {
         id: sportsTeam.id,
@@ -536,23 +596,31 @@ const withdrawTeamSport = async (req, res) => {
   const userId = req.user.id;
 
   try {
-      const [sportsTeam, userChallanCount] = await Promise.all([
-    prisma.sports_Teams.findFirst({
-      where: {
-        id: parseInt(sportsTeamId),
-        userId: userId,
-      },
-    }),
-    prisma.challan.count({
-      where: {
-        userId: user,
-      },
-    }),
-  ]);
+    if (!sportsTeamId) {
+      return res.apiError("Sports team ID is required.", "Bad Request", 400);
+    }
 
-  if (!sportsTeam) {
-    return res.apiError("You are not part of this game.", "Not Found", 404);
-  }
+    if (!user) {
+      return res.apiError("User ID is required.", "Bad Request", 400);
+    }
+
+    const [sportsTeam, userChallanCount] = await Promise.all([
+      prisma.sports_Teams.findFirst({
+        where: {
+          id: parseInt(sportsTeamId),
+          userId: userId,
+        },
+      }),
+      prisma.challan.count({
+        where: {
+          userId: user,
+        },
+      }),
+    ]);
+
+    if (!sportsTeam) {
+      return res.apiError("You are not part of this game.", "Not Found", 404);
+    }
 
     if (userChallanCount > 0) {
       return res.apiError("You cannot delete this user.", "Bad Request", 400);
