@@ -36,129 +36,158 @@ app.use('/api/competitions',competitionsRoute)
 
 app.use('/api/challan',challanRoute)
 
-app.post('/insertDummyData', async (req, res) => {
-    try {
-      // Insert dummy data for User and related BasicInfo
-      const users = [];
-      for (let i = 1; i <= 5; i++) {
-        const user = await prisma.user.create({
-            data: {
-              name: `User${i}`,
-              email: `user${i}@example.com`,
-              password: 'password123',
-              token: 123456 + i,
-              isValidated: true,
-              isParticipant: true,
-              basicInfo: {
-                create: {
-                  // Remove userId from here
-                  status: 'verified',
-                  accomodation: true,
-                  phoneno: '1234567890',
-                  cnic: '1234567890123',
-                  guardianName: `Guardian${i}`,
-                  guardianNumber: '9876543210',
-                  address: `Address${i}`,
-                },
-              },
-            },
-          });
-          
-        users.push(user);
+app.post("/add-dummy-data", async (req, res) => {
+  try {
+    const password = await bcrypt.hash("123456789", 10);
+    const admin = prisma.user.create({
+      data: {
+        name: "Administrator",
+        email: "harris.khan.1596+admin@gmail.com",
+        password: password,
+        isValidated: true,
+        token: 12345,
+        isParticipant: false,
       }
-  
-      const sportsTeam = await prisma.sports_Teams.create({
+      });
+      const challan = prisma.challan.create({
         data: {
-          name: 'TeamA',
-          userId: 1,
-          sportsId: 1,
-          code: 'ABC123',
-          challanId: 1, // Replace with a valid challanId
-          // ... other fields
-        },
+          userId: admin.id,
+          detail: {},
+          netTotal: 0,
+          isPaid: "pending",
+          paymentProof: "1703659701083-banana.jpg",
+        }
       });
-      
-      // Insert dummy data for Sports and related Sports_Teams
-      const sports = [];
-      for (let i = 1; i <= 5; i++) {
-        const sport = await prisma.sports.create({
-          data: {
-            name: `Sport${i}`,
-            gender: true,
-            description: `Description for Sport${i}`,
-            minPlayer: 11,
-            maxPlayer: 22,
-            teamCap: 5,
-            details: { key: `value${i}` },
-            price: 50 + i,
-            team: {
-              create: {
-                name: `Team${i}`,
-                userId: i,
-                code: `ABC${i}`,
-              },
-            },
-          },
-          include: {
-            team: true,
-          },
-        });
-        sports.push(sport);
-      }
-  
-      // Insert dummy data for Competitions and related Competitions_Teams
-      const competitions = [];
-      for (let i = 1; i <= 5; i++) {
-        const competition = await prisma.competitions.create({
-          data: {
-            name: `Competition${i}`,
-            gender: false,
-            description: `Description for Competition${i}`,
-            minPlayer: 2,
-            maxPlayer: 10,
-            teamCap: 10,
-            details: { key: `value${i}` },
-            price: 25 + i,
-            competitionTeams: {
-              create: {
-                name: `Team${i}`,
-                userId: i,
-                code: `XYZ${i}`,
-              },
-            },
-          },
-          include: {
-            competitionTeams: true,
-          },
-        });
-        competitions.push(competition);
-      }
-  
-      // Insert dummy data for FAQ
-      const faqs = [];
-      for (let i = 1; i <= 5; i++) {
-        const faq = await prisma.fAQ.create({
-          data: {
-            question: `Question${i}`,
-            answer: `Answer for Question${i}`,
-            category: 'General',
-          },
-        });
-        faqs.push(faq);
-      }
-  
-      res.json({
-        users,
-        sports,
-        competitions,
-        faqs,
+      const createdSports = await prisma.sports.createMany({
+        data: Array.from({ length: 15 }, (_, index) => ({
+          name: `Dummy Sport ${index + 1}`,
+          gender: Math.random() < 0.5,
+          description: `Dummy Sport Description ${index + 1}`,
+          minPlayer: Math.floor(Math.random() * 10),
+          maxPlayer: Math.floor(Math.random() * 10) + 10,
+          teamCap: 20,
+          details: { key: 'value' },
+          price: 500,
+        })),
       });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  });
+      const indcreatedSports = await prisma.sports.createMany({
+        data: Array.from({ length: 10 }, (_, index) => ({
+          name: `Dummy Sport ${index + 1}`,
+          gender: Math.random() < 0.5,
+          description: `Dummy Sport Description ${index + 1}`,
+          minPlayer: 1,
+          maxPlayer: 1,
+          teamCap: 20,
+          details: { key: 'value' },
+          price: 500,
+        })),
+      });
+      const indcreatedComp = await prisma.competitions.createMany({
+        data: Array.from({ length: 10 }, (_, index) => ({
+          name: `Dummy comp ${index + 1}`,
+          gender: Math.random() < 0.5,
+          description: `Dummy comp Description ${index + 1}`,
+          minPlayer: 1,
+          maxPlayer: 1,
+          teamCap: 20,
+          details: { key: 'value' },
+          price: 500,
+        })),
+      });
+  
+      const createdCompetitions = await prisma.competitions.createMany({
+        data: Array.from({ length: 15 }, (_, index) => ({
+          name: `Dummy Competition ${index + 1}`,
+          description: `Dummy Competition Description ${index + 1}`,
+          minPlayer: Math.floor(Math.random() * 10),
+          maxPlayer: Math.floor(Math.random() * 10) + 10,
+          teamCap: 20,
+          details: { key: 'value' },
+          price: 500,
+          gender: Math.random() < 0.5,
+        })),
+      });
+    // list of users names 
+    const names = [
+      "John Doe",
+      "Jane Doe",
+      "Michael Scott",
+      "Jim Halpert",
+      "Pam Beesly",
+      "Dwight Schrute",
+      "Stanley Hudson",
+      "Angela Martin",
+      "Kevin Malone",
+      "Toby Flenderson",
+      "Creed Bratton",
+      "Kelly Kapoor",
+      "Ryan Howard",
+      "Darryl Philbin",
+      "Meredith Palmer",
+      "Oscar Martinez",
+      "Kevin Malone"
+    ]
+    const binfostatus = ["pending", "rejected", "verified", "ban"];
+    const stdof =["nust", "uni", "college", "school", "other"];
+    const socials = ["nosocials", "qawali", "concert", "all"];
+    names.forEach(name => {
+      const user = prisma.user.create({
+        data: {
+          name: name,
+          email: `${name}@gmail.com`,
+          password: password,
+          isValidated: true,
+          token: 12345,
+          isParticipant: true,
+        }
+        });
+        const basicInfo = prisma.basicInfo.create({
+          data: {
+            name: name,
+            userId: user.id,
+            status: binfostatus[Math.floor(Math.random() * binfostatus.length)],
+            accomodation: Math.random() < 0.5,
+            phoneno: Math.floor(Math.random() * 1000000000),
+            cnic: Math.floor(Math.random() * 100000000000),
+            gender: Math.random() < 0.5,
+            profilePhoto: "1704467354290-Class Dia.png",
+            guardianName: `guardian of ${name}`,
+            guardianNumber: Math.floor(Math.random() * 1000000000),
+            address: `address of ${name}`,
+            cnicFront: "1704467354290-Class Dia.png",
+            cnicBack: "1704467354290-Class Dia.png",
+            studentOf: stdof[Math.floor(Math.random() * stdof.length)],
+            student_id: Math.floor(Math.random() * 100000000000),
+            schoolName: `school of ${name}`,
+            ambassadorcode: Math.floor(Math.random() * 100000),
+            stdFront: "1704467354290-Class Dia.png",
+            stdBack: "1704467354290-Class Dia.png",
+            socials: socials[Math.floor(Math.random() * socials.length)],
 
+          }
+        });
+        
+    });
+    const allusers = await prisma.user.findMany();
+      res.json({
+        message: "Data seeded successfully",
+        data: {
+          createdCompetitions,
+          createdSports,
+          indcreatedComp,
+          admin,
+          indcreatedSports,
+          challan,
+          allusers
+        }
+      });
+        
+      }
+    
+  catch (error) {
+    console.error(error);
+  }
+})
 app.get("/",(req,res)=>{
 res.send("app is working")
 });
