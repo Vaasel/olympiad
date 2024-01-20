@@ -40,7 +40,7 @@ app.use('/api/challan',challanRoute)
 app.post("/add-dummy-data", async (req, res) => {
   try {
     const password = await bcrypt.hash("123456789", 10);
-    const admin = prisma.user.create({
+    const admin = await prisma.user.create({
       data: {
         name: "Administrator",
         email: "harris.khan.1596+admin@gmail.com",
@@ -50,7 +50,7 @@ app.post("/add-dummy-data", async (req, res) => {
         isParticipant: false,
       }
       });
-      const challan = prisma.challan.create({
+      const challan = await prisma.challan.create({
         data: {
           userId: admin.id,
           detail: {},
@@ -133,8 +133,8 @@ app.post("/add-dummy-data", async (req, res) => {
     const binfostatus = ["pending", "rejected", "verified", "ban"];
     const stdof =["nust", "uni", "college", "school", "other"];
     const socials = ["nosocials", "qawali", "concert", "all"];
-    names.forEach(name => {
-      const user = prisma.user.create({
+    names.forEach(async (name) => {
+      const user = await prisma.user.create({
         data: {
           name: name,
           email: `${name}@gmail.com`,
@@ -144,25 +144,27 @@ app.post("/add-dummy-data", async (req, res) => {
           isParticipant: true,
         }
         });
-        const basicInfo = prisma.basicInfo.create({
+    //   const user = await prisma.user.findUnique({ where: { name } });  
+      const basicInfo = await prisma.basicInfo.create({
           data: {
-            name: name,
+            // name: name,
             userId: user.id,
             status: binfostatus[Math.floor(Math.random() * binfostatus.length)],
             accomodation: Math.random() < 0.5,
-            phoneno: Math.floor(Math.random() * 1000000000),
-            cnic: Math.floor(Math.random() * 100000000000),
+            phoneno: "03325384528" + Math.floor(Math.random() * 10),
+            // Math.floor(Math.random() * 1000000000),
+            cnic: `${()=>Math.floor(Math.random() * 100000)}-${()=>Math.floor(Math.random() * 10000000)}-${()=>Math.floor(Math.random() * 10)}`,
             gender: Math.random() < 0.5,
             profilePhoto: "1704467354290-Class Dia.png",
             guardianName: `guardian of ${name}`,
-            guardianNumber: Math.floor(Math.random() * 1000000000),
+            guardianNumber: `${()=>Math.floor(Math.random() * 100000)}-${()=>Math.floor(Math.random() * 10000000)}-${()=>Math.floor(Math.random() * 10)}`,
             address: `address of ${name}`,
             cnicFront: "1704467354290-Class Dia.png",
             cnicBack: "1704467354290-Class Dia.png",
             studentOf: stdof[Math.floor(Math.random() * stdof.length)],
-            student_id: Math.floor(Math.random() * 100000000000),
+            student_id: `${()=>Math.floor(Math.random() * 1000000)}`,
             schoolName: `school of ${name}`,
-            ambassadorcode: Math.floor(Math.random() * 100000),
+            ambassadorcode: `${Math.floor(Math.random() * 100000)}`,
             stdFront: "1704467354290-Class Dia.png",
             stdBack: "1704467354290-Class Dia.png",
             socials: socials[Math.floor(Math.random() * socials.length)],
@@ -185,7 +187,6 @@ app.post("/add-dummy-data", async (req, res) => {
         }
       });
         
-      res.send("Insertion Done");
   } catch (error) {
     console.error(error);
   }
