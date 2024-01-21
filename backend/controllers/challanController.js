@@ -469,12 +469,12 @@ module.exports.CreateChallan = async (req, res) => {
               userId: userId,
               detail: details || null,
               netTotal: netTotal,
-              sportsTeam: {
-                connect: sportsTeams.map((team) => ({ id: team.id })),
-              },
-              competitionsTeams: {
-                connect: competitionTeams.map((team) => ({ id: team.id })),
-              },
+              // sportsTeam: {
+              //   connect: sportsTeams.map((team) => ({ id: team.id })),
+              // },
+              // competitionsTeams: {
+              //   connect: competitionTeams.map((team) => ({ id: team.id })),
+              // },
               paymentProof: paymentProofLink,
             },
           });
@@ -485,6 +485,30 @@ module.exports.CreateChallan = async (req, res) => {
             500
           );
         }
+        const updateSportsTeamsPromises = sportsTeams.map(async (team) => {
+          await prisma.sports_Teams.update({
+            where: {
+              id: team.id,
+            },
+            data: {
+              challanId: createdChallan.id,
+            },
+          });
+        });
+        
+        const updateCompetitionTeamsPromises = competitionTeams.map(async (team) => {
+          await prisma.competitions_Teams.update({
+            where: {
+              id: team.id,
+            },
+            data: {
+              challanId: createdChallan.id,
+            },
+          });
+        });
+        
+        // Wait for all promises to resolve
+        await Promise.all([...updateSportsTeamsPromises, ...updateCompetitionTeamsPromises]);
 
         res.apiSuccess({
           userId: userId,
