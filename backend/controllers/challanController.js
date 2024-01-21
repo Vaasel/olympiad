@@ -15,6 +15,12 @@ const prisma = new PrismaClient();
 module.exports.getAllFAQs = async (req, res) => {
   try {
     const faqs = await prisma.FAQ.findMany();
+
+    if (!faqs || faqs.length === 0) {
+      console.error("No FAQs found");
+      return res.apiError(null, "No FAQs found", 404);
+    }
+
     res.apiSuccess(faqs);
   } catch (error) {
     console.error(error);
@@ -25,6 +31,12 @@ module.exports.getAllFAQs = async (req, res) => {
 module.exports.CreateFAQ = async (req, res) => {
   const { question, answer, category } = req.body;
   try {
+    // Validate input fields
+    if (!question || !answer || !category) {
+      res.apiError(null, "Question, answer, and category are required", 400);
+      return;
+    }
+
     // Create a new FAQ entry
     const newFAQ = await prisma.fAQ.create({
       data: {
@@ -53,11 +65,16 @@ module.exports.getAllChallans = async (req, res) => {
       },
     });
 
+    if (!Challans || Challans.length === 0) {
+      return res.apiError("Error", "No Challans found", 404);
+    }
+
     res.apiSuccess(Challans);
   } catch (err) {
     res.apiError(err.message, "Internal Server Error", 500);
   }
 };
+
 module.exports.getUserChallans = async (req, res) => {
   try {
     const Challans = await prisma.Challan.findMany({
@@ -65,14 +82,33 @@ module.exports.getUserChallans = async (req, res) => {
         userId: req.user.id,
       },
     });
-    for (const challan of Challans) {
-      challan.paymentProof = await getSingleImage(challan.paymentProof);
+
+    // Check if Challans is null or empty before proceeding
+    if (!Challans || Challans.length === 0) {
+      console.error("No Challans found for the user");
+      res.apiError("Failed", "No Challans found for the user", 404);
+      return;
     }
+
+    // Create an array of promises for fetching images
+    const imagePromises = Challans.map(async (challan) => {
+      try {
+        challan.paymentProof = await getSingleImage(challan.paymentProof);
+      } catch (imageError) {
+        return res.apiError("Error fetching image", imageError, 500);
+      }
+    });
+
+    // Wait for all promises to resolve
+    await Promise.all(imagePromises);
+
     res.apiSuccess(Challans);
   } catch (err) {
-    res.apiError(err.message, "Internal Server Error", 500);
+    console.error("Error retrieving user Challans:", err);
+    res.apiError("Internal Server Error", err.message, 500);
   }
 };
+
 module.exports.updateChallan = async (req, res) => {
   try {
     // Use upload middleware to handle file upload
@@ -103,50 +139,97 @@ module.exports.updateChallan = async (req, res) => {
         // Extract challanId from the request body
         const { challanId } = req.body;
 
-        // Update the corresponding Challan record in the database
-        const updatedChallan = await prisma.Challan.update({
-          where: {
-            id: parseInt(challanId),
-            userId: req.user.id,
-          },
-          data: {
-            paymentProof: paymentProofLink,
-            isPaid: "pending",
-          },
-        });
+        // Validate challanId
+        if (!challanId) {
+          return res.apiError(null, "Challan ID is required.", 400);
+        }
+
+        let updatedChallan;
+        try {
+          // Update the corresponding Challan record in the database
+          updatedChallan = await prisma.Challan.update({
+            where: {
+              id: parseInt(challanId),
+              userId: req.user.id,
+            },
+            data: {
+              paymentProof: paymentProofLink,
+              isPaid: "pending",
+            },
+          });
+        } catch (error) {
+          if (error.code === "P2025") {
+            console.error(
+              "Challan not found with the specified ID:",
+              challanId
+            );
+            return res.apiError(null, "Challan not found.", 404);
+          } else {
+            return res.apiError(error.message, "Challan not updated.", 500);
+          }
+        }
 
         // Respond with the updated Challan record
         return res.apiSuccess(updatedChallan);
       }
     );
-  } catch (err) {
+  } catch (error) {
     // Handle other errors and log them
-    console.error(err);
-    return res.apiError(err.message, "Internal Server Error", 500);
+    console.error(error);
+    return res.apiError(error.message, "Internal Server Error", 500);
   }
 };
 
 module.exports.setStatus = async (req, res) => {
   const data = req.body;
 
-  console.log(data.userId);
-  const id = data.userId;
+  const validationSchema = yup.object().shape({
+    userId: yup.number().integer().required(),
+    id: yup.number().integer().required(),
+    reason: yup.string().trim().required(),
+    isPaid: yup.string().trim().required(),
+  });  
+
+  try {
+    await validationSchema.validate(req.body, {
+      abortEarly: false,
+      strict: true,
+    });
+  } catch (err) {
+    console.error("Validation Error:", err.errors);
+    return res.apiError(err.errors, "Validation Error", 400);
+  }
+
+  // const id = data.userId;
   // const entry = await prisma.BasicInfo.findUnique({
   //   where: { userId: data.userId},
   // });
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: data.userId,
-    },
-  });
-
-  const updatedStatusChallan = await prisma.Challan.update({
-    where: { id: data.id },
-    data: {
-      isPaid: data.isPaid,
-    },
-  });
+  // Assuming data is an object with properties userId and id
+  let user;
+  let updatedStatusChallan;
+  
+  try {
+    [user, updatedStatusChallan] = await Promise.all([
+      prisma.user.findUnique({
+        where: {
+          id: data.userId,
+        },
+      }),
+      
+      prisma.Challan.update({
+        where: { id: data.id },
+        data: {
+          isPaid: data.isPaid,
+        },
+      }),
+    ]);
+  } catch (error) {
+    // console.error('Error finding user or updating Challan:', error);
+  
+    // Handle the error accordingly, for example, send a response to the client
+    return res.apiError(null, 'Internal Server Error', 500);
+  }
 
   let mailOptions;
 
@@ -185,10 +268,10 @@ module.exports.setStatus = async (req, res) => {
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error(error);
-      res.send("Error sending email");
+      return res.apiError(null, "Error sending email", 500);
     } else {
       console.log("Email sent: " + info.response);
-      res.send("Email sent successfully");
+      // res.apiSuccess(null, "Email sent successfully");
     }
   });
 
@@ -199,12 +282,11 @@ module.exports.CalculateChallan = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { challan: true, basicInfo: true },
-    });
-
-    const [sportsTeams, competitionTeams] = await Promise.all([
+    const [user, sportsTeams, competitionTeams] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        include: { challan: true, basicInfo: true },
+      }),
       prisma.sports_Teams.findMany({
         where: {
           userId: userId,
@@ -224,7 +306,17 @@ module.exports.CalculateChallan = async (req, res) => {
         },
       }),
     ]);
-    
+
+    // Check if user, sportsTeams, and competitionTeams are null or undefined
+    if (!user || !sportsTeams || !competitionTeams) {
+      console.error();
+      return res.apiError(
+        null,
+        "Error fetching user, sportsTeams, or competitionTeams",
+        500
+      );
+    }
+
     const totalSportsPrice = sportsTeams.reduce((acc, sportsTeam) => {
       return acc + (sportsTeam.sport.price || 0);
     }, 0);
@@ -282,7 +374,7 @@ module.exports.CalculateChallan = async (req, res) => {
         isIndividual: false,
       });
     }
-    res.apiSuccess({
+    return res.apiSuccess({
       userId: userId,
       totalSportsPrice: totalSportsPrice,
       totalCompetitionsPrice: totalCompetitionsPrice,
@@ -290,46 +382,59 @@ module.exports.CalculateChallan = async (req, res) => {
       details: details,
     });
   } catch (error) {
-    console.error(error);
-    res.apiError(error.message, "Internal Server Error", 500);
+    return res.apiError(null, err.message, 500);
+    // res.status(500).send("Internal Server Error");
   }
 };
 
 module.exports.CreateChallan = async (req, res) => {
   try {
     const userId = req.user.id;
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { challan: true, basicInfo: true },
-    });
-    
-    // try {
-    
-    // Calculate total amount for sports teams
-    const sportsTeams = await prisma.sports_Teams.findMany({
-      where: {
-        userId: userId,
-        challanId: 1,
-      },
-      include: {
-        sport: true,
-      },
-    });
+
+    const idSchema = yup.number().required().positive().integer();
+    try {
+      await idSchema.validate(userId);
+    } catch (validationError) {
+      return res.apiError("Invalid request", validationError.message, 400);
+    }
+
+    const [user, sportsTeams, competitionTeams] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        include: { challan: true, basicInfo: true },
+      }),
+      prisma.sports_Teams.findMany({
+        where: {
+          userId: userId,
+          challanId: 1,
+        },
+        include: {
+          sport: true,
+        },
+      }),
+      prisma.competitions_Teams.findMany({
+        where: {
+          userId: userId,
+          challanId: 1,
+        },
+        include: {
+          competition: true,
+        },
+      }),
+    ]);
+
+    // Check if user, sportsTeams, and competitionTeams are null or undefined
+    if (!user || !sportsTeams || !competitionTeams) {
+      return res.apiError(
+        "Error fetching user, sportsTeams, or competitionTeams",
+        "Internal Server Error",
+        500
+      );
+    }
 
     const totalSportsPrice = sportsTeams.reduce((acc, sportsTeam) => {
       return acc + (sportsTeam.sport.price || 0);
     }, 0);
-
-    // Calculate total amount for competition teams
-    const competitionTeams = await prisma.competitions_Teams.findMany({
-      where: {
-        userId: userId,
-        challanId: 1,
-      },
-      include: {
-        competition: true,
-      },
-    });
 
     const totalCompetitionsPrice = competitionTeams.reduce(
       (acc, competitionTeam) => {
@@ -376,46 +481,88 @@ module.exports.CreateChallan = async (req, res) => {
         isIndividual: false,
       });
     }
+
     upload.fields([{ name: "paymentProof", maxCount: 1 }])(
       req,
       res,
       async (err) => {
-        
         if (err) {
-          res.apiError(err.message, "File upload error", 400);
-          return;
+          return res.apiError(err.message, "File upload error", 400);
         }
+
         const paymentProofFile = req.files["paymentProof"]
           ? req.files["paymentProof"][0]
           : null;
-    
+
         if (!paymentProofFile) {
-          res.apiError(null, "Payment proof is required.", 400);
-          return;
+          return res.apiError(null, "Payment proof is required.", 400);
         }
 
         if (paymentProofFile.buffer.length === 0) {
-          res.apiError(null, "Invalid file buffer", 400);
-          return;
+          return res.apiError(null, "Invalid file buffer", 400);
         }
-    
-        const paymentProofLink = await uploadToWasabi(paymentProofFile);
-        const createdChallan = await prisma.challan.create({
-          data: {
-            userId: userId,
-            detail: details || null,
-            netTotal: netTotal,
-            sportsTeam: {
-              connect: sportsTeams.map((team) => ({ id: team.id })),
+
+        let paymentProofLink;
+        try {
+          paymentProofLink = await uploadToWasabi(paymentProofFile);
+        } catch (uploadError) {
+          return res.apiError(uploadError.message, "File upload error", 500);
+        }
+
+        let createdChallan;
+        try {
+          createdChallan = await prisma.challan.create({
+            data: {
+              userId: userId,
+              detail: details || null,
+              netTotal: netTotal,
+              // sportsTeam: {
+              //   connect: sportsTeams.map((team) => ({ id: team.id })),
+              // },
+              // competitionsTeams: {
+              //   connect: competitionTeams.map((team) => ({ id: team.id })),
+              // },
+              paymentProof: paymentProofLink,
             },
-            competitionsTeams: {
-              connect: competitionTeams.map((team) => ({ id: team.id })),
+          });
+        } catch (challanError) {
+          return res.apiError(
+            challanError.message,
+            "Challan creation error",
+            500
+          );
+        }
+        const updateSportsTeamsPromises = sportsTeams.map(async (team) => {
+          await prisma.sports_Teams.update({
+            where: {
+              id: team.id,
             },
-            paymentProof: paymentProofLink,
-          },
+            data: {
+              challanId: createdChallan.id,
+            },
+          });
         });
 
-        res.apiSuccess({
+        const updateCompetitionTeamsPromises = competitionTeams.map(
+          async (team) => {
+            await prisma.competitions_Teams.update({
+              where: {
+                id: team.id,
+              },
+              data: {
+                challanId: createdChallan.id,
+              },
+            });
+          }
+        );
+
+        // Wait for all promises to resolve
+        await Promise.all([
+          ...updateSportsTeamsPromises,
+          ...updateCompetitionTeamsPromises,
+        ]);
+
+        return res.apiSuccess({
           userId: userId,
           totalSportsPrice: totalSportsPrice,
           totalCompetitionsPrice: totalCompetitionsPrice,
@@ -426,7 +573,7 @@ module.exports.CreateChallan = async (req, res) => {
     );
   } catch (error) {
     console.error(error);
-    res.apiError(error.message, "Internal Server Error", 500);
+    return res.apiError(error.message, "Internal Server Error", 500);
   }
 };
 
@@ -444,8 +591,45 @@ module.exports.getChallan = async (req, res) => {
     });
     const base64Image = await getSingleImage(Challans.paymentProof);
     Challans.paymentProof = base64Image;
-    res.apiSuccess(Challans);
+    return res.apiSuccess(Challans);
   } catch (err) {
-    res.apiError(err.message, "Internal Server Error", 500);
+    return res.apiError(err.message, "Internal Server Error", 500);
+  }
+};
+
+module.exports.getChallan = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const idSchema = yup.number().required().positive().integer();
+    try {
+      await idSchema.validate(id);
+    } catch (validationError) {
+      return res.apiError("Invalid request", validationError.message, 400);
+    }
+
+    const Challans = await prisma.Challan.findFirst({
+      where: {
+        id: parseInt(id),
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!Challans) {
+      return res.apiError(
+        "Challan not found",
+        `Challan with ID ${idNumber} does not exist`,
+        404
+      );
+    }
+
+    const base64Image = await getSingleImage(Challans.paymentProof);
+    Challans.paymentProof = base64Image;
+
+    return res.apiSuccess(Challans);
+  } catch (err) {
+    return res.apiError(err.message, "Internal Server Error", 500);
   }
 };
