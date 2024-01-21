@@ -1,3 +1,7 @@
+//withdrawTeamSports --> Captain can't leave unless there are no members left.
+
+//If payment has been done, then withdrawing is not allowed
+
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
@@ -186,7 +190,7 @@ const applyIndividualSport = async (req, res) => {
     }
 
     // Validate if the sport is for single players
-    if (sport.minPlayer !== 1 && sport.maxPlayer !== 1) {
+    if (!(sport.minPlayer === 1 && sport.maxPlayer === 1)) {
       return res.status(404).json({ error: "Not for single players." });
     }
 
@@ -473,9 +477,13 @@ const getMembers = async (req, res) => {
       });
 
       if (userTeam) {
+        const capId = userTeam.userId;
         const teamMembers = userTeam.members
-          .filter((member) => member.userId !== userId) // Exclude the user
-          .map((member) => member.user);
+          // .filter((member) => member.userId !== userId) // Exclude the user
+          .map((member) => {
+            member.user.id === capId ? member.user.isCap = true : member.user.isCap = false;
+            return member.user;
+          });
 
         sportDetails = {
           ...sportDetails,

@@ -142,7 +142,7 @@ module.exports.login = async (req, res) => {
     await validationSchema.validate(data, { abortEarly: false, strict: true });
   } catch (err) {
     res.apiError(err.errors, "Validation Failed", 400);
-    return;
+    return; 
   }
 
   data.email = data.email.trim().toLowerCase();

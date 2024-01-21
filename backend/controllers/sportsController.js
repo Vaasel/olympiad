@@ -1,3 +1,6 @@
+//withdrawTeamSports --> Captain can't leave unless there are no members left.
+
+//If payment has been done, then withdrawing is not allowed
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
@@ -85,7 +88,6 @@ const genderSingleSports = async (req, res) => {
   }
 };
 
-
 const genderTeamSports = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -147,9 +149,6 @@ const genderTeamSports = async (req, res) => {
   }
 };
 
-
-
-
 const applyIndividualSport = async (req, res) => {
   const userId = req.user.id;
 
@@ -191,7 +190,7 @@ const applyIndividualSport = async (req, res) => {
     }
 
     // Validate if the sport is for single players
-    if (sport.minPlayer !== 1 && sport.maxPlayer !== 1) {
+    if (!(sport.minPlayer === 1 && sport.maxPlayer === 1)) {
       return res.apiError("Not for single players", "Bad Request", 400);
     }
 
@@ -202,7 +201,7 @@ const applyIndividualSport = async (req, res) => {
 
     // Validate if the user is already in the team
     if (team) {
-      return res.apiError("You are already in the team", "Bad Request", 400);
+      return res.apiError("You are already in the sport", "Bad Request", 400);
     }
 
     const hashedId = await bcrypt.hash(user.email, 10);
@@ -229,8 +228,6 @@ const applyIndividualSport = async (req, res) => {
     res.apiError("Failed to join sport team", "Internal Server Error", 500);
   }
 };
-
-
 
 const createTeam = async (req, res) => {
   const userId = req.user.id;
@@ -261,7 +258,7 @@ const createTeam = async (req, res) => {
 
     // Validate if the sport is for single players
     if (sport.minPlayer === 1 && sport.maxPlayer === 1) {
-      return res.apiError("Not for single players.", "Not Found", 404);
+      return res.apiError("Only for single players.", "Not Found", 404);
     }
 
     // Validate if the sport is suitable for the user's gender
@@ -293,13 +290,21 @@ const createTeam = async (req, res) => {
 
     // Check if the user is already in a team
     if (team) {
-      return res.apiError("You are already in the team.", "Internal Server Error", 409);
+      return res.apiError(
+        "You are already in the team.",
+        "Internal Server Error",
+        409
+      );
     }
 
     // Check if the user is already in a team based on membership
     for (const member of teamMembers) {
       if (member.sport.sportsId === sportId) {
-        return res.apiError("You are already in the team.", "Internal Server Error", 409);
+        return res.apiError(
+          "You are already in the team.",
+          "Internal Server Error",
+          409
+        );
       }
     }
 
@@ -488,9 +493,13 @@ const getMembers = async (req, res) => {
       });
 
       if (userTeam) {
+        const capId = userTeam.userId;
         const teamMembers = userTeam.members
-          .filter((member) => member.userId !== userId) // Exclude the user
-          .map((member) => member.user);
+          // .filter((member) => member.userId !== userId) // Exclude the user
+          .map((member) => {
+            member.user.id === capId ? member.user.isCap = true : member.user.isCap = false;
+            return member.user;
+          });
 
         sportDetails = {
           ...sportDetails,
@@ -501,16 +510,26 @@ const getMembers = async (req, res) => {
 
     res.apiSuccess(sportDetails);
   } catch (error) {
-    res.apiError("Failed to fetch sport members.", "Internal Server Error", 500);
+    res.apiError(
+      "Failed to fetch sport members.",
+      "Internal Server Error",
+      500
+    );
   }
 };
 
 const addSport = async (req, res) => {
-  const { name, description, minPlayer, maxPlayer, price, gender, teamCap } =
-    req.body;
-
+  const { name, description, minPlayer, maxPlayer, price, gender, teamCap } = req.body;
   try {
-    if (!name || !description || !minPlayer || !maxPlayer || !price || !gender || !teamCap) {
+    if (
+      !name ||
+      !description ||
+      !minPlayer ||
+      !maxPlayer ||
+      !price ||
+      !gender ||
+      !teamCap
+    ) {
       return res.apiError("Missing required fields.", "Bad Request", 400);
     }
 
@@ -604,6 +623,8 @@ const withdrawTeamSport = async (req, res) => {
       return res.apiError("User ID is required.", "Bad Request", 400);
     }
 
+    console.log(req.body);
+
     const [sportsTeam, userChallanCount] = await Promise.all([
       prisma.sports_Teams.findFirst({
         where: {
@@ -618,9 +639,12 @@ const withdrawTeamSport = async (req, res) => {
       }),
     ]);
 
+    console.log(sportsTeam);
+    
     if (!sportsTeam) {
       return res.apiError("You are not part of this game.", "Not Found", 404);
     }
+    
 
     if (userChallanCount > 0) {
       return res.apiError("You cannot delete this user.", "Bad Request", 400);
@@ -632,6 +656,13 @@ const withdrawTeamSport = async (req, res) => {
         userId: user,
       },
     });
+
+    // await prisma.sports_Teams.delete({
+    //   where: {
+    //     sportsTeamId: sportsTeamId,
+    //     // userId: user,
+    //   },
+    // });
 
     return res.apiSuccess("You have successfully withdrawn from the game.");
   } catch (error) {

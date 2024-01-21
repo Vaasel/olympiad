@@ -110,16 +110,13 @@ module.exports.setStatus = async (req, res) => {
   const validationSchema = yup.object().shape({
     userId: yup.number().required(),
     status: yup.string().required().oneOf(["rejected", "verified", "ban"]),
-    reason: yup.string().when("status", {
-      is: "rejected",
-      then: yup.string().required(),
-      otherwise: yup.string().notRequired(),
-    }),
+    reason: yup.string().required()
   });
 
   try {
     await validationSchema.validate(data, { abortEarly: false, strict: true });
   } catch (err) {
+    console.log(err);
     res.apiError(err.errors, "Validation Failed", 400);
     return;
   }
@@ -157,12 +154,13 @@ module.exports.setStatus = async (req, res) => {
         <p>Best regards,</p>
       <p>Olympiad Team</p>
       `,
-      };  
+      };
     } else if (data.status === "verified") {
       mailOptions = {
         from: "info.olympiad@nust.edu.pk",
         to: user.email, // Email address you want to send the email to
-        subject: "Welcome to Olympiad'24 - Your User Profile Has Been Approved!",
+        subject:
+          "Welcome to Olympiad'24 - Your User Profile Has Been Approved!",
         html: `<h3>Dear ${user.name},</h3>
         <p>We are delighted to announce that your user profile has been successfully generated and approved on our platform. Welcome to Olympiad'24!</p>
         <p>With your approved user profile, you have access to all the exciting features and benefits we offer. We're confident your journey with us will be filled with learning, growth, and exciting opportunities.</p>
@@ -171,7 +169,7 @@ module.exports.setStatus = async (req, res) => {
         <p>Best regards,</p>
       <p>Olympiad Team</p>
         `,
-      }; 
+      };
     } else if (data.status === "ban") {
       mailOptions = {
         from: "info.olympiad@nust.edu.pk",
@@ -184,7 +182,7 @@ module.exports.setStatus = async (req, res) => {
         <p>Best regards,</p>
       <p>Olympiad Team</p>
       `,
-      }; 
+      };
     }
 
     // Send email
@@ -213,7 +211,10 @@ module.exports.basicDisplay = async (req, res) => {
     });
 
     try {
-      await validationSchema.validate({ userId: id }, { abortEarly: false, strict: true });
+      await validationSchema.validate(
+        { userId: id },
+        { abortEarly: false, strict: true }
+      );
     } catch (err) {
       res.apiError(err.errors, "Validation Failed", 400);
       return;
@@ -270,90 +271,110 @@ module.exports.basicInfoUpdate = async (req, res) => {
       )
     );
 
-    const uploadPromises = ["cnicFront", "cnicBack", "stdFront", "stdBack"].map(
-      async (fileKey) => {
+    // Use multer middleware to handle file uploads
+    const multerUpload = multer().fields([
+      { name: "cnicFront", maxCount: 1 },
+      { name: "cnicBack", maxCount: 1 },
+      { name: "stdFront", maxCount: 1 },
+      { name: "stdBack", maxCount: 1 },
+    ]);
+
+    multerUpload(req, res, async (err) => {
+      if (err) {
+        return res.apiError(
+          "Failed",
+          `File upload failed: ${err.message}`,
+          500
+        );
+      }
+
+      const uploadPromises = [
+        "cnicFront",
+        "cnicBack",
+        "stdFront",
+        "stdBack",
+      ].map(async (fileKey) => {
         if (req.files[fileKey]) {
           try {
             const link = await uploadToWasabi(req.files[fileKey][0]);
             return { [fileKey]: link };
           } catch (error) {
-            res.apiError('Failed', `Failed to upload ${fileKey} file: ${error.message}`, 500)
-            // return { [fileKey]: null };
+            return { [fileKey]: null };
           }
         }
         return { [fileKey]: null };
-      }
-    );
+      });
 
-    const fileupArray = await Promise.all(uploadPromises);
-    const fileup = Object.assign({}, ...fileupArray);
+      const fileupArray = await Promise.all(uploadPromises);
+      const fileup = Object.assign({}, ...fileupArray);
 
-    const getFileLink = (fileName) => {
-      try {
-        if (fileup.hasOwnProperty(fileName)) {
-          return fileup[fileName];
-        } else {
-          return null;
+      const getFileLink = (fileName) => {
+        try {
+          if (fileup.hasOwnProperty(fileName)) {
+            return fileup[fileName];
+          } else {
+            return null;
+          }
+        } catch (error) {
+          res.apiError(
+            `Error getting file link for ${fileName}: ${error.message}`,
+            "Failed",
+            500
+          );
         }
-      } catch (error) {
-        res.apiError(
-          `Error getting file link for ${fileName}: ${error.message}`,
+      };
+
+      const [cnicFrontLink, cnicBackLink, stdFrontLink, stdBackLink] =
+        await Promise.all([
+          getFileLink("cnicFront"),
+          getFileLink("cnicBack"),
+          getFileLink("stdFront"),
+          getFileLink("stdBack"),
+        ]);
+
+      if (
+        [cnicFrontLink, cnicBackLink, stdFrontLink, stdBackLink].some(
+          (link) => link === null
+        )
+      ) {
+        const failedLinkIndex = [
+          cnicFrontLink,
+          cnicBackLink,
+          stdFrontLink,
+          stdBackLink,
+        ].findIndex((link) => link === null);
+        const failedLinkType =
+          failedLinkIndex === 0
+            ? "cnicFront"
+            : failedLinkIndex === 1
+            ? "cnicBack"
+            : failedLinkIndex === 2
+            ? "stdFront"
+            : "stdBack";
+
+        return res.apiError(
+          `Failed to fetch ${failedLinkType} file link`,
           "Failed",
           500
         );
       }
-    };
 
-    const [cnicFrontLink, cnicBackLink, stdFrontLink, stdBackLink] =
-      await Promise.all([
-        getFileLink("cnicFront"),
-        getFileLink("cnicBack"),
-        getFileLink("stdFront"),
-        getFileLink("stdBack"),
-      ]);
+      const updatedBasicInfoData = {
+        ...filteredUpdatedData,
+        status: "pending",
+        stdFront: stdFrontLink,
+        stdBack: stdBackLink,
+        cnicFront: cnicFrontLink,
+        cnicBack: cnicBackLink,
+      };
 
-    if (
-      [cnicFrontLink, cnicBackLink, stdFrontLink, stdBackLink].some(
-        (link) => link === null
-      )
-    ) {
-      const failedLinkIndex = [
-        cnicFrontLink,
-        cnicBackLink,
-        stdFrontLink,
-        stdBackLink,
-      ].findIndex((link) => link === null);
-      const failedLinkType =
-        failedLinkIndex === 0
-          ? "cnicFront"
-          : failedLinkIndex === 1
-          ? "cnicBack"
-          : failedLinkIndex === 2
-          ? "stdFront"
-          : "stdBack";
+      const updatedBasicInfo = await prisma.BasicInfo.update({
+        where: { userId: userId },
+        data: updatedBasicInfoData,
+      });
 
-      return res.apiError(
-        `Failed to fetch ${failedLinkType} file link`,
-        "Failed",
-        500
-      );
-    }
-
-    const updatedBasicInfoData = {
-      ...filteredUpdatedData,
-      status: "pending",
-      stdFront: stdFrontLink,
-      stdBack: stdBackLink,
-      cnicFront: cnicFrontLink,
-      cnicBack: cnicBackLink,
-    };
-
-    const updatedBasicInfo = await prisma.BasicInfo.update({
-      where: { userId: userId },
-      data: updatedBasicInfoData,
+      res.apiSuccess(updatedBasicInfo, "BasicInfo updated successfully");
     });
-
-    res.apiSuccess(updatedBasicInfo, "BasicInfo updated successfully");
   } catch (error) {
     console.error(error);
     res.apiError(error.message, "Failed", 500);
@@ -478,21 +499,27 @@ module.exports.basicInfoCreate = async (req, res) => {
   }
 };
 
-
 module.exports.SecondPage = async (req, res) => {
   try {
     upload.fields([
       { name: "stdFront", maxCount: 1 },
       { name: "stdBack", maxCount: 1 },
-      { name: "studentOf", maxCount: 1 },
-      { name: "schoolName", maxCount: 1 },
-      { name: "ambassadorcode", maxCount: 1 },
-      { name: "student_id", maxCount: 1 },
-      { name: "socials", maxCount: 1 },
+      // { name: "studentOf", maxCount: 1 },
+      // { name: "schoolName", maxCount: 1 },
+      // { name: "ambassadorcode", maxCount: 1 },
+      // { name: "student_id", maxCount: 1 },
+      // { name: "socials", maxCount: 1 },
     ])(req, res, async (err) => {
+
       if (err) {
         console.error(err);
         return res.apiError(err.message, "File upload error", 400);
+      }
+
+      const {studentOf, schoolName, ambassadorcode, student_id, socials} = req.body;
+      if (!studentOf) {
+        console.error("Invalid request format");
+        return res.apiError(null, "studentOf is missing.", 400);        
       }
 
       const userId = req.user.id;
@@ -587,12 +614,18 @@ module.exports.SecondPage = async (req, res) => {
           ? req.files["stdBack"][0]
           : null;
 
+        console.log(stdFrontFile);
+        console.log(stdBackFile);
+        let fLink, bLink;
         if (stdFrontFile && stdBackFile) {
           try {
             const [stdFrontLink, stdBackLink] = await Promise.all([
               uploadToWasabi(stdFrontFile),
               uploadToWasabi(stdBackFile),
             ]);
+
+            fLink = stdFrontLink;
+            bLink = stdBackLink;
           } catch (error) {
             console.error("Wasabi upload error:", error);
             return res.apiError(error.message, "Wasabi upload error", 500);
@@ -608,8 +641,8 @@ module.exports.SecondPage = async (req, res) => {
               student_id: req.body.student_id || null,
               schoolName: req.body.schoolName || null,
               ambassadorcode: req.body.ambassadorcode || null,
-              stdFront: stdFrontLink || null,
-              stdBack: stdBackLink || null,
+              stdFront: fLink || null,
+              stdBack: bLink || null,
             },
           }),
           prisma.user.findUnique({
@@ -635,7 +668,6 @@ module.exports.SecondPage = async (req, res) => {
     return res.apiError(error.message, "Internal server error", 500);
   }
 };
-
 
 // module.exports.getImage = async (req, res)=>{
 //   const fileKey = '1701543339354-front.JPG';
