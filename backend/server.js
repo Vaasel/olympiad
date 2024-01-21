@@ -10,6 +10,7 @@ const port = process.env.PORT
 const responseMiddleware = require("./middlewares/responseFormatter");
 
 app.use(express.json()); // Add this middleware to parse JSON data from requests
+app.use(express.urlencoded({ extended: true }));
 
 // Apply response formatting middleware to all routes
 app.use(responseMiddleware);
@@ -137,7 +138,7 @@ app.post("/add-dummy-data", async (req, res) => {
       const user = await prisma.user.create({
         data: {
           name: name,
-          email: `${name}@gmail.com`,
+          email: `${name.toLowerCase().split(' ').join('')}@gmail.com`,
           password: password,
           isValidated: true,
           token: 12345,
@@ -187,6 +188,64 @@ app.post("/add-dummy-data", async (req, res) => {
         }
       });
         
+  } catch (error) {
+    console.error(error);
+  }
+})
+
+app.post('/add-basicInfo', async (req, res)=>{
+  try {
+    const allUsers = await prisma.user.findMany({
+      where : {
+        isParticipant : true
+      },
+      select : {
+        id : true
+      }
+    });
+
+    const ids = allUsers.map((user)=>user.id);
+    const binfostatus = ["pending", "rejected", "verified", "ban"];
+    const stdof =["nust", "uni", "college", "school", "other"];
+    const socials = ["nosocials", "qawali", "concert", "all"];
+    const name = "abc";
+    const basicInfos = [];
+
+
+    await ids.forEach(async(id)=>{
+
+      const basicInfo = await prisma.basicInfo.create({
+        data: {
+          // name: name,
+          userId: id,
+          status: binfostatus[Math.floor(Math.random() * binfostatus.length)],
+          accomodation: Math.random() < 0.5,
+          phoneno: "03325384528" + Math.floor(Math.random() * 10),
+          // Math.floor(Math.random() * 1000000000),
+          cnic: `${()=>Math.floor(Math.random() * 100000)}-${()=>Math.floor(Math.random() * 10000000)}-${()=>Math.floor(Math.random() * 10)}`,
+          gender: Math.random() < 0.5,
+          profilePhoto: "1704467354290-Class Dia.png",
+          guardianName: `guardian of ${name}`,
+          guardianNumber: `${()=>Math.floor(Math.random() * 100000)}-${()=>Math.floor(Math.random() * 10000000)}-${()=>Math.floor(Math.random() * 10)}`,
+          address: `address of ${name}`,
+          cnicFront: "1704467354290-Class Dia.png",
+          cnicBack: "1704467354290-Class Dia.png",
+          studentOf: stdof[Math.floor(Math.random() * stdof.length)],
+          student_id: `${()=>Math.floor(Math.random() * 1000000)}`,
+          schoolName: `school of ${name}`,
+          ambassadorcode: `${Math.floor(Math.random() * 100000)}`,
+          stdFront: "1704467354290-Class Dia.png",
+          stdBack: "1704467354290-Class Dia.png",
+          socials: socials[Math.floor(Math.random() * socials.length)],
+
+        }
+      });
+
+      basicInfos[id] = basicInfo;
+    })
+
+    res.json({ids, basicInfos});
+
   } catch (error) {
     console.error(error);
   }
