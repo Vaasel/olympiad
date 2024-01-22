@@ -91,16 +91,14 @@ module.exports.getUserChallans = async (req, res) => {
     }
 
     // Create an array of promises for fetching images
-    const imagePromises = Challans.map(async (challan) => {
-      try {
-        challan.paymentProof = await getSingleImage(challan.paymentProof);
-      } catch (imageError) {
-        return res.apiError("Error fetching image", imageError, 500);
-      }
+    Challans.map((challan) => {
+		challan.detail = JSON.parse(challan.detail);
     });
+	  Challans.sort((a, b) => a.id - b.id);
+    Challans[Challans.length - 1].paymentProof = await getSingleImage(Challans[Challans.length - 1].paymentProof);
 
-    // Wait for all promises to resolve
-    await Promise.all(imagePromises);
+
+
 
     res.apiSuccess(Challans);
   } catch (err) {
@@ -168,7 +166,6 @@ module.exports.updateChallan = async (req, res) => {
             return res.apiError(error.message, "Challan not updated.", 500);
           }
         }
-
         // Respond with the updated Challan record
         return res.apiSuccess(updatedChallan);
       }
@@ -438,7 +435,7 @@ module.exports.CreateChallan = async (req, res) => {
 
     const totalCompetitionsPrice = competitionTeams.reduce(
       (acc, competitionTeam) => {
-        return acc + (competitionTeam.sport.price || 0);
+        return acc + (competitionTeam.competition.price || 0);
       },
       0
     );
@@ -456,9 +453,17 @@ module.exports.CreateChallan = async (req, res) => {
         price: team.sport.price,
         isIndividual: team.sport.minPlayer == 1 && team.sport.maxPlayer == 1,
       }));
+    const getCompTeamPrices = (teams) =>
+      teams.map((team) => ({
+        id: team.competition.id,
+        name: team.competition.name,
+        price: team.competition.price,
+        isIndividual:
+          team.competition.minPlayer == 1 && team.competition.maxPlayer == 1,
+      }));
 
     const sportsPrices = getTeamPrices(sportsTeams);
-    const competitionPrices = getTeamPrices(competitionTeams);
+    const competitionPrices = getCompTeamPrices(competitionTeams);
 
     const details = [...sportsPrices, ...competitionPrices];
     if (user && user.challan.length === 0) {
@@ -514,14 +519,8 @@ module.exports.CreateChallan = async (req, res) => {
           createdChallan = await prisma.challan.create({
             data: {
               userId: userId,
-              detail: details || null,
+              detail: JSON.stringify(details) || null,
               netTotal: netTotal,
-              // sportsTeam: {
-              //   connect: sportsTeams.map((team) => ({ id: team.id })),
-              // },
-              // competitionsTeams: {
-              //   connect: competitionTeams.map((team) => ({ id: team.id })),
-              // },
               paymentProof: paymentProofLink,
             },
           });
@@ -532,6 +531,7 @@ module.exports.CreateChallan = async (req, res) => {
             500
           );
         }
+		  createdChallan.detail = details;
         const updateSportsTeamsPromises = sportsTeams.map(async (team) => {
           await prisma.sports_Teams.update({
             where: {
@@ -577,25 +577,6 @@ module.exports.CreateChallan = async (req, res) => {
   }
 };
 
-module.exports.getChallan = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const Challans = await prisma.Challan.findFirst({
-      where: {
-        id: parseInt(id),
-      },
-      include: {
-        user: true,
-      },
-    });
-    const base64Image = await getSingleImage(Challans.paymentProof);
-    Challans.paymentProof = base64Image;
-    return res.apiSuccess(Challans);
-  } catch (err) {
-    return res.apiError(err.message, "Internal Server Error", 500);
-  }
-};
 
 module.exports.getChallan = async (req, res) => {
   try {
@@ -627,6 +608,7 @@ module.exports.getChallan = async (req, res) => {
 
     const base64Image = await getSingleImage(Challans.paymentProof);
     Challans.paymentProof = base64Image;
+	Challans.detail = JSON.parse(Challans.detail);
 
     return res.apiSuccess(Challans);
   } catch (err) {

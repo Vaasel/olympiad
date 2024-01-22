@@ -263,13 +263,12 @@ module.exports.basicDisplay = async (req, res) => {
 module.exports.basicInfoUpdate = async (req, res) => {
   try {
     const userId = req.user.id;
-    const updatedData = req.body;
+    const olddata = await prisma.basicInfo.findUnique({
+      where: {
+        userId,
+      }
+    });
 
-    const filteredUpdatedData = Object.fromEntries(
-      Object.entries(updatedData).filter(
-        ([_, value]) => value !== undefined && value !== null
-      )
-    );
 
     // Use multer middleware to handle file uploads
     const multerUpload = multer().fields([
@@ -278,6 +277,7 @@ module.exports.basicInfoUpdate = async (req, res) => {
       { name: "stdFront", maxCount: 1 },
       { name: "stdBack", maxCount: 1 },
     ]);
+	  
 
     multerUpload(req, res, async (err) => {
       if (err) {
@@ -294,78 +294,42 @@ module.exports.basicInfoUpdate = async (req, res) => {
         "stdFront",
         "stdBack",
       ].map(async (fileKey) => {
-        if (req.files[fileKey]) {
+        if (req.files && req.files[fileKey]) {
           try {
             const link = await uploadToWasabi(req.files[fileKey][0]);
             return { [fileKey]: link };
           } catch (error) {
-            return { [fileKey]: null };
+            console.error(`Error uploading ${fileKey} file: ${error.message}`);
+            return { [fileKey]: olddata[fileKey] };
           }
         }
-        return { [fileKey]: null };
+        return { [fileKey]: olddata[fileKey] };
       });
 
       const fileupArray = await Promise.all(uploadPromises);
       const fileup = Object.assign({}, ...fileupArray);
 
       const getFileLink = (fileName) => {
-        try {
-          if (fileup.hasOwnProperty(fileName)) {
-            return fileup[fileName];
-          } else {
-            return null;
-          }
-        } catch (error) {
-          res.apiError(
-            `Error getting file link for ${fileName}: ${error.message}`,
-            "Failed",
-            500
-          );
+        if (fileup.hasOwnProperty(fileName)) {
+          return fileup[fileName];
+        } else {
+          return null;
         }
       };
-
-      const [cnicFrontLink, cnicBackLink, stdFrontLink, stdBackLink] =
-        await Promise.all([
-          getFileLink("cnicFront"),
-          getFileLink("cnicBack"),
-          getFileLink("stdFront"),
-          getFileLink("stdBack"),
-        ]);
-
-      if (
-        [cnicFrontLink, cnicBackLink, stdFrontLink, stdBackLink].some(
-          (link) => link === null
-        )
-      ) {
-        const failedLinkIndex = [
-          cnicFrontLink,
-          cnicBackLink,
-          stdFrontLink,
-          stdBackLink,
-        ].findIndex((link) => link === null);
-        const failedLinkType =
-          failedLinkIndex === 0
-            ? "cnicFront"
-            : failedLinkIndex === 1
-            ? "cnicBack"
-            : failedLinkIndex === 2
-            ? "stdFront"
-            : "stdBack";
-
-        return res.apiError(
-          `Failed to fetch ${failedLinkType} file link`,
-          "Failed",
-          500
-        );
-      }
+		const updatedData = req.body;
+		const filteredUpdatedData = Object.fromEntries(
+      Object.entries(updatedData).filter(
+        ([_, value]) => value !== undefined && value !== null
+      )
+    );
 
       const updatedBasicInfoData = {
         ...filteredUpdatedData,
         status: "pending",
-        stdFront: stdFrontLink,
-        stdBack: stdBackLink,
-        cnicFront: cnicFrontLink,
-        cnicBack: cnicBackLink,
+        stdFront: getFileLink("stdFront"),
+        stdBack: getFileLink("stdBack"),
+        cnicFront: getFileLink("cnicFront"),
+        cnicBack: getFileLink("cnicBack"),
       };
 
       const updatedBasicInfo = await prisma.BasicInfo.update({
@@ -373,7 +337,7 @@ module.exports.basicInfoUpdate = async (req, res) => {
         data: updatedBasicInfoData,
       });
 
-      res.apiSuccess(updatedBasicInfo, "BasicInfo updated successfully");
+      res.apiSuccess( updatedBasicInfoData, "BasicInfo updated successfully");
     });
   } catch (error) {
     console.error(error);
