@@ -3,18 +3,18 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgres"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id              Int                          @id @default(autoincrement())
-  name            String
-  email           String                       @unique
-  password        String
-  token           Int
-  isValidated     Boolean
-  isParticipant   Boolean                      @default(true)
+  id                         Int                          @id @default(autoincrement())
+  name                       String
+  email                      String                       @unique
+  password                   String
+  token                      Int
+  isValidated                Boolean
+  isParticipant              Boolean                      @default(true)
   basicInfo       BasicInfo?
   challan         Challan[]
   competitionsCap Competitions_Teams[]
@@ -24,17 +24,15 @@ model User {
 }
 
 model Challan {
-  id                Int                  @id @default(autoincrement())
-  userId            Int
-  detail            String?              @db.LongText
-  netTotal          Int
-  isPaid            ChallanStatus        @default(pending)
-  paymentProof      String?
+  id                 Int                  @id @default(autoincrement())
+  userId             Int
+  detail             Json?
+  netTotal           Int
+  isPaid             ChallanStatus        @default(pending)
+  paymentProof       String?
   user              User                 @relation(fields: [userId], references: [id])
   competitionsTeams Competitions_Teams[]
   sportsTeam        Sports_Teams[]
-
-  @@index([userId], map: "Challan_userId_fkey")
 }
 
 model BasicInfo {
@@ -62,34 +60,36 @@ model BasicInfo {
 }
 
 model Sports {
-  id          Int            @id @default(autoincrement())
-  name        String         @unique
-  gender      Boolean?
-  description String
-  minPlayer   Int
-  maxPlayer   Int
-  teamCap     Int
-  details     String?        @db.LongText
-  price       Int
-  team        Sports_Teams[]
+  id           Int            @id @default(autoincrement())
+  name         String         @unique
+  gender       Boolean
+  description  String
+  minPlayer    Int
+  maxPlayer    Int
+  teamCap      Int
+  details      Json?
+  price        Int
+  team Sports_Teams[]
 }
+
+
 
 model Sports_Teams {
-  id        Int                    @id @default(autoincrement())
-  name      String                 @unique
-  userId    Int
-  sportsId  Int
-  code      String?
-  challanId Int                    @default(1)
-  challan   Challan                @relation(fields: [challanId], references: [id])
-  sport     Sports                 @relation(fields: [sportsId], references: [id])
-  user      User                   @relation(fields: [userId], references: [id])
-  members   Sports_Teams_Members[]
-
-  @@index([challanId], map: "Sports_Teams_challanId_fkey")
-  @@index([sportsId], map: "Sports_Teams_sportsId_fkey")
-  @@index([userId], map: "Sports_Teams_userId_fkey")
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @unique
+  userId               Int
+  sportsId             Int
+  code                 String?
+  challanId            Int                    @default(1)
+  Challan              Challan                @relation(fields: [challanId], references: [id])
+  sport              Sports                 @relation(fields: [sportsId], references: [id])
+  user                 User                   @relation(fields: [userId], references: [id])
+  members Sports_Teams_Members[]
 }
+
+
+
+
 
 model Sports_Teams_Members {
   id           Int          @id @default(autoincrement())
@@ -98,38 +98,33 @@ model Sports_Teams_Members {
   sport        Sports_Teams @relation(fields: [sportsTeamId], references: [id])
   user         User         @relation(fields: [userId], references: [id])
 
-  @@index([sportsTeamId], map: "Sports_Teams_Members_sportsTeamId_fkey")
-  @@index([userId], map: "Sports_Teams_Members_userId_fkey")
 }
 
 model Competitions {
-  id               Int                  @id @default(autoincrement())
-  name             String               @unique
-  gender           Boolean?
-  description      String
-  minPlayer        Int
-  maxPlayer        Int
-  teamCap          Int
-  details          String?              @db.LongText
-  price            Int
+  id                 Int                  @id @default(autoincrement())
+  name               String               @unique
+  gender             Boolean
+  description        String
+  minPlayer          Int
+  maxPlayer          Int
+  teamCap            Int
+  details            Json?
+  price              Int
   competitionTeams Competitions_Teams[]
 }
 
 model Competitions_Teams {
-  id            Int                          @id @default(autoincrement())
-  name          String                       @unique
-  userId        Int
-  competitionId Int
-  code          String?
-  challanId     Int                          @default(-1)
+  id                         Int                          @id @default(autoincrement())
+  name                       String                       @unique
+  userId                     Int
+  competitionId              Int
+  code                       String?
+  challanId                  Int                          @default(-1)
   challan       Challan                      @relation(fields: [challanId], references: [id])
   competition   Competitions                 @relation(fields: [competitionId], references: [id])
   user          User                         @relation(fields: [userId], references: [id])
   members       Competitions_Teams_Members[]
 
-  @@index([challanId], map: "Competitions_Teams_challanId_fkey")
-  @@index([competitionId], map: "Competitions_Teams_competitionId_fkey")
-  @@index([userId], map: "Competitions_Teams_userId_fkey")
 }
 
 model Competitions_Teams_Members {
@@ -139,8 +134,6 @@ model Competitions_Teams_Members {
   competition        Competitions_Teams @relation(fields: [competitionsTeamId], references: [id])
   user               User               @relation(fields: [userId], references: [id])
 
-  @@index([competitionsTeamId], map: "Competitions_Teams_Members_competitionsTeamId_fkey")
-  @@index([userId], map: "Competitions_Teams_Members_userId_fkey")
 }
 
 model FAQ {
@@ -148,6 +141,26 @@ model FAQ {
   question String
   answer   String
   category String
+}
+
+
+
+
+
+
+
+
+enum ChallanStatus {
+  pending
+  verified
+  rejected
+}
+
+enum SocialEnum {
+  nosocials
+  qawali
+  concert
+  all
 }
 
 enum StudentOf {
@@ -163,17 +176,4 @@ enum UserStatus {
   rejected
   verified
   ban
-}
-
-enum ChallanStatus {
-  pending
-  verified
-  rejected
-}
-
-enum SocialEnum {
-  nosocials
-  qawali
-  concert
-  all
 }

@@ -270,6 +270,7 @@ module.exports.basicInfoUpdate = async (req, res) => {
     });
 
 
+
     // Use multer middleware to handle file uploads
     const multerUpload = multer().fields([
       { name: "cnicFront", maxCount: 1 },
@@ -277,7 +278,6 @@ module.exports.basicInfoUpdate = async (req, res) => {
       { name: "stdFront", maxCount: 1 },
       { name: "stdBack", maxCount: 1 },
     ]);
-	  
 
     multerUpload(req, res, async (err) => {
       if (err) {
@@ -294,22 +294,26 @@ module.exports.basicInfoUpdate = async (req, res) => {
         "stdFront",
         "stdBack",
       ].map(async (fileKey) => {
+
         if (req.files && req.files[fileKey]) {
           try {
             const link = await uploadToWasabi(req.files[fileKey][0]);
             return { [fileKey]: link };
           } catch (error) {
+
             console.error(`Error uploading ${fileKey} file: ${error.message}`);
             return { [fileKey]: olddata[fileKey] };
           }
         }
         return { [fileKey]: olddata[fileKey] };
+
       });
 
       const fileupArray = await Promise.all(uploadPromises);
       const fileup = Object.assign({}, ...fileupArray);
 
       const getFileLink = (fileName) => {
+
         if (fileup.hasOwnProperty(fileName)) {
           return fileup[fileName];
         } else {
@@ -336,6 +340,7 @@ module.exports.basicInfoUpdate = async (req, res) => {
         where: { userId: userId },
         data: updatedBasicInfoData,
       });
+
 
       res.apiSuccess( updatedBasicInfoData, "BasicInfo updated successfully");
     });

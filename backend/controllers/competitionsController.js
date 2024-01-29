@@ -265,6 +265,7 @@ const createTeam = async (req, res) => {
 
     // Validate if the sport is suitable for the user's gender
 
+
     const [team, teamMembers, codes] = await Promise.all([
       prisma.competitions_Teams.findFirst({
         where: {
@@ -380,6 +381,7 @@ const joinTeam = async (req, res) => {
     if (!sportsTeam) {
       return res.apiError("Failed to join sport team.", 'Invalid Code', 500);
     }
+
 
 
     const teamMembersCount = await prisma.competitions_Teams_Members.count({
