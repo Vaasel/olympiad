@@ -98,7 +98,8 @@ module.exports.getUserChallans = async (req, res) => {
     Challans[Challans.length - 1].paymentProof = await getSingleImage(Challans[Challans.length - 1].paymentProof);
 
 
-
+    // Wait for all promises to resolve
+    
 
     res.apiSuccess(Challans);
   } catch (err) {
@@ -352,16 +353,17 @@ module.exports.CalculateChallan = async (req, res) => {
 
     const details = [...sportsPrices, ...competitionPrices];
     if (user && user.challan.length === 0) {
+		const nustian = user.basicInfo.studentOf === "nust";
       const registrationPrice =
-        user.basicInfo && user.basicInfo.studentOf === "nust" ? 500 : 1000;
+        user.basicInfo && nustian ? 500 : 1000;
       const social = user.basicInfo.socials;
       const socialPrice =
         social !== "nosocials"
           ? social !== "all"
             ? social === "concert"
-              ? 1000
-              : 500
-            : 1500
+              ? 1250
+              : nustian ? 500 : 700
+            : 1700
           : 0;
       totalPrice += registrationPrice + socialPrice;
       details.push({
@@ -467,16 +469,17 @@ module.exports.CreateChallan = async (req, res) => {
 
     const details = [...sportsPrices, ...competitionPrices];
     if (user && user.challan.length === 0) {
+	const nustian = user.basicInfo.studentOf === "nust";
       const registrationPrice =
-        user.basicInfo && user.basicInfo.studentOf === "nust" ? 500 : 1000;
+        user.basicInfo && nustian ? 500 : 1000;
       const social = user.basicInfo.socials;
       const socialPrice =
         social !== "nosocials"
           ? social !== "all"
             ? social === "concert"
-              ? 1000
-              : 500
-            : 1500
+              ? 1250
+              : nustian ? 500 : 700
+            : 1700
           : 0;
       netTotal += registrationPrice + socialPrice;
       details.push({

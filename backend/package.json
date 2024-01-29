@@ -14,7 +14,7 @@
 
     "build": "npm install && prisma generate && prisma migrate deploy",
 
-    "start": "node server",
+    "start": "node --watch server",
 
     "dev": "nodemon server",
 	"migrate": "prisma db push",
