@@ -129,6 +129,101 @@ module.exports.register = async (req, res) => {
     res.apiError(err.message, "Failed", 500);
   }
 };
+module.exports.forgotPassword = async (req, res) => {
+  let data = req.body;
+
+  let validationSchema = yup.object().shape({
+    email: yup.string().trim().email().max(50).required(),
+    url: yup.string().trim().required(),
+  });
+
+  try {
+    await validationSchema.validate(data, { abortEarly: false, strict: true });
+  }
+  catch (err) {
+    res.apiError(err.errors, "Validation Failed", 400);
+  }
+
+  const email = data.email.trim().toLowerCase();
+  const url = data.url;
+  let user;
+  try {
+    user = await prisma.user.findUnique({
+      where: { email: email },
+    });
+  }
+  catch (err) {
+    res.apiError(err.message, "Failed", 500);
+  }
+
+  if (!user) {
+    res.apiError(null, "Email does not exist.", 400);
+    return;
+  }
+  // i wanted to expire token in 1 hour
+  const accessToken = sign(
+    { id: user.id, email: user.email },
+    process.env.APP_SECRET,
+    { expiresIn: 10 * 60 }
+  );
+  const mailOptions = {
+    from: "info.olympiad@nust.edu.pk",
+    to: user.email,
+    subject: "Reset Your Password",
+    html: `<h3>Dear ${user.name},</h3>
+    <p>We have received your request to reset your password. To proceed with the password reset, please click on the link below:</p>
+    <p><a href="${url}/${accessToken}">Reset Password</a></p>
+<p>This link will take you to a secure page where you can set a new password. Please note, for security purposes, the link will expire within 10 Mins.</p>
+<p>If you did not request a password reset, please ignore this email or contact our support team for assistance.</p>
+<p>For any further queries, feel free to reach out to our support team at <a href="mailto:info.olympiad@nust.edu.pk">info.olympiad@nust.edu.pk</a>.</p>
+<p>Best regards,</p>
+<p>Your Support Team</p>
+      `,
+    };
+transporter.sendMail(mailOptions, (error, info) => {
+  if (error) {
+    console.error(error);
+    res.apiError("Error sending email", "Failed", 500);
+  } else {
+    console.log("Email sent: " + info.response);
+    res.apiSuccess(user, "Email sent successfully");
+  }
+});
+};
+
+module.exports.updatePassword = async (req, res) => {
+  let data = req.body;
+  let validationSchema = yup.object().shape({
+    password: yup.string().trim().min(6).max(250).required(),
+  })
+
+  try {
+    await validationSchema.validate(data, { abortEarly: false, strict: true });
+  }
+  catch (err) {
+    res.apiError(err.errors, "Validation Failed", 400);
+	  return;
+  }
+
+  const password = data.password.trim();
+
+  try {
+    const user = await prisma.user.update({
+      where: {
+        id: req.user.id
+      },
+      data: {
+        password: await bcrypt.hash(password, 10)
+
+      }
+    });
+	res.apiSuccess(user, "Password updated successfully");
+	  return;
+  }
+  catch (err) {
+    res.apiError(err.message, "Failed", 500);
+  }
+};
 
 module.exports.login = async (req, res) => {
   let data = req.body;

@@ -10,7 +10,7 @@ const { validateReg } = require('../middlewares/regAuth');
 // router.post('/register',register)
 router.post('/basicinfoCreate',validateToken, basicInfoCreate)
 router.post('/basicSecondPage',validateToken, SecondPage)
-router.put('/basicinfoupdate',validateToken,basicInfoUpdate)
+router.post('/basicinfoupdate',validateToken,basicInfoUpdate)
 router.get('/basicinfo',validateToken, getImage)
 router.get('/basicDisplay',validateToken, basicDisplay)
 router.post('/basicSetStatus',validateReg, setStatus)
