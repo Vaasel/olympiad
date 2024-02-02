@@ -11,6 +11,7 @@ const { transporter } = require("../utils/mailer");
 const { uploadToWasabi, getSingleImage } = require("../middlewares/wasabi");
 
 const prisma = new PrismaClient();
+const sportsID = [3,4,5,6,7,8,9,10];
 
 module.exports.getAllFAQs = async (req, res) => {
   try {
@@ -91,7 +92,6 @@ module.exports.getUserChallans = async (req, res) => {
     }
 
     // Create an array of promises for fetching images
-
     Challans.map((challan) => {
 		challan.detail = JSON.parse(challan.detail);
     });
@@ -101,7 +101,6 @@ module.exports.getUserChallans = async (req, res) => {
 
     // Wait for all promises to resolve
     
-
 
     res.apiSuccess(Challans);
   } catch (err) {
@@ -144,7 +143,6 @@ module.exports.updateChallan = async (req, res) => {
         if (!challanId) {
           return res.apiError(null, "Challan ID is required.", 400);
         }
-
 
         let updatedChallan;
         try {
@@ -318,25 +316,13 @@ module.exports.CalculateChallan = async (req, res) => {
       );
     }
 
-    const totalSportsPrice = sportsTeams.reduce((acc, sportsTeam) => {
-      return acc + (sportsTeam.sport.price || 0);
-    }, 0);
+    
 
-    const totalCompetitionsPrice = competitionTeams.reduce(
-      (acc, competitionTeam) => {
-        return acc + (competitionTeam.competition.price || 0);
-      },
-      0
-    );
-
-    let totalPrice = totalSportsPrice + totalCompetitionsPrice;
-
-    if (totalPrice === 0) {
-      return res.apiError("No sport/competition selected");
-    }
-
+    let totalPrice = 0;
+	const basicFlag= user && user.challan.length === 0;
     const getTeamPrices = (teams) =>
-      teams.map((team) => ({
+      teams.map((team) => (
+        {
         id: team.sport.id,
         name: team.sport.name,
         price: team.sport.price,
@@ -352,21 +338,32 @@ module.exports.CalculateChallan = async (req, res) => {
       }));
 
     const sportsPrices = getTeamPrices(sportsTeams);
+    let flag= true;
+    sportsPrices.forEach((team) => {
+      if (flag && basicFlag && sportsID.includes(team.id)) {
+        team.price = 0;
+        flag= false;
+      }
+    });
+
+
+    
     const competitionPrices = getCompTeamPrices(competitionTeams);
 
     const details = [...sportsPrices, ...competitionPrices];
-    if (user && user.challan.length === 0) {
+	   totalPrice = details.reduce((acc, sportsTeam) => {
+      return acc + (sportsTeam.price || 0);
+    }, 0);
+	  
+    if (basicFlag) {
 		const nustian = user.basicInfo.studentOf === "nust";
       const registrationPrice =
-
         user.basicInfo && nustian ? 500 : 1000;
-
       const social = user.basicInfo.socials;
       const socialPrice =
         social !== "nosocials"
           ? social !== "all"
             ? social === "concert"
-
               ? 1250
               : nustian ? 500 : 700
             : 1700
@@ -381,8 +378,6 @@ module.exports.CalculateChallan = async (req, res) => {
     }
     return res.apiSuccess({
       userId: userId,
-      totalSportsPrice: totalSportsPrice,
-      totalCompetitionsPrice: totalCompetitionsPrice,
       totalPrice: totalPrice,
       details: details,
     });
@@ -437,25 +432,10 @@ module.exports.CreateChallan = async (req, res) => {
       );
     }
 
-    const totalSportsPrice = sportsTeams.reduce((acc, sportsTeam) => {
-      return acc + (sportsTeam.sport.price || 0);
-    }, 0);
 
-    const totalCompetitionsPrice = competitionTeams.reduce(
-      (acc, competitionTeam) => {
+    let netTotal = 0;
 
-        return acc + (competitionTeam.competition.price || 0);
-
-      },
-      0
-    );
-
-    let netTotal = totalSportsPrice + totalCompetitionsPrice;
-
-    if (netTotal === 0) {
-      return res.apiError("No challan generated", "failed", 400);
-    }
-
+    const basicFlag= user && user.challan.length === 0;
     const getTeamPrices = (teams) =>
       teams.map((team) => ({
         id: team.sport.id,
@@ -463,7 +443,6 @@ module.exports.CreateChallan = async (req, res) => {
         price: team.sport.price,
         isIndividual: team.sport.minPlayer == 1 && team.sport.maxPlayer == 1,
       }));
-
     const getCompTeamPrices = (teams) =>
       teams.map((team) => ({
         id: team.competition.id,
@@ -474,20 +453,28 @@ module.exports.CreateChallan = async (req, res) => {
       }));
 
     const sportsPrices = getTeamPrices(sportsTeams);
+    let flag= true;
+    sportsPrices.forEach((team) => {
+      if (flag && basicFlag && sportsID.includes(team.id)) {
+        team.price = 0;
+        flag = false;
+      }
+    });
     const competitionPrices = getCompTeamPrices(competitionTeams);
+	  const details = [...sportsPrices, ...competitionPrices];
+netTotal = details.reduce((acc, sportsTeam) => {
+  return acc + (sportsTeam.price || 0);
+}, 0);
 
-    const details = [...sportsPrices, ...competitionPrices];
     if (user && user.challan.length === 0) {
 	const nustian = user.basicInfo.studentOf === "nust";
       const registrationPrice =
         user.basicInfo && nustian ? 500 : 1000;
-
       const social = user.basicInfo.socials;
       const socialPrice =
         social !== "nosocials"
           ? social !== "all"
             ? social === "concert"
-
               ? 1250
               : nustian ? 500 : 700
             : 1700
@@ -533,10 +520,8 @@ module.exports.CreateChallan = async (req, res) => {
           createdChallan = await prisma.challan.create({
             data: {
               userId: userId,
-
               detail: JSON.stringify(details) || null,
               netTotal: netTotal,
-
               paymentProof: paymentProofLink,
             },
           });
@@ -547,9 +532,7 @@ module.exports.CreateChallan = async (req, res) => {
             500
           );
         }
-
 		  createdChallan.detail = details;
-
         const updateSportsTeamsPromises = sportsTeams.map(async (team) => {
           await prisma.sports_Teams.update({
             where: {
@@ -582,8 +565,6 @@ module.exports.CreateChallan = async (req, res) => {
 
         return res.apiSuccess({
           userId: userId,
-          totalSportsPrice: totalSportsPrice,
-          totalCompetitionsPrice: totalCompetitionsPrice,
           netTotal: netTotal,
           challan: createdChallan,
         });
@@ -626,12 +607,10 @@ module.exports.getChallan = async (req, res) => {
 
     const base64Image = await getSingleImage(Challans.paymentProof);
     Challans.paymentProof = base64Image;
-
 	Challans.detail = JSON.parse(Challans.detail);
 
     return res.apiSuccess(Challans);
   } catch (err) {
     return res.apiError(err.message, "Internal Server Error", 500);
-
   }
 };
