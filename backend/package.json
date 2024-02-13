@@ -17,10 +17,8 @@
     "start": "node --watch server",
 
     "dev": "nodemon server",
-
-    "migrate": "prisma db push",
-
-    "dbpull": "prisma db pull"
+	"migrate": "prisma db push",
+		"dbpull": "prisma db pull"
 
   },
 
@@ -56,7 +54,7 @@
 
     "prisma": "^5.6.0",
 
-    "yup": "^1.3.3",
+    "yup": "^1.2.0",
 
     "yup-password": "^0.2.2"
 
