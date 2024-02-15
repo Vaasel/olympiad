@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model basicinfo {
+model basicInfo {
   id             Int                  @id @default(autoincrement())
   userId         Int                  @unique(map: "BasicInfo_userId_key")
   status         basicinfo_status     @default(verified)
