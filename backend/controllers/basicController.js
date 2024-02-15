@@ -104,7 +104,7 @@ module.exports.getSingleUserDetails = async (req, res) => {
 //   res.apiSuccess(updatedBasicInfo, "BasicInfo updated successfully");
 // };
 module.exports.ApplyAccomodation = async (req, res) => {
-  const updatedBasicInfo = await prisma.basicinfo.update({
+  const updatedBasicInfo = await prisma.basicInfo.update({
     where: { userId: req.user.id },
     data: {
       accomodation: true,
@@ -581,7 +581,7 @@ module.exports.SecondPage = async (req, res) => {
         }
 
         const [updatedBasicInfo, user] = await Promise.all([
-          prisma.basicinfo.update({
+          prisma.basicInfo.update({
             where: { userId: parseInt(userId) },
             data: {
               studentOf: req.body.studentOf,
@@ -663,7 +663,7 @@ module.exports.SecondPage = async (req, res) => {
         }
 
         const [updatedBasicInfo, user] = await Promise.all([
-          prisma.basicinfo.update({
+          prisma.basicInfo.update({
             where: { userId: parseInt(userId) },
             data: {
               studentOf: req.body.studentOf,
