@@ -93,17 +93,57 @@ module.exports.getSingleUserDetails = async (req, res) => {
   }
 };
 
-module.exports.ApplyAccomodation = async (req, res) => {
+// module.exports.ApplyAccomodation = async (req, res) => {
+//   const updatedBasicInfo = await prisma.basicInfo.update({
+//     where: { userId: req.user.id },
+//     data: {
+//       accomodation: true,
+//     },
+//   });
+
+//   res.apiSuccess(updatedBasicInfo, "BasicInfo updated successfully");
+// };
+module.exports.ApplyAccommodation = async (req, res) => {
   const updatedBasicInfo = await prisma.basicInfo.update({
     where: { userId: req.user.id },
     data: {
-      accomodation: true,
+      accommodation: true,
     },
   });
 
-  res.apiSuccess(updatedBasicInfo, "BasicInfo updated successfully");
-};
+  const user = await prisma.user.findUnique({
+    where: { id: req.user.id },
+  });
 
+  const mailOptions = {
+    from: "info.olympiad@nust.edu.pk",
+    to: user.email,
+    subject: "Accommodation Requests - Olympiad'24",
+    html: `
+    <h3>Dear Olympian!</h3>
+    <p>Thank you for your interest in NUST's biggest upcoming event, Olympiad'24, and for submitting your request for accommodations. We understand the importance of ensuring that all participants have equal access to our event, and we are committed to providing necessary accommodations to support your participation.</p>
+    <p>To better assist us in meeting your accommodation needs, please fill out the accommodation request form provided below:</p>
+    <a href="https://forms.gle/t9nfB6fecK1uHc159">Accommodation Request Form</a>
+    <p>Please note that the deadline for submitting accommodation requests is 21st February, 2024.</p>
+    <p>In order to ensure that your accommodation needs are met to the best of our ability, please find the attached document for different accommodation packages we are offering.</p>
+    <p>We understand that each participant may have unique requirements, and we are dedicated to providing a comfortable and inclusive environment for all participants.</p>
+    <p>If you have any questions or require further assistance regarding accommodations, please do not hesitate to contact us at <a href="mailto:info.olympiad@nust.edu.pk">info.olympiad@nust.edu.pk</a></p>
+    <p>Thank you for your cooperation, and we look forward to welcoming you to reignite the flames of Olympiad'24.</p>
+    <p>Warm regards,</p>
+    <p>Team NUST Olympiad'24</p>
+    `,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error(error);
+      res.apiError("Error sending email", "Failed", 500);
+    } else {
+      console.log("Email sent: " + info.response);
+      res.apiSuccess(user, "Email sent successfully");
+    }
+  });
+};
 module.exports.setStatus = async (req, res) => {
   const data = req.body;
 
@@ -500,6 +540,7 @@ module.exports.SecondPage = async (req, res) => {
         validationSchema = yup.object().shape({
           studentOf: yup.string().trim().required(),
           socials: yup.string().trim().required(),
+          
         });
 
         try {
@@ -512,17 +553,44 @@ module.exports.SecondPage = async (req, res) => {
           return res.apiError(err.errors, "Validation Error", 400);
         }
 
+        let stdFrontLink, stdBackLink;
+
+        const stdFrontFile = req.files["stdFront"]
+          ? req.files["stdFront"][0]
+          : null;
+        const stdBackFile = req.files["stdBack"]
+          ? req.files["stdBack"][0]
+          : null;
+
+        console.log(stdFrontFile);
+        console.log(stdBackFile);
+        let fLink, bLink;
+        if (stdFrontFile && stdBackFile) {
+          try {
+            const [stdFrontLink, stdBackLink] = await Promise.all([
+              uploadToWasabi(stdFrontFile),
+              uploadToWasabi(stdBackFile),
+            ]);
+
+            fLink = stdFrontLink;
+            bLink = stdBackLink;
+          } catch (error) {
+            console.error("Wasabi upload error:", error);
+            return res.apiError(error.message, "Wasabi upload error", 500);
+          }
+        }
+
         const [updatedBasicInfo, user] = await Promise.all([
           prisma.BasicInfo.update({
             where: { userId: parseInt(userId) },
             data: {
               studentOf: req.body.studentOf,
               socials: req.body.socials,
-              student_id: null,
-              schoolName: null,
-              ambassadorcode: null,
-              stdFront: null,
-              stdBack: null,
+              student_id: req.body.student_id || null,
+              schoolName: req.body.schoolName || null,
+              ambassadorcode: req.body.ambassadorcode || null,
+              stdFront: fLink || null,
+              stdBack: bLink || null,
             },
           }),
           prisma.user.findUnique({
@@ -536,6 +604,7 @@ module.exports.SecondPage = async (req, res) => {
         };
 
         const accessToken = sign(userInfo, process.env.APP_SECRET);
+
         return res.apiSuccess(
           { updatedBasicInfo, accessToken },
           "BasicInfo updated successfully"
@@ -566,9 +635,6 @@ module.exports.SecondPage = async (req, res) => {
           console.error("Validation Error:", err.errors);
           return res.apiError(err.errors, "Validation Error", 400);
         }
-      }
-
-      if (req.body.studentOf !== "other") {
         let stdFrontLink, stdBackLink;
 
         const stdFrontFile = req.files["stdFront"]
@@ -626,6 +692,8 @@ module.exports.SecondPage = async (req, res) => {
           "BasicInfo updated successfully"
         );
       }
+
+      
     });
   } catch (error) {
     console.error(error);
