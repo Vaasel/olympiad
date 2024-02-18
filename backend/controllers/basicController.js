@@ -37,6 +37,86 @@ module.exports.getAllUserDetails = async (req, res) => {
   }
 };
 
+module.exports.getUserSecurityDetails = async (req, res) => {
+  try {
+    const userDetails = await prisma.user.findMany({
+      where: {
+        isValidated: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        basicinfo: {
+          select: {
+            profilePhoto: true,
+            cnic: true,
+            phoneno: true,
+          },
+        },
+      },
+    });
+
+    if (!userDetails || userDetails.length === 0) {
+      return res.apiError("Not Found", "No user details found", 404);
+    }
+    const userCount = userDetails.length;
+
+    res.apiSuccess({ 
+      userCount: userCount, 
+      userDetails: userDetails });
+  } catch (err) {
+    res.apiError(err.message, "Failed", 500);
+  }
+};
+
+module.exports.getUserChallanDetails = async (req, res) => {
+  try {
+    const userDetails = await prisma.user.findMany({
+      where: {
+        isValidated: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+
+        basicinfo: {
+          select: {
+            phoneno: true,
+            cnic: true,
+            guardianName: true,
+            guardianNumber: true,
+            address: true,
+            studentOf: {
+              select: {
+                schoolName: true,
+              },
+            },
+          },
+        },
+        challan: {
+          select: {
+            isPaid: true,
+          },
+        },
+      },
+    });
+
+    if (!userDetails || userDetails.length === 0) {
+      return res.apiError("Not Found", "No user details found", 404);
+    }
+
+    const userCount = userDetails.length;
+
+    res.apiSuccess({
+      count: userCount,
+      userDetails,
+    });
+  } catch (err) {
+    res.apiError(err.message, "Failed", 500);
+  }
+};
 module.exports.getSingleUserDetails = async (req, res) => {
   try {
     const userDetails = await prisma.user.findUnique({
@@ -150,7 +230,7 @@ module.exports.setStatus = async (req, res) => {
   const validationSchema = yup.object().shape({
     userId: yup.number().required(),
     status: yup.string().required().oneOf(["rejected", "verified", "ban"]),
-    reason: yup.string().required()
+    reason: yup.string().required(),
   });
 
   try {
@@ -306,9 +386,8 @@ module.exports.basicInfoUpdate = async (req, res) => {
     const olddata = await prisma.basicInfo.findUnique({
       where: {
         userId,
-      }
+      },
     });
-
 
     // Use multer middleware to handle file uploads
     const multerUpload = multer().fields([
@@ -317,7 +396,6 @@ module.exports.basicInfoUpdate = async (req, res) => {
       { name: "stdFront", maxCount: 1 },
       { name: "stdBack", maxCount: 1 },
     ]);
-	  
 
     multerUpload(req, res, async (err) => {
       if (err) {
@@ -356,12 +434,12 @@ module.exports.basicInfoUpdate = async (req, res) => {
           return null;
         }
       };
-		const updatedData = req.body;
-		const filteredUpdatedData = Object.fromEntries(
-      Object.entries(updatedData).filter(
-        ([_, value]) => value !== undefined && value !== null
-      )
-    );
+      const updatedData = req.body;
+      const filteredUpdatedData = Object.fromEntries(
+        Object.entries(updatedData).filter(
+          ([_, value]) => value !== undefined && value !== null
+        )
+      );
 
       const updatedBasicInfoData = {
         ...filteredUpdatedData,
@@ -377,7 +455,7 @@ module.exports.basicInfoUpdate = async (req, res) => {
         data: updatedBasicInfoData,
       });
 
-      res.apiSuccess( updatedBasicInfoData, "BasicInfo updated successfully");
+      res.apiSuccess(updatedBasicInfoData, "BasicInfo updated successfully");
     });
   } catch (error) {
     console.error(error);
@@ -514,16 +592,16 @@ module.exports.SecondPage = async (req, res) => {
       // { name: "student_id", maxCount: 1 },
       // { name: "socials", maxCount: 1 },
     ])(req, res, async (err) => {
-
       if (err) {
         console.error(err);
         return res.apiError(err.message, "File upload error", 400);
       }
 
-      const {studentOf, schoolName, ambassadorcode, student_id, socials} = req.body;
+      const { studentOf, schoolName, ambassadorcode, student_id, socials } =
+        req.body;
       if (!studentOf) {
         console.error("Invalid request format");
-        return res.apiError(null, "studentOf is missing.", 400);        
+        return res.apiError(null, "studentOf is missing.", 400);
       }
 
       const userId = req.user.id;
@@ -540,7 +618,6 @@ module.exports.SecondPage = async (req, res) => {
         validationSchema = yup.object().shape({
           studentOf: yup.string().trim().required(),
           socials: yup.string().trim().required(),
-          
         });
 
         try {
@@ -692,8 +769,6 @@ module.exports.SecondPage = async (req, res) => {
           "BasicInfo updated successfully"
         );
       }
-
-      
     });
   } catch (error) {
     console.error(error);

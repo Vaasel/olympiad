@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const { validateToken } = require('../middlewares/auth');
 const { getImage, basicDisplay, basicInfoUpdate, SecondPage, basicInfoCreate, setStatus, 
-    ApplyAccomodation, getAllUserDetails, getSingleUserDetails } = require('../controllers/basicController');
+    ApplyAccomodation, getAllUserDetails, getSingleUserDetails,getUserSecurityDetails,getUserChallanDetails } = require('../controllers/basicController');
 const { validateReg } = require('../middlewares/regAuth');
 
 
@@ -16,6 +16,10 @@ router.get('/basicDisplay',validateToken, basicDisplay)
 router.post('/basicSetStatus',validateReg, setStatus)
 router.post('/basicApplyAccomodation',validateToken, ApplyAccomodation)
 router.get('/basicAllUsers',validateReg, getAllUserDetails)
+router.get('/basicAllUsers',validateReg, getAllUserDetails)
+router.get('/basicAllUsers',validateReg, getAllUserDetails)
+router.get('/securitysheet',validateReg, getUserSecurityDetails)
+router.get('/mastersheet',validateReg, getUserChallanDetails)
 router.get('/basicSingleUser/:id',validateReg, getSingleUserDetails)
 
 module.exports = router

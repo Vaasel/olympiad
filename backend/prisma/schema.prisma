@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model basicinfo {
+model basicInfo {
   id             Int                  @id @default(autoincrement())
   userId         Int                  @unique(map: "BasicInfo_userId_key")
   status         basicinfo_status     @default(verified)
@@ -142,7 +142,7 @@ model user {
   token                      Int
   isValidated                Boolean
   isParticipant              Boolean                      @default(true)
-  basicinfo                  basicinfo?
+  basicinfo                  basicInfo?
   challan                    challan[]
   competitions_teams         competitions_teams[]
   competitions_teams_members competitions_teams_members[]
