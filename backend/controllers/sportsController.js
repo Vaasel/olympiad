@@ -19,6 +19,92 @@ function generateUniqueCode() {
   return code;
 }
 
+const SportsTeamIndividual = async (req, res) => {
+  try {
+    const { sportId } = req.params;
+
+    const sport = await prisma.sports.findUnique({
+      where: {
+        id: parseInt(sportId),
+      },
+    });
+
+    if (!sport) {
+      return res.apiError("Not Found", "Sport not found", 404);
+    }
+
+    if (sport.minPlayer !== 1 || sport.maxPlayer !== 1) {
+      return res.apiError("Invalid Request", "Not an individual sport", 400);
+    }
+
+    const teamMembers = await prisma.sports_Teams.findMany({
+      where: {
+        sportsId: parseInt(sportId),
+      },
+      select: {
+        userId: true,
+        challanId: true,
+      },
+    });
+
+    const memberIds = teamMembers.map((member) => member.userId);
+
+    const users = await prisma.user.findMany({
+      where: {
+        id: {
+          in: memberIds,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        basicInfo: {
+          select: {
+            cnic: true,
+            phoneno: true,
+          },
+        },
+      },
+    });
+
+    const formattedMembers = [];
+
+    for (const user of users) {
+      const member = {
+        id: user.id,
+        name: user.name,
+        cnic: user.basicInfo.cnic,
+        phoneno: user.basicInfo.phoneno,
+      };
+
+      const challan = await prisma.challan.findFirst({
+        where: {
+          userId: user.id,
+        },
+      });
+
+      if (!challan) {
+        member.registrationFees = false;
+        
+      } else {
+        member.registrationFees = true;
+      }
+
+      formattedMembers.push(member);
+    }
+
+    const response = {
+      sportName: sport.name,
+      isIndividual: true,
+      members: formattedMembers,
+    };
+
+    res.apiSuccess(response);
+  } catch (err) {
+    res.apiError(err.message, "Failed", 500);
+  }
+};
+
 //Getting All sports for Reg Team
 const allSports = async (req, res) => {
   try {
@@ -682,4 +768,6 @@ module.exports = {
   addSport,
   withdrawSingleSport,
   withdrawTeamSport,
+  // SportsTeamMembers,
+  SportsTeamIndividual
 };

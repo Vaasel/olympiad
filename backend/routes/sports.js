@@ -1,5 +1,5 @@
 const express = require('express')
-const { allSports, genderSingleSports, genderTeamSports, applyIndividualSport, createTeam, joinTeam, getMembers, addSport, withdrawSingleSport, withdrawTeamSport } = require('../controllers/sportsController')
+const { allSports, genderSingleSports, genderTeamSports, applyIndividualSport, createTeam, joinTeam, getMembers, addSport, withdrawSingleSport, withdrawTeamSport,SportsTeamIndividual } = require('../controllers/sportsController')
 const { validateToken } = require('../middlewares/auth');
 const { validateReg } = require('../middlewares/regAuth');
 const router = express.Router()
@@ -13,6 +13,8 @@ router.post('/applyIndividualSport', validateToken, applyIndividualSport);
 router.post('/createTeam', validateToken, createTeam);
 router.post('/joinTeam', validateToken, joinTeam);
 router.get('/getMembers/:sportId', validateToken, getMembers);
+// router.get('/getSportsTeam/:sportId', validateToken, SportsTeamMembers);
+router.get('/getSportsIndividual/:sportId', validateToken, SportsTeamIndividual);
 router.post('/withdrawSingleSport', validateToken, withdrawSingleSport);
 router.post('/withdrawTeamSport', validateToken, withdrawTeamSport);
 module.exports = router
