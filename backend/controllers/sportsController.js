@@ -197,10 +197,10 @@ const SportsTeamMembers = async (req, res) => {
     }
 
     // Send the response
-    res.json(response);
+    res.apiSuccess(response);
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.apiError(error.message, "Internal Server Error", 500);
   }
 };
 
