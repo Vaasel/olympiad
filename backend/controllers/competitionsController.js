@@ -19,7 +19,106 @@ function generateUniqueCode() {
 
   return code;
 }
+const CompetitionTeamMembers = async (req, res) => {
+  try {
+    const competitionId = parseInt(req.params.competitionId);
 
+    // Fetch competition details
+    const competition = await prisma.competitions.findUnique({
+      where: {
+        id: competitionId,
+      },
+    });
+
+    if (!competition) {
+      return res.status(404).json({ error: 'Competition not found' });
+    }
+
+    const competitionName = competition.name;
+    const isIndividual = competition.minPlayer === 1 && competition.maxPlayer === 1 ? true : false;
+
+    // Fetch teams for the given competition
+    const teams = await prisma.competitions_Teams.findMany({
+      where: {
+        competitionId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            basicInfo: {
+              select: {
+                cnic: true,
+                phoneno: true,
+              },
+            },
+          },
+        },
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                basicInfo: {
+                  select: {
+                    cnic: true,
+                    phoneno: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    // console.log(teams.members);
+
+    // Format the response
+    const response = {
+      competition: competitionName,
+      competitionId: competitionId,
+      isIndividual: isIndividual,
+      teams: teams.map(team => ({
+        team_name: team.name,
+        isChallanPaid: team.challanId !== -1, // If challanId is -1, make it false, otherwise true
+        members: team.members.map(member => ({
+          name: member.user.name,
+          userid: member.user.id,
+          cnic: member.user.basicInfo.cnic,
+          phone_number: member.user.basicInfo.phoneno,
+          isFeePaid: false, // Initially assuming fee is not paid, will check and update later
+        })),
+      })),
+    };
+
+
+    // Loop through teams to check if fee is paid by at least one member
+    for (const team of response.teams) {
+      for (const member of team.members) {
+        // Check if there's a challan against this member's userId
+        const challan = await prisma.challan.findFirst({
+          where: {
+            userId: member.userid,
+          },
+        });
+
+        // If challan exists, update isFeePaid to true
+        if (challan) {
+          member.isFeePaid = true;
+          break; // No need to check further members once fee is paid for one
+        }
+      }
+    }
+
+    // Send the response
+    res.apiSuccess(response);
+  } catch (error) {
+    console.error('Error:', error);
+    res.apiError(error.message, "Internal Server Error", 500);
+  }
+};
 //Getting All sports for Reg Team
 const allSports = async (req, res) => {
   try {
@@ -644,4 +743,5 @@ module.exports = {
   addSport,
   withdrawSingleSport,
   withdrawTeamSport,
+  CompetitionTeamMembers
 };
