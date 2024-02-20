@@ -358,15 +358,15 @@ module.exports.CalculateChallan = async (req, res) => {
     if (basicFlag) {
 		const nustian = user.basicInfo.studentOf === "nust";
       const registrationPrice =
-        user.basicInfo && nustian ? 500 : 1000;
+        user.basicInfo && nustian ? 1000 : 1500;
       const social = user.basicInfo.socials;
       const socialPrice =
         social !== "nosocials"
           ? social !== "all"
             ? social === "concert"
-              ? 1250
+              ? 1500
               : nustian ? 500 : 700
-            : 1700
+            : nustian ? 2000 : 2200
           : 0;
       totalPrice += registrationPrice + socialPrice;
       details.push({
@@ -469,15 +469,15 @@ netTotal = details.reduce((acc, sportsTeam) => {
     if (user && user.challan.length === 0) {
 	const nustian = user.basicInfo.studentOf === "nust";
       const registrationPrice =
-        user.basicInfo && nustian ? 500 : 1000;
+        user.basicInfo && nustian ? 1000 : 1500;
       const social = user.basicInfo.socials;
       const socialPrice =
         social !== "nosocials"
           ? social !== "all"
             ? social === "concert"
-              ? 1250
+              ? 1500
               : nustian ? 500 : 700
-            : 1700
+            : nustian ? 2000 : 2200
           : 0;
       netTotal += registrationPrice + socialPrice;
       details.push({

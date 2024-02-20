@@ -7,11 +7,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model basicInfo {
-  id             Int                  @id @default(autoincrement())
-  userId         Int                  @unique(map: "BasicInfo_userId_key")
-  status         basicinfo_status     @default(verified)
-  accomodation   Boolean              @default(false)
+model User {
+  id              Int                          @id @default(autoincrement())
+  name            String
+  email           String                       @unique
+  password        String
+  token           Int
+  isValidated     Boolean
+  isParticipant   Boolean                      @default(true)
+  basicInfo       BasicInfo?
+  challan         Challan[]
+  competitionsCap Competitions_Teams[]
+  competitions    Competitions_Teams_Members[]
+  sportCap        Sports_Teams[]
+  sports          Sports_Teams_Members[]
+}
+
+model Challan {
+  id                Int                  @id @default(autoincrement())
+  userId            Int
+  detail            String?              @db.LongText
+  netTotal          Int
+  isPaid            ChallanStatus        @default(pending)
+  paymentProof      String?
+  user              User                 @relation(fields: [userId], references: [id])
+  competitionsTeams Competitions_Teams[]
+  sportsTeam        Sports_Teams[]
+
+  @@index([userId], map: "Challan_userId_fkey")
+}
+
+model BasicInfo {
+  id             Int         @id @default(autoincrement())
+  userId         Int         @unique
+  status         UserStatus  @default(verified)
+  accomodation   Boolean     @default(false)
   phoneno        String
   cnic           String
   gender         Boolean?
@@ -21,149 +51,106 @@ model basicInfo {
   address        String
   cnicFront      String?
   cnicBack       String?
-  studentOf      basicinfo_studentOf?
+  studentOf      StudentOf?
   student_id     String?
   schoolName     String?
   ambassadorcode String?
   stdFront       String?
   stdBack        String?
-  socials        basicinfo_socials?   @default(nosocials)
-  user           user                 @relation(fields: [userId], references: [id], map: "BasicInfo_userId_fkey")
+  socials        SocialEnum? @default(nosocials)
+  user           User        @relation(fields: [userId], references: [id])
 }
 
-model challan {
-  id                 Int                  @id @default(autoincrement())
-  userId             Int
-  detail             String?              @db.LongText
-  netTotal           Int
-  isPaid             challan_isPaid       @default(pending)
-  paymentProof       String?
-  user               user                 @relation(fields: [userId], references: [id], map: "Challan_userId_fkey")
-  competitions_teams competitions_teams[]
-  sports_teams       sports_teams[]
-
-  @@index([userId], map: "Challan_userId_fkey")
+model Sports {
+  id          Int            @id @default(autoincrement())
+  name        String         @unique
+  gender      Boolean?
+  description String
+  minPlayer   Int
+  maxPlayer   Int
+  teamCap     Int
+  details     String?        @db.LongText
+  price       Int
+  team        Sports_Teams[]
 }
 
-model competitions {
-  id                 Int                  @id @default(autoincrement())
-  name               String               @unique(map: "Competitions_name_key")
-  gender             Boolean?
-  description        String
-  minPlayer          Int
-  maxPlayer          Int
-  teamCap            Int
-  details            String?              @db.LongText
-  price              Int
-  competitions_teams competitions_teams[]
-}
-
-model competitions_teams {
-  id                         Int                          @id @default(autoincrement())
-  name                       String                       @unique(map: "Competitions_Teams_name_key")
-  userId                     Int
-  competitionId              Int
-  code                       String?
-  challanId                  Int                          @default(-1)
-  challan                    challan                      @relation(fields: [challanId], references: [id], map: "Competitions_Teams_challanId_fkey")
-  competitions               competitions                 @relation(fields: [competitionId], references: [id], map: "Competitions_Teams_competitionId_fkey")
-  user                       user                         @relation(fields: [userId], references: [id], map: "Competitions_Teams_userId_fkey")
-  competitions_teams_members competitions_teams_members[]
-
-  @@index([challanId], map: "Competitions_Teams_challanId_fkey")
-  @@index([competitionId], map: "Competitions_Teams_competitionId_fkey")
-  @@index([userId], map: "Competitions_Teams_userId_fkey")
-}
-
-model competitions_teams_members {
-  id                 Int                @id @default(autoincrement())
-  competitionsTeamId Int
-  userId             Int
-  competitions_teams competitions_teams @relation(fields: [competitionsTeamId], references: [id], map: "Competitions_Teams_Members_competitionsTeamId_fkey")
-  user               user               @relation(fields: [userId], references: [id], map: "Competitions_Teams_Members_userId_fkey")
-
-  @@index([competitionsTeamId], map: "Competitions_Teams_Members_competitionsTeamId_fkey")
-  @@index([userId], map: "Competitions_Teams_Members_userId_fkey")
-}
-
-model faq {
-  id       Int    @id @default(autoincrement())
-  question String
-  answer   String
-  category String
-}
-
-model sports {
-  id           Int            @id @default(autoincrement())
-  name         String         @unique(map: "Sports_name_key")
-  gender       Boolean?
-  description  String
-  minPlayer    Int
-  maxPlayer    Int
-  teamCap      Int
-  details      String?        @db.LongText
-  price        Int
-  sports_teams sports_teams[]
-}
-
-model sports_teams {
-  id                   Int                    @id @default(autoincrement())
-  name                 String                 @unique(map: "Sports_Teams_name_key")
-  userId               Int
-  sportsId             Int
-  code                 String?
-  challanId            Int                    @default(1)
-  challan              challan                @relation(fields: [challanId], references: [id], map: "Sports_Teams_challanId_fkey")
-  sports               sports                 @relation(fields: [sportsId], references: [id], map: "Sports_Teams_sportsId_fkey")
-  user                 user                   @relation(fields: [userId], references: [id], map: "Sports_Teams_userId_fkey")
-  sports_teams_members sports_teams_members[]
+model Sports_Teams {
+  id        Int                    @id @default(autoincrement())
+  name      String                 @unique
+  userId    Int
+  sportsId  Int
+  code      String?
+  challanId Int                    @default(1)
+  challan   Challan                @relation(fields: [challanId], references: [id])
+  sport     Sports                 @relation(fields: [sportsId], references: [id])
+  user      User                   @relation(fields: [userId], references: [id])
+  members   Sports_Teams_Members[]
 
   @@index([challanId], map: "Sports_Teams_challanId_fkey")
   @@index([sportsId], map: "Sports_Teams_sportsId_fkey")
   @@index([userId], map: "Sports_Teams_userId_fkey")
 }
 
-model sports_teams_members {
+model Sports_Teams_Members {
   id           Int          @id @default(autoincrement())
   sportsTeamId Int
   userId       Int
-  sports_teams sports_teams @relation(fields: [sportsTeamId], references: [id], map: "Sports_Teams_Members_sportsTeamId_fkey")
-  user         user         @relation(fields: [userId], references: [id], map: "Sports_Teams_Members_userId_fkey")
+  sport        Sports_Teams @relation(fields: [sportsTeamId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
 
   @@index([sportsTeamId], map: "Sports_Teams_Members_sportsTeamId_fkey")
   @@index([userId], map: "Sports_Teams_Members_userId_fkey")
 }
 
-model user {
-  id                         Int                          @id @default(autoincrement())
-  name                       String
-  email                      String                       @unique(map: "User_email_key")
-  password                   String
-  token                      Int
-  isValidated                Boolean
-  isParticipant              Boolean                      @default(true)
-  basicinfo                  basicInfo?
-  challan                    challan[]
-  competitions_teams         competitions_teams[]
-  competitions_teams_members competitions_teams_members[]
-  sports_teams               sports_teams[]
-  sports_teams_members       sports_teams_members[]
+model Competitions {
+  id               Int                  @id @default(autoincrement())
+  name             String               @unique
+  gender           Boolean?
+  description      String
+  minPlayer        Int
+  maxPlayer        Int
+  teamCap          Int
+  details          String?              @db.LongText
+  price            Int
+  competitionTeams Competitions_Teams[]
 }
 
-enum basicinfo_status {
-  pending
-  rejected
-  verified
-  ban
+model Competitions_Teams {
+  id            Int                          @id @default(autoincrement())
+  name          String                       @unique
+  userId        Int
+  competitionId Int
+  code          String?
+  challanId     Int                          @default(-1)
+  challan       Challan                      @relation(fields: [challanId], references: [id])
+  competition   Competitions                 @relation(fields: [competitionId], references: [id])
+  user          User                         @relation(fields: [userId], references: [id])
+  members       Competitions_Teams_Members[]
+
+  @@index([challanId], map: "Competitions_Teams_challanId_fkey")
+  @@index([competitionId], map: "Competitions_Teams_competitionId_fkey")
+  @@index([userId], map: "Competitions_Teams_userId_fkey")
 }
 
-enum challan_isPaid {
-  pending
-  verified
-  rejected
+model Competitions_Teams_Members {
+  id                 Int                @id @default(autoincrement())
+  competitionsTeamId Int
+  userId             Int
+  competition        Competitions_Teams @relation(fields: [competitionsTeamId], references: [id])
+  user               User               @relation(fields: [userId], references: [id])
+
+  @@index([competitionsTeamId], map: "Competitions_Teams_Members_competitionsTeamId_fkey")
+  @@index([userId], map: "Competitions_Teams_Members_userId_fkey")
 }
 
-enum basicinfo_studentOf {
+model FAQ {
+  id       Int    @id @default(autoincrement())
+  question String
+  answer   String
+  category String
+}
+
+enum StudentOf {
   nust
   uni
   college
@@ -171,7 +158,20 @@ enum basicinfo_studentOf {
   other
 }
 
-enum basicinfo_socials {
+enum UserStatus {
+  pending
+  rejected
+  verified
+  ban
+}
+
+enum ChallanStatus {
+  pending
+  verified
+  rejected
+}
+
+enum SocialEnum {
   nosocials
   qawali
   concert
