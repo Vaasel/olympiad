@@ -37,6 +37,86 @@ module.exports.getAllUserDetails = async (req, res) => {
   }
 };
 
+module.exports.getUserSecurityDetails = async (req, res) => {
+  try {
+    const userDetails = await prisma.user.findMany({
+      where: {
+        isValidated: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        basicinfo: {
+          select: {
+            profilePhoto: true,
+            cnic: true,
+            phoneno: true,
+          },
+        },
+      },
+    });
+
+    if (!userDetails || userDetails.length === 0) {
+      return res.apiError("Not Found", "No user details found", 404);
+    }
+    const userCount = userDetails.length;
+
+    res.apiSuccess({ 
+      userCount: userCount, 
+      userDetails: userDetails });
+  } catch (err) {
+    res.apiError(err.message, "Failed", 500);
+  }
+};
+
+module.exports.getUserChallanDetails = async (req, res) => {
+  try {
+    const userDetails = await prisma.user.findMany({
+      where: {
+        isValidated: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+
+        basicinfo: {
+          select: {
+            phoneno: true,
+            cnic: true,
+            guardianName: true,
+            guardianNumber: true,
+            address: true,
+            studentOf: {
+              select: {
+                schoolName: true,
+              },
+            },
+          },
+        },
+        challan: {
+          select: {
+            isPaid: true,
+          },
+        },
+      },
+    });
+
+    if (!userDetails || userDetails.length === 0) {
+      return res.apiError("Not Found", "No user details found", 404);
+    }
+
+    const userCount = userDetails.length;
+
+    res.apiSuccess({
+      count: userCount,
+      userDetails,
+    });
+  } catch (err) {
+    res.apiError(err.message, "Failed", 500);
+  }
+};
 module.exports.getSingleUserDetails = async (req, res) => {
   try {
     const userDetails = await prisma.user.findUnique({
@@ -150,7 +230,7 @@ module.exports.setStatus = async (req, res) => {
   const validationSchema = yup.object().shape({
     userId: yup.number().required(),
     status: yup.string().required().oneOf(["rejected", "verified", "ban"]),
-    reason: yup.string().required()
+    reason: yup.string().required(),
   });
 
   try {
@@ -306,9 +386,8 @@ module.exports.basicInfoUpdate = async (req, res) => {
     const olddata = await prisma.basicInfo.findUnique({
       where: {
         userId,
-      }
+      },
     });
-
 
     // Use multer middleware to handle file uploads
     const multerUpload = multer().fields([
@@ -317,7 +396,6 @@ module.exports.basicInfoUpdate = async (req, res) => {
       { name: "stdFront", maxCount: 1 },
       { name: "stdBack", maxCount: 1 },
     ]);
-	  
 
     multerUpload(req, res, async (err) => {
       if (err) {
@@ -356,12 +434,12 @@ module.exports.basicInfoUpdate = async (req, res) => {
           return null;
         }
       };
-		const updatedData = req.body;
-		const filteredUpdatedData = Object.fromEntries(
-      Object.entries(updatedData).filter(
-        ([_, value]) => value !== undefined && value !== null
-      )
-    );
+      const updatedData = req.body;
+      const filteredUpdatedData = Object.fromEntries(
+        Object.entries(updatedData).filter(
+          ([_, value]) => value !== undefined && value !== null
+        )
+      );
 
       const updatedBasicInfoData = {
         ...filteredUpdatedData,
@@ -377,7 +455,7 @@ module.exports.basicInfoUpdate = async (req, res) => {
         data: updatedBasicInfoData,
       });
 
-      res.apiSuccess( updatedBasicInfoData, "BasicInfo updated successfully");
+      res.apiSuccess(updatedBasicInfoData, "BasicInfo updated successfully");
     });
   } catch (error) {
     console.error(error);
@@ -504,176 +582,201 @@ module.exports.basicInfoCreate = async (req, res) => {
 };
 
 module.exports.SecondPage = async (req, res) => {
-    try {
-      upload.fields([
-        { name: "stdFront", maxCount: 1 },
-        { name: "stdBack", maxCount: 1 },
-        // { name: "studentOf", maxCount: 1 },
-        // { name: "schoolName", maxCount: 1 },
-        // { name: "ambassadorcode", maxCount: 1 },
-        // { name: "student_id", maxCount: 1 },
-        // { name: "socials", maxCount: 1 },
-      ])(req, res, async (err) => {
-  
-        if (err) {
-          console.error(err);
-          return res.apiError(err.message, "File upload error", 400);
-        }
-  
-        const {studentOf, schoolName, ambassadorcode, student_id, socials} = req.body;
-        if (!studentOf) {
-          console.error("Invalid request format");
-          return res.apiError(null, "studentOf is missing.", 400);        
-        }
-  
-        const userId = req.user.id;
-  
-        // Check if user is available in req object
-        if (!userId) {
-          console.error("Invalid request format");
-          return res.apiError(null, "Invalid request format", 400);
-        }
-  
-        let validationSchema;
-  
-        /*if (req.body.studentOf === "other") {
-          validationSchema = yup.object().shape({
-            studentOf: yup.string().trim().required(),
-            socials: yup.string().trim().required(),
-          });
-  
-          try {
-            await validationSchema.validate(
-              { studentOf: req.body.studentOf, socials: req.body.socials },
-              { abortEarly: false, strict: true }
-            );
-          } catch (err) {
-            console.error("Validation Error:", err.errors);
-            return res.apiError(err.errors, "Validation Error", 400);
-          }
-  
-          const [updatedBasicInfo, user] = await Promise.all([
-            prisma.BasicInfo.update({
-              where: { userId: parseInt(userId) },
-              data: {
-                studentOf: req.body.studentOf,
-                socials: req.body.socials,
-                student_id: null,
-                schoolName: null,
-                ambassadorcode: null,
-                stdFront: null,
-                stdBack: null,
-              },
-            }),
-            prisma.user.findUnique({
-              where: { id: userId },
-            }),
-          ]);
-  
-          const userInfo = {
-            id: user.id,
-            email: user.email,
-          };
-  
-          const accessToken = sign(userInfo, process.env.APP_SECRET);
-          return res.apiSuccess(
-            { updatedBasicInfo, accessToken },
-            "BasicInfo updated successfully"
-          );
-        } else {*/
-          //  student_id = req.body.student_id;
-          //  schoolName = req.body.schoolName;
-          //  ambassadorcode = req.body.ambassadorcode;
-  
-          validationSchema = yup.object().shape({
-            student_id: yup.string().trim().required(),
-            socials: yup.string().trim().required(),
-            schoolName: yup.string().trim().required(),
-            ambassadorcode: yup.string().trim().required(),
-          });
-  
-          try {
-            await validationSchema.validate(
-              {
-                student_id: req.body.student_id,
-                schoolName: req.body.schoolName,
-                ambassadorcode: req.body.ambassadorcode,
-                socials: req.body.socials,
-              },
-              { abortEarly: false, strict: true }
-            );
-          } catch (err) {
-            console.error("Validation Error:", err.errors);
-            return res.apiError(err.errors, "Validation Error", 400);
-          }
-        //}
-  
-       // if (req.body.studentOf !== "other") {
-          let stdFrontLink, stdBackLink;
-  
-          const stdFrontFile = req.files["stdFront"]
-            ? req.files["stdFront"][0]
-            : null;
-          const stdBackFile = req.files["stdBack"]
-            ? req.files["stdBack"][0]
-            : null;
-  
-          console.log(stdFrontFile);
-          console.log(stdBackFile);
-          let fLink, bLink;
-          if (stdFrontFile && stdBackFile) {
-            try {
-              const [stdFrontLink, stdBackLink] = await Promise.all([
-                uploadToWasabi(stdFrontFile),
-                uploadToWasabi(stdBackFile),
-              ]);
-  
-              fLink = stdFrontLink;
-              bLink = stdBackLink;
-            } catch (error) {
-              console.error("Wasabi upload error:", error);
-              return res.apiError(error.message, "Wasabi upload error", 500);
-            }
-          }
-  
-          const [updatedBasicInfo, user] = await Promise.all([
-            prisma.BasicInfo.update({
-              where: { userId: parseInt(userId) },
-              data: {
-                studentOf: req.body.studentOf,
-                socials: req.body.socials,
-                student_id: req.body.student_id || null,
-                schoolName: req.body.schoolName || null,
-                ambassadorcode: req.body.ambassadorcode || null,
-                stdFront: fLink || null,
-                stdBack: bLink || null,
-              },
-            }),
-            prisma.user.findUnique({
-              where: { id: userId },
-            }),
-          ]);
-  
-          const userInfo = {
-            id: user.id,
-            email: user.email,
-          };
-  
-          const accessToken = sign(userInfo, process.env.APP_SECRET);
-  
-          return res.apiSuccess(
-            { updatedBasicInfo, accessToken },
-            "BasicInfo updated successfully"
-          );
-       // }
+  try {
+    upload.fields([
+      { name: "stdFront", maxCount: 1 },
+      { name: "stdBack", maxCount: 1 },
+      // { name: "studentOf", maxCount: 1 },
+      // { name: "schoolName", maxCount: 1 },
+      // { name: "ambassadorcode", maxCount: 1 },
+      // { name: "student_id", maxCount: 1 },
+      // { name: "socials", maxCount: 1 },
+    ])(req, res, async (err) => {
+      if (err) {
+        console.error(err);
+        return res.apiError(err.message, "File upload error", 400);
       }
+
+      const { studentOf, schoolName, ambassadorcode, student_id, socials } =
+        req.body;
+      if (!studentOf) {
+        console.error("Invalid request format");
+        return res.apiError(null, "studentOf is missing.", 400);
+      }
+
+      const userId = req.user.id;
+
+      // Check if user is available in req object
+      if (!userId) {
+        console.error("Invalid request format");
+        return res.apiError(null, "Invalid request format", 400);
+      }
+
+      let validationSchema;
+
+      /*if (req.body.studentOf === "other") {
+        validationSchema = yup.object().shape({
+          studentOf: yup.string().trim().required(),
+          socials: yup.string().trim().required(),
+        });
+
+        try {
+          await validationSchema.validate(
+            { studentOf: req.body.studentOf, socials: req.body.socials },
+            { abortEarly: false, strict: true }
+          );
+        } catch (err) {
+          console.error("Validation Error:", err.errors);
+          return res.apiError(err.errors, "Validation Error", 400);
+        }
+
+        let stdFrontLink, stdBackLink;
+
+        const stdFrontFile = req.files["stdFront"]
+          ? req.files["stdFront"][0]
+          : null;
+        const stdBackFile = req.files["stdBack"]
+          ? req.files["stdBack"][0]
+          : null;
+
+        console.log(stdFrontFile);
+        console.log(stdBackFile);
+        let fLink, bLink;
+        if (stdFrontFile && stdBackFile) {
+          try {
+            const [stdFrontLink, stdBackLink] = await Promise.all([
+              uploadToWasabi(stdFrontFile),
+              uploadToWasabi(stdBackFile),
+            ]);
+
+            fLink = stdFrontLink;
+            bLink = stdBackLink;
+          } catch (error) {
+            console.error("Wasabi upload error:", error);
+            return res.apiError(error.message, "Wasabi upload error", 500);
+          }
+        }
+
+        const [updatedBasicInfo, user] = await Promise.all([
+          prisma.basicInfo.update({
+            where: { userId: parseInt(userId) },
+            data: {
+              studentOf: req.body.studentOf,
+              socials: req.body.socials,
+              student_id: req.body.student_id || null,
+              schoolName: req.body.schoolName || null,
+              ambassadorcode: req.body.ambassadorcode || null,
+              stdFront: fLink || null,
+              stdBack: bLink || null,
+            },
+          }),
+          prisma.user.findUnique({
+            where: { id: userId },
+          }),
+        ]);
+
+        const userInfo = {
+          id: user.id,
+          email: user.email,
+        };
+
+        const accessToken = sign(userInfo, process.env.APP_SECRET);
+
+        return res.apiSuccess(
+          { updatedBasicInfo, accessToken },
+          "BasicInfo updated successfully"
         );
-    } catch (error) {
-      console.error(error);
-      return res.apiError(error.message, "Internal server error", 500);
+      } else {
+        const student_id = req.body.student_id;
+        const schoolName = req.body.schoolName;
+        const ambassadorcode = req.body.ambassadorcode;*/
+
+        validationSchema = yup.object().shape({
+          student_id: yup.string().trim().required(),
+          socials: yup.string().trim().required(),
+          schoolName: yup.string().trim().required(),
+          ambassadorcode: yup.string().trim().required(),
+        });
+
+        try {
+          await validationSchema.validate(
+            {
+              student_id: req.body.student_id,
+              schoolName: req.body.schoolName,
+              ambassadorcode: req.body.ambassadorcode,
+              socials: req.body.socials,
+            },
+            { abortEarly: false, strict: true }
+          );
+        } catch (err) {
+          console.error("Validation Error:", err.errors);
+          return res.apiError(err.errors, "Validation Error", 400);
+        }
+        let stdFrontLink, stdBackLink;
+
+        const stdFrontFile = req.files["stdFront"]
+          ? req.files["stdFront"][0]
+          : null;
+        const stdBackFile = req.files["stdBack"]
+          ? req.files["stdBack"][0]
+          : null;
+
+        console.log(stdFrontFile);
+        console.log(stdBackFile);
+        let fLink, bLink;
+        if (stdFrontFile && stdBackFile) {
+          try {
+            const [stdFrontLink, stdBackLink] = await Promise.all([
+              uploadToWasabi(stdFrontFile),
+              uploadToWasabi(stdBackFile),
+            ]);
+
+            fLink = stdFrontLink;
+            bLink = stdBackLink;
+          } catch (error) {
+            console.error("Wasabi upload error:", error);
+            return res.apiError(error.message, "Wasabi upload error", 500);
+          }
+        }
+
+        const [updatedBasicInfo, user] = await Promise.all([
+          prisma.BasicInfo.update({
+            where: { userId: parseInt(userId) },
+            data: {
+              studentOf: req.body.studentOf,
+              socials: req.body.socials,
+              student_id: req.body.student_id || null,
+              schoolName: req.body.schoolName || null,
+              ambassadorcode: req.body.ambassadorcode || null,
+              stdFront: fLink || null,
+              stdBack: bLink || null,
+            },
+          }),
+          prisma.user.findUnique({
+            where: { id: userId },
+          }),
+        ]);
+
+        const userInfo = {
+          id: user.id,
+          email: user.email,
+        };
+
+        const accessToken = sign(userInfo, process.env.APP_SECRET);
+
+        return res.apiSuccess(
+          { updatedBasicInfo, accessToken },
+          "BasicInfo updated successfully"
+        );
+      // }
     }
-  };
-  
+    );
+  } catch (error) {
+    console.error(error);
+    return res.apiError(error.message, "Internal server error", 500);
+  }
+};
+
 // module.exports.getImage = async (req, res)=>{
 //   const fileKey = '1701543339354-front.JPG';
 //   try {

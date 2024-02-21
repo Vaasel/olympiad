@@ -19,7 +19,88 @@ function generateUniqueCode() {
 
   return code;
 }
+const CompetitionTeamMembers = async (req, res) => {
+  try {
+    const competitionId = parseInt(req.params.competitionId);
 
+    // Fetch competition details
+    const competition = await prisma.competitions.findUnique({
+      where: {
+        id: competitionId,
+      },
+    });
+
+    if (!competition) {
+      return res.status(404).json({ error: 'Competition not found' });
+    }
+
+    const competitionName = competition.name;
+    const isIndividual = competition.minPlayer === 1 && competition.maxPlayer === 1 ? true : false;
+
+    // Fetch teams for the given competition
+    const teams = await prisma.competitions_Teams.findMany({
+      where: {
+        competitionId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+          },
+        },
+        challan:{
+          select:{
+            id: true,
+            isPaid: true
+          }
+        },
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                basicInfo: {
+                  select: {
+                    cnic: true,
+                    phoneno: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    // console.log(teams.members);
+
+    // Format the response
+    const response = {
+      competition: competitionName,
+      competitionId: competitionId,
+      isIndividual: isIndividual,
+
+      teams: teams.map(team => ({
+        team_name: team.name,
+        capt_id: team.user.id,
+        isChallanPaid: team.challanId !== 1 ? team.challan.isPaid:"not paid", // If challanId is -1, make it false, otherwise true
+        members: team.members.map(member => ({
+          name: member.user.name,
+          userid: member.user.id,
+          cnic: member.user.basicInfo.cnic,
+          phone_number: member.user.basicInfo.phoneno,
+          email: member.user.email,
+        })),
+      })),
+    };
+    // Send the response
+    res.apiSuccess(response);
+  } catch (error) {
+    console.error('Error:', error);
+    res.apiError(error.message, "Internal Server Error", 500);
+  }
+};
 //Getting All sports for Reg Team
 const allSports = async (req, res) => {
   try {
@@ -644,4 +725,5 @@ module.exports = {
   addSport,
   withdrawSingleSport,
   withdrawTeamSport,
+  CompetitionTeamMembers
 };

@@ -19,6 +19,163 @@ function generateUniqueCode() {
   return code;
 }
 
+const SportsTeamIndividual = async (req, res) => {
+  try {
+    const { sportId } = req.params;
+
+    const sport = await prisma.sports.findUnique({
+      where: {
+        id: parseInt(sportId),
+      },
+    });
+
+    if (!sport) {
+      return res.apiError("Not Found", "Sport not found", 404);
+    }
+
+    if (sport.minPlayer !== 1 || sport.maxPlayer !== 1) {
+      return res.apiError("Invalid Request", "Not an individual sport", 400);
+    }
+
+    const teamMembers = await prisma.sports_Teams.findMany({
+  where: {
+    sportsId: parseInt(sportId),
+  },
+  include: {
+    user: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        basicInfo: {
+          select: {
+            cnic: true,
+            phoneno: true,
+          },
+        },
+      },
+    },
+    challan: {
+      select: {
+        id: true,
+        isPaid: true,
+      },
+    },
+  },
+});
+
+    const ab= {
+      "id": 41,
+      "name": "Muhammad Nehyan",
+      "cnic": "6110144796241",
+      "phoneno": "03025300003",
+      "challan": null
+    }
+    const formattedMembers = teamMembers.map((member) => ({
+      id: member.user.id,
+      name: member.user.name,
+      email: member.user.email,
+      cnic: member.user.basicInfo.cnic,
+      phoneno: member.user.basicInfo.phoneno,
+      isChallanPaid: member.challanId !== 1 ? member.challan.isPaid:"not paid", // If challanId is 1, make it false, otherwise true
+    }));
+    
+
+    const response = {
+      sportName: sport.name,
+      isIndividual: true,
+      members: formattedMembers,
+    };
+
+    res.apiSuccess(response);
+  } catch (err) {
+    res.apiError(err.message, "Failed", 500);
+  }
+};
+
+const SportsTeamMembers = async (req, res) => {
+  try {
+    const sportsId = parseInt(req.params.sportId);
+
+    // Fetch sport details
+    const sport = await prisma.sports.findUnique({
+      where: {
+        id: sportsId,
+      },
+    });
+
+    if (!sport) {
+      return res.status(404).json({ error: 'Sport not found' });
+    }
+
+    const sportName = sport.name;
+    const isIndividual = sport.minPlayer === 1 && sport.maxPlayer === 1 ? true : false;
+
+    // Fetch teams for the given sport
+    const teams = await prisma.sports_Teams.findMany({
+      where: {
+        sportsId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        challan:{
+          select:{
+            id: true,
+            isPaid: true
+          }
+        },
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                basicInfo: {
+                  select: {
+                    cnic: true,
+                    phoneno: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Format the response
+    const response = {
+      sport: sportName,
+      sportid: sportsId,
+      IsIndividual: isIndividual,
+      teams: teams.map(team => ({
+        team_name: team.name,
+        capt_id: team.user.id,
+        isChallanPaid: team.challanId !== 1 ? team.challan.isPaid:"not paid", // If challanId is 1, make it false, otherwise true
+        members: team.members.map(member => ({
+          name: member.user.name,
+          userid: member.user.id,
+          cnic: member.user.basicInfo.cnic,
+          phone_number: member.user.basicInfo.phoneno,
+          email: member.user.email,
+        })),
+      })),
+    };
+
+    // Send the response
+    res.apiSuccess(response);
+  } catch (error) {
+    console.error('Error:', error);
+    res.apiError(error.message, "Internal Server Error", 500);
+  }
+};
+
 //Getting All sports for Reg Team
 const allSports = async (req, res) => {
   try {
@@ -682,4 +839,6 @@ module.exports = {
   addSport,
   withdrawSingleSport,
   withdrawTeamSport,
+  SportsTeamMembers,
+  SportsTeamIndividual
 };
